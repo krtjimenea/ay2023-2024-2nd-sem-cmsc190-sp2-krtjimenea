@@ -1,0 +1,25 @@
+{
+ "name": "webpack-AuthOExam",
+ "version": "1.0.0",
+ "description": "",
+ "private": true,
+ "scripts": {
+  "build": "webpack --watch --config webpack.development.js",
+  "release": "webpack --config webpack.production.js"
+ },
+ "dependencies": {
+  "file-loader": "^6.2.0",
+  "firebase": "^10.6.0",
+  "firebaseui": "^6.1.0"
+ },
+ "devDependencies": {
+  "clean-webpack-plugin": "^4.0.0",
+  "copy-webpack-plugin": "^11.0.0",
+  "css-loader": "^6.8.1",
+  "html-webpack-plugin": "^5.5.3",
+  "style-loader": "^3.3.3",
+  "webpack": "^5.89.0",
+  "webpack-cli": "^5.1.4",
+  "webpack-merge": "^5.10.0"
+ }
+}

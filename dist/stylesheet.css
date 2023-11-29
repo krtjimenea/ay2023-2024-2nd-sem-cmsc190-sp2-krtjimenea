@@ -1,0 +1,57 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Raleway:wght@900&family=Urbanist:wght@600&display=swap');
+
+@font-face {
+    font-family: "Baloo";
+    src: url('fonts/baloo.regular.ttf') format("ttf");
+}
+body{
+    background-color: #CFD2F1;
+    height: 100%;
+}
+
+#AppBody{
+    width: 260px;
+    flex-shrink: 1;
+    margin: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#flex-row{
+    width: auto;  
+}
+
+#AppTitle{
+    width: 225px;
+    height: 28px;
+}
+.AppHeader{
+    margin-top: 100px;
+    height: 42px;
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    color: #000;
+    text-align: center;
+    font-size: 48px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 50px; /* 104.167% */
+
+}
+
+.GoogleLogin{
+    margin-top: 100px;
+}
+
+#GoogleLoginBtn{
+    background-color: #2576E9;
+    width: 246px;
+    height: 43px;
+    color: #fff;
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    border-radius: 12px;
+    border: none;
+}
