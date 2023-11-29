@@ -7,3 +7,14 @@ chrome.sidePanel
   .setPanelBehavior({ openPanelOnActionClick: true })
   .catch((error) => console.error(error));
 
+//Script Dynamic Declaration
+// chrome.scripting
+//   .registerContentScripts([{
+//     id: "session-script",
+//     js: ["script.js"],
+//     persistAcrossSessions: true,
+//     matches: ["https://sp-authoexam-default-rtdb.asia-southeast1.firebasedatabase.app"],
+//     runAt: "document_start",
+//   }])
+//   .then(() => console.log("registration complete"))
+//   .catch((err) => console.warn("unexpected error", err))

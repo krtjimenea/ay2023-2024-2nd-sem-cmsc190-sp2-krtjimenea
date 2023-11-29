@@ -1,3 +1,5 @@
 #ignore firebase information
 src/sidebar/firebase.js
+src/service-worker.js
+dist/service-worker.js
 dist/Firebase_Config.js
