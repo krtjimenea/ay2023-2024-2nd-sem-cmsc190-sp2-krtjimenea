@@ -2,9 +2,11 @@
 // Import the functions you need from the SDKs you need
 import { FirebaseApp } from './firebase';
 import {getAuth,signInWithCredential,GoogleAuthProvider} from 'firebase/auth';
-
+import {getDatabase,ref,set} from 'firebase/database';
 //Initialize Firebase
 const auth = getAuth(FirebaseApp);
+//Initialize database
+const database = getDatabase(FirebaseApp);
 
 import '../stylesheet.css';
 
@@ -43,12 +45,37 @@ function getChromeIdentity(){
               console.log("  Name: " + profile.displayName);
               console.log("  Email: " + profile.email);
               console.log("  Photo URL: " + profile.photoURL);
+            
+              //write student info in database
+              //split name
+              const nameArray = profile.displayName.split(" ");
+              const FirstName = nameArray[0];
+              const LastName = nameArray[1];
+              //get other information
+              chrome.runtime.getPlatformInfo(function(info){
+                console.log(info.os);
+                const studentOS = info.os;
+              });
+              const db = getDatabase(); 
+              set(ref(db,'users/' + profile.uid),{
+                FirstName: FirstName,
+                LastName: LastName,
+                Email: profile.email,
+                // OperatingSystem: studentOS
+              })
+              .then(()=> {
+                alert("Saved to database!");
+              })
+              .catch((err) => {
+                alert("error with database" + err);
+              })
             });
+
           }
         })
         .catch(err =>
         {
-          alert(`SSO ended with an error: ${err}`)
+          alert("SSO ended with an error" + err);
         })
     })
 }
