@@ -1,0 +1,13 @@
+{
+    "id": "",
+    "name": "Karl Brazil",
+    "subject": "CMSC 100",
+    "link": "",
+    "code": "",
+    "time_date_start": "",
+    "time_date_end": "",
+    "students":{
+        "StudentNumber": true
+    },
+    "ProctoringReportID": true
+}

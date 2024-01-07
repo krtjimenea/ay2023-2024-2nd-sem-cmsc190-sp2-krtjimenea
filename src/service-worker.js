@@ -1,0 +1,11 @@
+//https://developer.chrome.com/docs/extensions/reference/sidePanel/
+
+const GOOGLE_ORIGIN = 'https://www.google.com';
+const landingPage = 'src/sidebar/LandingPage.html';
+const studentInputPage = 'src/sidebar/StudentInputPage.html';
+
+// Allows users to open the side panel by clicking on the action toolbar icon
+chrome.sidePanel
+  .setPanelBehavior({ openPanelOnActionClick: true })
+  .catch((error) => console.error(error));
+

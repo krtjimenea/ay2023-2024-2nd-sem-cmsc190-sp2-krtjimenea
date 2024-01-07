@@ -19,10 +19,20 @@ module.exports = {
         test: /\.css$/,
         use: ['style-loader', 'css-loader'],
       },
-   {
+      {
         test: /\.(woff|woff2|eot|ttf|otf)$/i,
         type: 'asset/resource',
         use: ['file-loader'],
+      },
+      {
+        test: /\.js$/, // Apply this rule to .js files
+        exclude: /node_modules/,
+        use: {
+          loader: 'babel-loader', // Use Babel loader for JavaScript files
+          options: {
+            presets: ['@babel/preset-env'],
+          },
+        },
       },
     ],
   },
@@ -31,6 +41,11 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: path.join(__dirname, "src", "sidebar", "LandingPage.html"),
       filename: "LandingPage.html",
+      chunks: ["script"] // This is script from entry point
+    }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, "src", "sidebar", "StudentInputPage.html"),
+      filename: "StudentInputPage.html",
       chunks: ["script"] // This is script from entry point
     }),
     // Note: you can add as many new HtmlWebpackPlugin objects  

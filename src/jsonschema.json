@@ -1,0 +1,53 @@
+{
+ 
+            "FirstName":{
+                "type": "string"
+            },
+            "LastName":{
+                "type": "string"
+            },
+            "Email":{
+                "type": "string"
+            },
+            "StudentNumber":{
+                "type": "string"
+            },
+            "OAuthToken":{
+                "type": "string"
+            },
+            "IPAddress":{
+                "type": "string"
+            },
+            "Geolocation":{
+                "type": "string"
+            },
+            "Browser":{
+                "type": "string"
+            },
+            "OperatingSystem":{
+                "type": "string"
+            },
+            "SystemDisplay":{
+                "type": "string"
+            },
+            "SystemCPU":{
+                "type": "string"
+            },
+            "AuthRiskScore":{
+                "type": "string"
+            },
+            "AssessmentsTaken":{
+                "type": "integer"
+            },
+            "AssessmentsToTake":{
+                "type": "integer"
+            },
+            "ProctoringReportID":{
+                "type": "string"
+            },
+            "FacultyInCharge": {
+                "Email": "true"
+            }
+
+
+}
