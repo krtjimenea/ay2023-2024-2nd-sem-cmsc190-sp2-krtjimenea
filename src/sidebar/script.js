@@ -10,18 +10,62 @@ const database = getDatabase(FirebaseApp);
 
 import '../stylesheet.css';
 const studentInputPage = '/StudentInputPage.html';
+const InputNumberPage = '/InputNumberPage.html';
+const facultyDashboardPage = '/FacultyDashboardPage.html';
+const facultySchedulePage = '/FacultyDashboardPage.html';
 
 
+// window.addEventListener('DOMContentLoaded', function () {
+//   const selection = document.getElementById('GoogleLoginBtn');
+//   selection.addEventListener('click', getChromeIdentity);
+// });
+
+// //event listener for ID number input
+// window.addEventListener('DOMContentLoaded', function () {
+//   const selection = document.getElementById('SubmitIDBtn');
+//   selection.addEventListener('click', checkUser);
+// });
 window.addEventListener('DOMContentLoaded', function () {
-  const selection = document.getElementById('GoogleLoginBtn');
-  selection.addEventListener('click', getChromeIdentity);
+  
+  const headDiv = document.getElementById('AppBody'); // Replace with the actual ID
+
+  headDiv.addEventListener('click', function (event) {
+    console.log('Click event fired');
+
+    const target = event.target;
+
+    // Check if the clicked element is the GoogleLoginBtn
+    if (target.id === 'GoogleLoginBtn') {
+      console.log('Clicked on GoogleLoginBtn');
+      getChromeIdentity();
+    }
+
+    // Check if the clicked element is the SubmitIDBtn
+    if (target.id === 'SubmitIDBtn') {
+      console.log('Clicked on SubmitIDBtn');
+      checkUser();
+    }
+
+    //For faculty dashboard events
+    if(target.id === 'ScheduleBtn'){
+      console.log('Clicked on Schedule Assessment');
+      chrome.sidePanel.setOptions({path:facultySchedulePage});
+
+    }
+
+    if(target.id === 'myDropdown'){
+      document.getElementById("myDropdown").classList.toggle("show");
+      console.log('Clicked Dropdown');
+     
+    }
+  });
 });
 
-//event listener for student input
-window.addEventListener('DOMContentLoaded', function () {
-  const selection = document.getElementById('SubmitBtn');
-  selection.addEventListener('click', getAuthFirebase);
-});
+// //event listener for student input
+// window.addEventListener('DOMContentLoaded', function () {
+//   const selection = document.getElementById('SubmitBtn');
+//   selection.addEventListener('click', getAuthFirebase);
+// });
 
 // function getChromeIdentity(){
 //     //checking if there is a logged in user
@@ -70,15 +114,43 @@ function getChromeIdentity(){
   chrome.identity.getAuthToken({ interactive: true }, token =>
     {
       if ( chrome.runtime.lastError || ! token ) {
-        alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
+        alert('SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}')
         return
       }
      
-      chrome.sidePanel.setOptions({path: studentInputPage});
+      chrome.sidePanel.setOptions({path: InputNumberPage});
      
     })
 }
 
+
+//function after input of ID Number
+function checkUser(){
+  //get the input
+  var IDinput = document.getElementById('IDNumInput').value;
+  //check if valid number format
+  var IDNumFormat = /^[0-9]{9}$/;
+  if(IDinput.match(IDNumFormat)){
+
+    if(IDinput[0]=== '1'){
+      console.log('Faculty');
+      //route to Faculty Dashboard
+      chrome.sidePanel.setOptions({path:facultyDashboardPage})
+    }else if(IDinput[0] === '2'){
+      console.log('Student');
+      //route to Student Dashboard
+      chrome.sidePanel.setOptions({path:studentInputPage})
+    }else{
+      alert('Wrong Format');
+
+    }
+
+  }else{
+    alert('Wrong Format');
+  }
+  
+
+}
 //function once student submitted all information
 function getAuthFirebase(){
     //check if there is a logged in user

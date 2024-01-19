@@ -44,8 +44,23 @@ module.exports = {
       chunks: ["script"] // This is script from entry point
     }),
     new HtmlWebpackPlugin({
+      template: path.join(__dirname, "src", "sidebar", "InputNumberPage.html"),
+      filename: "InputNumberPage.html",
+      chunks: ["script"] // This is script from entry point
+    }),
+    new HtmlWebpackPlugin({
       template: path.join(__dirname, "src", "sidebar", "StudentInputPage.html"),
       filename: "StudentInputPage.html",
+      chunks: ["script"] // This is script from entry point
+    }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, "src", "sidebar", "FacultyDashboardPage.html"),
+      filename: "FacultyDashboardPage.html",
+      chunks: ["script"] // This is script from entry point
+    }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, "src", "sidebar", "FacultySchedulePage.html"),
+      filename: "FacultySchedulePage.html",
       chunks: ["script"] // This is script from entry point
     }),
     // Note: you can add as many new HtmlWebpackPlugin objects  

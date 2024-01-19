@@ -4,9 +4,9 @@
     <meta charset="UTF-8" />
     <link rel="stylesheet" href="../stylesheet.css" />
     <title>title</title>
-    <!-- <script src="script.js" type="module"></script> -- SCRIPT IS PACKAGED WITH WEBPACK-->
-<script defer src="script.js"></script></head>
-<body>
+    <!-- <script src="script.js" type="module"></script> -->
+</head>
+<body id="FacultyUI">
     <div id="AppBody">
         <div id="flex-row">
             <div id="AppTitle">
@@ -17,11 +17,25 @@
                 </svg>
             </div>
 
-            <div class="AppHeader">Welcome</div>
+            <div class="AppHeaderFaculty">Hello, Faculty</div>
+            <div class="AppSubHeader">Enter Assessment Details:</div>
 
-            <div class="GoogleLogin">
-                <button type="button" id="GoogleLoginBtn">Google Account Log In</button>
+
+            <div id="FacultySchedInput">
+                <input type="text" id ="studentNumInput" name="studentNum" placeholder="Assessment Name"/>
+                <input type="text" id ="assessmentCodeInput" name="assessmentCode" placeholder="Assessment Code"/>
             </div>
+
+            <div class="dropdown">
+                <button type="button" id="dropDownbtn">Dropdown</button>
+                <div id="myDropdown" class="dropdown-content">
+                  <a href="#">Link 1</a>
+                  <a href="#">Link 2</a>
+                  <a href="#">Link 3</a>
+                </div>
+            </div>
+
+            
         </div> 
     </div>
     
