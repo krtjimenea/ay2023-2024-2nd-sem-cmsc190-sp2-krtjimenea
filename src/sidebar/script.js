@@ -12,7 +12,7 @@ import '../stylesheet.css';
 const studentInputPage = '/StudentInputPage.html';
 const InputNumberPage = '/InputNumberPage.html';
 const facultyDashboardPage = '/FacultyDashboardPage.html';
-const facultySchedulePage = '/FacultyDashboardPage.html';
+const facultySchedulePage = '/FacultySchedulePage.html';
 
 
 // window.addEventListener('DOMContentLoaded', function () {
@@ -53,9 +53,9 @@ window.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    if(target.id === 'myDropdown'){
-      document.getElementById("myDropdown").classList.toggle("show");
-      console.log('Clicked Dropdown');
+    if(target.id === 'SubmitExamSchedBtn'){
+      console.log('Clicked Submit Exam Sched');
+      schedueExam();
      
     }
   });
@@ -268,6 +268,69 @@ function getAuthFirebase(){
           }) //EOF geolocation
       })//EOF ipCallback
 
-    })//EOF getAuthToken
-        
-  }
+    })//EOF getAuthToken     
+}
+
+
+
+//function to save the schedule of the exam
+function schedueExam(){
+
+  //get all the input
+  var examName = document.getElementById('assessmentName').value;
+  var courseSelected = document.getElementById('courselist').value;
+  var startDateSelected = document.getElementById('start-date').value;
+  var endDateSelected = document.getElementById('end-date').value;
+  var examLink = document.getElementById('assessmentLinkInput').value;
+
+  console.log(examName);
+  console.log(courseSelected);
+  console.log(startDateSelected);
+  console.log(endDateSelected);
+  console.log(examLink);
+  
+  //save to database
+  //check if there is a logged in user
+  chrome.identity.getAuthToken({ interactive: true }, token =>
+    {
+      if ( chrome.runtime.lastError || ! token ) {
+        alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
+        return
+      }
+
+      //firebase authentication
+      signInWithCredential(auth, GoogleAuthProvider.credential(null, token))
+      .then(res =>{
+          const user = auth.currentUser;
+            
+          if (user !== null) {
+            user.providerData.forEach((profile) => {
+              const FIC = profile.displayName;
+                
+              const db = getDatabase(); 
+                set(ref(db,'assessments/' + profile.uid),{
+                  FacultyInCharge: FIC,
+                  name: examName,
+                  course: courseSelected,
+                  link:examLink,
+                  access_code: 'GHB456',
+                  expected_time_start: startDateSelected,
+                  expected_time_end: endDateSelected,
+                  
+                })
+                .then(()=> {
+                  alert("Saved to database!");
+                })
+                .catch((err) => {
+                  console.log(("error with database" + err));
+                })
+              });
+
+            }
+       })//EOF signInWithCredential
+      .catch(err =>{alert("SSO ended with an error" + err);})
+  }) //EOF geolocation
+
+  alert('Exam Scheduled! The code is: GHB456');
+
+}

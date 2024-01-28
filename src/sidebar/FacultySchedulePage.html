@@ -20,19 +20,39 @@
             <div class="AppHeaderFaculty">Hello, Faculty</div>
             <div class="AppSubHeader">Enter Assessment Details:</div>
 
-
+            
             <div id="FacultySchedInput">
-                <input type="text" id ="studentNumInput" name="studentNum" placeholder="Assessment Name"/>
-                <input type="text" id ="assessmentCodeInput" name="assessmentCode" placeholder="Assessment Code"/>
+                <p id="input-labels">Exam Name</p>
+                <input type="text" id ="assessmentName" name="studentNum" placeholder="Exam Name"/>
+                <p id="input-labels">Course</p>
+                <div class="dropdown">
+                    <select name="courselist" id="courselist">
+                        <option value="course1">Course 1</option>
+                        <option value="course2">Course 2</option>
+                        <option value="course3">Course 3</option>
+                    </select>
+                </div>
+                <p id="input-labels">Section</p>
+                <div class="dropdown">
+                    <select name="sectionlist" id="sectionlist">
+                        <option value="section1">Section 1</option>
+                        <option value="section2">Section 2</option>
+                    </select>
+                </div>
+
+                <p id="input-labels">Date and Time Start</p>
+                <input type="datetime-local" id="start-date" name="dateTimeInput">
+                <p id="input-labels">Date and Time End</p>
+                <input type="datetime-local" id="end-date" name="dateTimeInput">
+                <p id="input-labels">Assessment Link</p>
+                <input type="text" id ="assessmentLinkInput" name="assessmentCode" placeholder="Assessment Link"/>
+               
+           
+
             </div>
 
-            <div class="dropdown">
-                <button type="button" id="dropDownbtn">Dropdown</button>
-                <div id="myDropdown" class="dropdown-content">
-                  <a href="#">Link 1</a>
-                  <a href="#">Link 2</a>
-                  <a href="#">Link 3</a>
-                </div>
+            <div class="SubmitIDDiv">
+                <button type="button" id="SubmitExamSchedBtn">Get Assessment Code</button>
             </div>
 
             

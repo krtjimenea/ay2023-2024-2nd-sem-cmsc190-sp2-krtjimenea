@@ -10,7 +10,8 @@
  "dependencies": {
   "file-loader": "^6.2.0",
   "firebase": "^10.6.0",
-  "firebaseui": "^6.1.0"
+  "firebaseui": "^6.1.0",
+  "flatpickr": "^4.6.13"
  },
  "devDependencies": {
   "@babel/core": "^7.23.7",

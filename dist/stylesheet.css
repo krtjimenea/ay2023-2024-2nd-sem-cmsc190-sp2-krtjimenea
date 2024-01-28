@@ -16,52 +16,7 @@ body{
     background-color: #CFD2F1;
     height: 100%;
 }
-/* Dropdown Button */
-.dropbtn {
-    background-color: #3498DB;
-    color: white;
-    padding: 16px;
-    font-size: 16px;
-    border: none;
-    cursor: pointer;
-}
   
-/* Dropdown button on hover & focus */
-  .dropbtn:hover, .dropbtn:focus {
-    background-color: #2980B9;
-}
-  
-/* The container <div> - needed to position the dropdown content */
-.dropdown {
-    position: relative;
-    display: inline-block;
-}
-  
-/* Dropdown Content (Hidden by Default) */
-.dropdown-content {
-    display: none;
-    position: absolute;
-    background-color: #f1f1f1;
-    min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 1;
-}
-  
-/* Links inside the dropdown */
-.dropdown-content a {
-    color: black;
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
-}
-  
-/* Change color of dropdown links on hover */
-.dropdown-content a:hover {background-color: #ddd;}
-  
-/* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
-.show {display:block;}
-
-
 /** Landing Page **/
 #AppBody{
     width: 260px;
@@ -177,7 +132,6 @@ body{
     height: 43px;
     border-radius: 12px;
     border: none;
-    
 }
 
 #assessmentCodeInput{
@@ -249,4 +203,103 @@ body{
     font-family: 'Urbanist', sans-serif;
     border-radius: 12px;
     border: none;
+}
+
+/** Faculty Schedule Assessment **/
+
+.AppSubHeader{
+    margin-top: 100px;
+    width: 246px;
+    height: 43px;
+    color: #fff;
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    border-radius: 12px;
+    border: none;
+    text-align: center;
+
+}
+
+#assessmentName{
+    width: 246px;
+    height: 43px;
+    border-radius: 12px;
+    border: none;
+
+}
+
+/* Dropdown Button */
+select{
+    border:none;
+    padding: 10px 20px;
+    width: 246px;
+    border-radius: 12px;
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+}
+  
+select:focus{
+    outline:none;
+    
+}
+
+#start-date{
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    border:none;
+    padding: 10px 20px;
+    width: 210px;
+    border-radius: 12px;
+}
+
+#end-date{
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    border:none;
+    padding: 10px 20px;
+    width: 210px;
+    border-radius: 12px;
+}
+  
+
+#input-labels {
+    text-align: center;
+    margin-top: 10px;
+    color: #fff;
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif
+}
+
+#assessmentLinkInput{
+    width: 246px;
+    height: 43px;
+    border-radius: 12px;
+    border: none;
+        
+}
+
+#SubmitExamSchedBtn{
+    background-color: #b7db90;
+    width: 246px;
+    height: 43px;
+    color: #000;
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    border-radius: 12px;
+    border: none;
+}
+
+
+/** Scheduled Exam Output **/
+#output-labels{
+    text-align: center;
+    background-color: #CFD2F1;
+    width: 246px;
+    height: 43px;
+    color: #000;
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    border-radius: 12px;
+    border: none;
+    
 }
