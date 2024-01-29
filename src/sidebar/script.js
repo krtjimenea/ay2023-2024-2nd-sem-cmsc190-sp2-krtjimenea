@@ -2,7 +2,7 @@
 // Import the functions you need from the SDKs you need
 import { FirebaseApp } from './firebase';
 import {getAuth,signInWithCredential,GoogleAuthProvider} from 'firebase/auth';
-import {getDatabase,ref,set} from 'firebase/database';
+import {getDatabase,ref,set, onValuek, get} from 'firebase/database';
 //Initialize Firebase
 const auth = getAuth(FirebaseApp);
 //Initialize database
@@ -57,6 +57,17 @@ window.addEventListener('DOMContentLoaded', function () {
       console.log('Clicked Submit Exam Sched');
       schedueExam();
      
+    }
+
+    //For student
+    if(target.id==='SubmitBtn'){
+      console.log('Clicked Submit Exam Code');
+      //check if the exam code is valid then show the assessment details
+      checkExamCode();
+
+
+      
+
     }
   });
 });
@@ -138,8 +149,8 @@ function checkUser(){
       chrome.sidePanel.setOptions({path:facultyDashboardPage})
     }else if(IDinput[0] === '2'){
       console.log('Student');
+      checkRegister();
       //route to Student Dashboard
-      chrome.sidePanel.setOptions({path:studentInputPage})
     }else{
       alert('Wrong Format');
 
@@ -151,6 +162,54 @@ function checkUser(){
   
 
 }
+
+function checkRegister(){
+   //check log in
+   //check if there is a logged in user
+   chrome.identity.getAuthToken({ interactive: true }, token =>
+    {
+      if ( chrome.runtime.lastError || ! token ) {
+        alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
+        return
+      }
+
+      //firebase authentication
+      signInWithCredential(auth, GoogleAuthProvider.credential(null, token))
+      .then(res =>{
+          const user = auth.currentUser;
+          //get profile uid
+          if (user !== null) {
+            user.providerData.forEach((profile) => {
+              const profileID = profile.uid;
+              const db = getDatabase(); 
+              const studentRef = ref(db,'students/' + profile.uid);
+              //find if the profile UID exists
+              get(studentRef)
+              .then((snapshot) => {
+                if (snapshot.exists()) {
+                  alert("Success Firebase Access!");
+                  console.log("UID Exists, Student is Registered");
+                  chrome.sidePanel.setOptions({path:studentInputPage})
+                } else {
+                  alert("Success Firebase Access!");
+                  console.log("UID does not exist, Student is NOT REGISTERED");
+                  //Register Process, Add to database, Add them to the course
+                }
+              })
+              .catch((err) => {
+                console.log("Error with database: " + err);
+              });
+          });
+        }
+      })
+      .catch((err) => {
+        alert("SSO ended with an error" + err);
+      });
+  });
+}
+
+
+
 //function once student submitted all information
 function getAuthFirebase(){
     //check if there is a logged in user
@@ -235,8 +294,7 @@ function getAuthFirebase(){
                   const FirstName = nameArray[0];
                   const LastName = nameArray[1];
                   var studentNum = document.getElementById("studentNumInput").value;
-              
-                  
+
                   const db = getDatabase(); 
                   set(ref(db,'students/' + profile.uid),{
                     FirstName: FirstName,
@@ -249,7 +307,8 @@ function getAuthFirebase(){
                     geolocation_long: geolocation.longitude,
                     UserAgentString: studentBrowser,
                     SystemDisplayResolution: studentDisplay,
-                    SystemCPU: studentCPU
+                    SystemCPU: studentCPU,
+                    SystemBrowser: studentBrowser
                   })
                   .then(()=> {
                     alert("Saved to database!");
@@ -329,8 +388,193 @@ function schedueExam(){
             }
        })//EOF signInWithCredential
       .catch(err =>{alert("SSO ended with an error" + err);})
-  }) //EOF geolocation
+  }) 
 
   alert('Exam Scheduled! The code is: GHB456');
 
+}
+
+
+//function to check exam code
+function checkExamCode(){
+  //for demo purposes but must check with database
+  var examCodeInput = document.getElementById('assessmentCodeInput').value;
+  // examCodeInput.match('GHB456');
+  if(examCodeInput === 'GHB456'){
+    //compute AuthRiskScore
+    //move to next panel
+    compareAuthRiskScore();
+  }else{
+    alert('Wrong Exam Code Input');
+  }
+      
+}
+
+//function to compare Auth Risk Score
+function compareAuthRiskScore(){
+  //check if there is a logged in user
+  chrome.identity.getAuthToken({ interactive: true }, token =>
+    {
+      if ( chrome.runtime.lastError || ! token ) {
+        alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
+        return
+      }
+
+      //get the background information of the student
+     
+      //get the os of the user
+      var studentOS;
+      chrome.runtime.getPlatformInfo(function(info){
+        if(info){
+          studentOS = info.os;
+          console.log(studentOS);
+        }
+      });
+
+      //get the browser information
+      var studentBrowser;
+      const userAgent = window.navigator.userAgent;
+      if (userAgent.includes('Chrome')){
+        console.log('Google Chrome');
+        studentBrowser = 'Google Chrome';
+      }else if (userAgent.includes('Firefox')) {
+        studentBrowser = 'Mozilla Firefox';
+      } else if (userAgent.includes('Edge')) {
+        studentBrowser = 'Microsoft Edge';
+      } else {
+        console.log('Browser: Unknown');
+      }
+
+      //get the display resolution
+      var studentDisplay;
+      chrome.system.display.getInfo(function(info){
+        if(info){
+          //loop through
+          info.forEach(display => {
+            // studentDisplay = info.bounds.width + 'x' + info.bounds.height;
+            console.log('Bounds:', display.bounds);
+            console.log('Width:', display.bounds.width);
+            console.log('Height:', display.bounds.height);
+            studentDisplay = display.bounds.width + 'x' + display.bounds.height;
+
+          })
+        
+        }
+      })
+
+      //get the system cpu info
+      var studentCPU;
+      chrome.system.cpu.getInfo(function(info){
+        if(info){
+          studentCPU = info.modelName;
+        }
+      })
+
+      //get IP address, callback function
+      getIPAddress(ipAddress => {
+        //get the geolocation
+        getGeolocation(geolocation => {
+          //firebase authentication
+          signInWithCredential(auth, GoogleAuthProvider.credential(null, token))
+          .then(res =>
+          {
+            const user = auth.currentUser;
+            //get the student attribute from the database
+            if (user !== null) {
+              user.providerData.forEach((profile) => {
+                const profileID = profile.uid;
+                const db = getDatabase();
+                const studentRef = ref(db,'students/' + profile.uid);
+                
+                get(studentRef)
+                //get the snapshot of the database
+                .then((snapshot)=> {
+                  //get the gathered student attributes
+                  const data = snapshot.val();
+                  console.log(data);
+                  const geolocationlat = data.geolocation_lat;
+                  const geolocationlong = data.geolocation_long;
+                  const ipAddressStudent = data.ipAddress;
+                  const display = data.SystemDisplayResolution;
+                  const cpu = data.SystemCPU;
+                  const os = data.OperatingSystem;
+                  const browser = data.SystemBrowser;
+                  let totalMatchedWeight = 0;
+                  // //compare geolocation
+                  // if(geolocation.latitude === geolocationlat){
+                  //   console.log('Matched Geolocation Latitude');
+                  //   if(geolocation.longitude === geolocationlongitude){
+                  //     console.log('Matched Geolocation Longitude');
+                  //     //Current Total Matched Weight = 6
+                  //     totalMatchedWeight = 6;
+                  //   }else{
+                  //     console.log('Did not match Geolocation Long');
+                      
+                  //   }
+                  // }else{
+                  //   console.log('Did not match Geolocation Lat');
+                  //   console.log('Current Signin GeoLat:'+ geolocation.latitude);
+                  //   console.log('Saved GeoLat'+ geolocationlat);
+                  // }
+
+                  //compare IP address
+                  // if(ipAddress===ipAddressStudent){
+                  //   alert('IP Matched');
+                  //   totalMatchedWeight = 5;
+                  // }else{
+                  //   alert('IP Did not match, Saved IP: ' + ipAddressStudent + 'Current IP: '+ ipAddress);
+                  // }
+
+                  //compare system Display
+                  if(studentDisplay===display){
+                    alert('Display Matched');
+                    totalMatchedWeight = totalMatchedWeight + 4;
+                  }else{
+                    alert('Did not match, Saved Display: ' + studentDisplay + 'Current Display: '+ display);
+                  }
+
+                  //compare system CPU
+                  if(studentCPU===cpu){
+                    alert('CPU Matched');
+                    totalMatchedWeight = totalMatchedWeight + 3;
+                  }else{
+                    alert('Did not match');
+                  }
+                  console.log(totalMatchedWeight);
+                  //compute AuthRiskScore
+                  var AuthRiskScore = getAuthRiskScore(totalMatchedWeight);
+                  console.log('AuthRiskScore is = ' + AuthRiskScore);
+                })
+                .catch((err) => {
+                  console.log(("error with database" + err));
+                })
+              });
+
+            }
+          }) //EOF signInWithCredential
+          .catch(err =>
+          {
+            alert("SSO ended with an error" + err);
+          })
+        }) //EOF geolocation
+    })//EOF ipCallback
+
+  })//EOF getAuthToken     
+}
+
+//function to compute and return the auth risks score
+function getAuthRiskScore(totalMatchedWeight){
+
+  //weights
+  // var geolocWeight = 6;
+  // var ipAddrWeight = 5;
+  // var displayWeight = 4;
+  // var cpuWeight = 3;
+  // var osWeight = 2;
+  // var browserWeight =1;
+  // var totalWeight = 21;
+
+  var AuthRiskScore = totalMatchedWeight/7;
+
+  return AuthRiskScore;
 }
