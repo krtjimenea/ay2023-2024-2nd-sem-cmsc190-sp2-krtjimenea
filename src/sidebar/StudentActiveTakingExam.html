@@ -4,9 +4,9 @@
     <meta charset="UTF-8" />
     <link rel="stylesheet" href="../stylesheet.css" />
     <title>title</title>
-    <!-- <script src="script.js" type="module"></script> -->
+    <script src="script.js" type="module"></script>
 </head>
-<body>
+<body id="StudentUI">
     <div id="AppBody">
         <div id="flex-row">
             <div id="AppTitle">
@@ -17,16 +17,24 @@
                 </svg>
             </div>
 
-            <div class="AppHeaderInput">Hello</div>
+            <div class="AppHeaderStudent">Hello, Student</div>
+            <div class="AppSubHeader">Currently taking</div>
 
-            <div id="IDInput">
-                <input type="text" id ="IDNumInput" name="IdNum" placeholder="Student/Faculty ID Number"/>
+
+            <div id="ExamDetailsStudent">               
+                <p class="output-student">Exam Subject</p>
+                <p class="output-student">Exam FIC</p>
             </div>
 
-            <div class="SubmitIDDiv">
-                <button type="button" id="SubmitIDBtn">Continue</button>
+            <div id="ExamTrackingStudent">
+                <p class="output-student" id="current-time">Exam Start Time and Date</p>
+                <p class="output-student" id="time-left">20 minutes</p>
+                <p class="output-student" id="recorded-message">Your browser activity is being recorded</p>
             </div>
 
+            <div class="SubmitDiv">
+                <button type="button" class="greenBtn" id="submitExamBtn">SUBMIT EXAM</button>
+            </div>
             
         </div> 
     </div>

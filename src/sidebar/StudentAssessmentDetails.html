@@ -6,7 +6,7 @@
     <title>title</title>
     <script src="script.js" type="module"></script>
 </head>
-<body>
+<body id="StudentUI">
     <div id="AppBody">
         <div id="flex-row">
             <div id="AppTitle">
@@ -18,14 +18,21 @@
             </div>
 
             <div class="AppHeaderStudent">Hello, Student</div>
+            <div class="AppSubHeader">Your Assessment Details</div>
 
-            <div id="StudentInput">
-                <!-- <input type="text" id ="studentNumInput" name="studentNum" placeholder="Student Number"/> -->
-                <input type="text" id ="assessmentCodeInput" name="assessmentCode" placeholder="Assessment Code"/>
-            </div>
 
-            <div class="SubmitDiv">
-                <button type="button" id="SubmitBtn">Get Assessment Details</button>
+            <div id="ExamDetailsStudent">
+                <p class="output-student">Exam Name</p>
+                <p class="output-student">Exam Subject</p>
+                <p class="output-student">Exam FIC</p>
+                <p class="output-student">Exam Start Time and Date</p>
+                <p class="output-student">Exam End Time and Date</p>
+
+                <div class="SubmitDiv">
+                    <button type="button" class="greenBtn" id="getExamLinkBtn">This is correct, Get Exam Link</button>
+                    <button type="button" class="redBtn" id="wrongExamLinkBtn">This is NOT correct</button>
+
+                </div>
             </div>
 
             

@@ -13,6 +13,7 @@ const studentInputPage = '/StudentInputPage.html';
 const InputNumberPage = '/InputNumberPage.html';
 const facultyDashboardPage = '/FacultyDashboardPage.html';
 const facultySchedulePage = '/FacultySchedulePage.html';
+const StudentExamDetailsPage = '/StudentAssessmentDetails.html';
 
 
 // window.addEventListener('DOMContentLoaded', function () {
@@ -544,6 +545,14 @@ function compareAuthRiskScore(){
                   //compute AuthRiskScore
                   var AuthRiskScore = getAuthRiskScore(totalMatchedWeight);
                   console.log('AuthRiskScore is = ' + AuthRiskScore);
+
+                  //if riskscore is 0.90 above go to next page
+                  if(AuthRiskScore >= 1){
+                    console.log('tEST');
+                    chrome.sidePanel.setOptions({path: StudentExamDetailsPage});
+                    isBrowserMinimized();
+
+                  }
                 })
                 .catch((err) => {
                   console.log(("error with database" + err));
@@ -577,4 +586,18 @@ function getAuthRiskScore(totalMatchedWeight){
   var AuthRiskScore = totalMatchedWeight/7;
 
   return AuthRiskScore;
+}
+
+
+//function to check if browser is minimized
+function isBrowserMinimized(){
+  //using chrome.window.windowState API
+  chrome.windows.getAll({ populate: true }, function(windows) {
+    windows.forEach(function(window) {
+      console.log("Window ID:", window.id);
+      console.log("Window State:", window.state);
+      alert("Window State: " + window.state);
+    });
+  });
+
 }

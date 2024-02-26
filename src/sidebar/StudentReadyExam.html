@@ -4,9 +4,9 @@
     <meta charset="UTF-8" />
     <link rel="stylesheet" href="../stylesheet.css" />
     <title>title</title>
-    <!-- <script src="script.js" type="module"></script> -->
+    <script src="script.js" type="module"></script>
 </head>
-<body>
+<body id="StudentUI">
     <div id="AppBody">
         <div id="flex-row">
             <div id="AppTitle">
@@ -17,12 +17,17 @@
                 </svg>
             </div>
 
-            <div class="AppHeaderInput">Hello, Student</div>
+            <div class="AppHeaderStudent">Hello, Student</div>
+            <div class="AppSubHeader">Click the assessment link below</div>
 
-            <div class="AppSubHeader">Successfully Registered!!</div>
 
-            <div class="SubmitIDDiv">
-                <button type="button" id="SubmitIDBtn">Continue if you have a scheduled exam</button>
+            <div id="ExamDetailsStudent">
+                <p class="output-student" id="exam-link">bit.ly/FinalExam123</p>
+                
+                <p class="output-student">Exam Subject</p>
+                <p class="output-student">Exam FIC</p>
+                <p class="output-student">Exam Start Time and Date</p>
+                <p class="output-student">Exam End Time and Date</p>
             </div>
 
             
