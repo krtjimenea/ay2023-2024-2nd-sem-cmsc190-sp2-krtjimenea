@@ -10,10 +10,12 @@ const database = getDatabase(FirebaseApp);
 
 import '../stylesheet.css';
 const studentInputPage = '/StudentInputPage.html';
-const InputNumberPage = '/InputNumberPage.html';
+const InputNumberPage = '/RegistrationPage.html';
 const facultyDashboardPage = '/FacultyDashboardPage.html';
 const facultySchedulePage = '/FacultySchedulePage.html';
 const StudentExamDetailsPage = '/StudentAssessmentDetails.html';
+//Admin Routes
+const AdminDashboard = '/AdminDashboard.html'
 
 
 // window.addEventListener('DOMContentLoaded', function () {
@@ -152,6 +154,10 @@ function checkUser(){
       console.log('Student');
       checkRegister();
       //route to Student Dashboard
+    }else if(IDinput[0] === '0'){
+      //route to Admin Dashboard
+      console.log('Admin')
+      chrome.sidePanel.setOptions({path: AdminDashboard})
     }else{
       alert('Wrong Format');
 

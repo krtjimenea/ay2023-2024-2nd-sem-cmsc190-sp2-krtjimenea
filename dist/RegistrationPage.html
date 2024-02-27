@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <link rel="stylesheet" href="../stylesheet.css" />
     <title>title</title>
-    <!-- <script src="script.js" type="module"></script> -->
+    <!-- <script src="script.js" type="module"></script> -- SCRIPT IS PACKAGED WITH WEBPACK-->
 <script defer src="script.js"></script></head>
 <body>
     <div id="AppBody">
@@ -17,15 +17,31 @@
                 </svg>
             </div>
 
-            <div class="AppHeaderInput">Hello, Student</div>
+            <div class="AppHeader">Hello!</div>
+            <div class="AppSubHeader">To proceed, please register.</div>
 
-            <div class="AppSubHeader">Successfully Registered!!</div>
-
-            <div class="SubmitIDDiv">
-                <button type="button" id="SubmitIDBtn">Continue if you have a scheduled exam</button>
+            <div id="UserInput">
+                <p id="input-labels">Please choose your user type:</p>
+                <div class="dropdown">
+                    <select name="userlist" id="userlist">
+                        <option value="user1">Student</option>
+                        <option value="user2">Faculty</option>
+                        <option value="user3">Admin</option>
+                    </select>
+                </div>
             </div>
 
-            
+            <div id="IDInput">
+                <p id="input-labels">Please type your ID Number:</p>
+                <input type="text" id ="IDNumInput" name="IdNum" placeholder="Identification Number"/>
+            </div>
+
+            <div class="SubmitIDDiv">
+                <button type="button" id="SubmitIDBtn">Continue</button>
+            </div>
+
+
+
         </div> 
     </div>
     

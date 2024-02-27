@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <link rel="stylesheet" href="../stylesheet.css" />
     <title>title</title>
-    <!-- <script src="script.js" type="module"></script> -->
-</head>
+    <!-- <script src="admin-script.js" type="module"></script> -->
+<script defer src="admin.js"></script></head>
 <body id="Admin-UI">
     <div id="AppBody">
         <div id="flex-row">
@@ -19,16 +19,53 @@
 
             <div class="AppHeader-Admin">
                 <p id="AdminHelloText">Hello,</p>
-                <p id="AdminHeader">Faculty</p>
+                <p id="AdminHeader">Admin</p>
             </div>
-            <div class="AppSubHeader">Manage Course</div>
 
-
+            <div class="AppSubHeader">Manage Faculty</div>
 
             <div class="AppDiv-AdminManage">
-                <button type="button" class="Buttons-Admin" id="AddCourseBtn">Add Course</button>
-                <button type="button"  class="Buttons-Admin" id="ViewCourseBtn">View Course</button>          
+                <!-- Button to Add Faculty -->
+                <div class="AdminAddButton">
+                    <button type="button" class="Add-Buttons-Admin" id="Add-New-Faculty">Add New Faculty</button>
+                </div>
+                <!--List of Faculty Cards-->
+                <div class="card">
+                    <p class="cardHeader" id="FacultyName">Juan Dela Cruz Santos</p>
+                        <div class="cardDivText">
+                            <div class="cardSubDiv">
+                                <p id="card-labels">ID Number:</p>
+                                <p class="cardText" id="FacultyNumber">201201123</p>
+                            </div>
+                            <div class="cardSubDiv">
+                                <p id="card-labels">Num of Courses:</p>
+                                <p class="cardText" id="FacultyNumCourses">10</p>
+                            </div>
+                        </div>
+                </div>
+                <!-- <button type="button"  class="Buttons-Admin" id="ViewFacultyBtn">View Faculty</button>           -->
             </div>
+
+            <!--Modal for Adding New Faculty-->
+                <section class="Add-Faculty-Modal">
+
+                    <div class="modal-flex">
+                        <p class="ModalPrompts">Please input Faculty Details</p>
+                        <button class="ModalCloseBtn">⨉</button>
+                    </div>
+                        <p id="input-labels">Faculty Name</p>
+                        <input type="text" class="AdminTextInput" id ="FacultyNameInput"  placeholder="First Name MI Last Name"/>
+                        <p id="input-labels">Faculty ID Number</p>
+                        <input type="text" class="AdminTextInput" id ="FacultyIDNumber" placeholder="2012xxxxx"/>
+                        <p id="input-labels">Faculty Email</p>
+                        <input type="text" class="AdminTextInput" id ="FacultyEmail" placeholder="hello@edu.ph"/>
+                    
+                    <!--Button to Add Faculty to Database-->
+                    <div class="Modal-AddBtnDiv">
+                        <button type="button" class="ModalAddBtn" id="Add-Faculty-DB">Add New Faculty</button>
+                    </div>
+                </section>
+                <div class="modal-Overlay"></div>
 
             
         </div> 

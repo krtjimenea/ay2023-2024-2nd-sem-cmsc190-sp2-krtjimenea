@@ -12,6 +12,7 @@ module.exports = {
   entry: {
     Firebase_Config: './src/sidebar/firebase.js',
     script: './src/sidebar/script.js',
+    admin: './src/sidebar/admin-script.js'
   },
   module: {
     rules: [
@@ -44,13 +45,13 @@ module.exports = {
       chunks: ["script"] // This is script from entry point
     }),
     new HtmlWebpackPlugin({
-      template: path.join(__dirname, "src", "sidebar", "InputNumberPage.html"),
-      filename: "InputNumberPage.html",
+      template: path.join(__dirname, "src", "sidebar", "RegistrationPage.html"),
+      filename: "RegistrationPage.html",
       chunks: ["script"] // This is script from entry point
     }),
     new HtmlWebpackPlugin({
-      template: path.join(__dirname, "src", "sidebar", "SuccessRegister.html"),
-      filename: "SuccessRegister.html",
+      template: path.join(__dirname, "src", "sidebar", "StudentSuccessReg.html"),
+      filename: "StudentSuccessReg.html",
       chunks: ["script"] // This is script from entry point
     }),
     new HtmlWebpackPlugin({
@@ -72,6 +73,17 @@ module.exports = {
       template: path.join(__dirname, "src", "sidebar", "FacultySchedulePage.html"),
       filename: "FacultySchedulePage.html",
       chunks: ["script"] // This is script from entry point
+    }),
+    //Admin Pages
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, "src", "sidebar", "AdminDashboard.html"),
+      filename: "AdminDashboard.html",
+      chunks: ["admin"] // This is script from entry point
+    }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, "src", "sidebar", "AdminManageFaculty.html"),
+      filename: "AdminManageFaculty.html",
+      chunks: ["admin"] // This is script from entry point
     }),
     // Note: you can add as many new HtmlWebpackPlugin objects  
     // filename: being the html filename

@@ -346,6 +346,7 @@ p{
     border-radius: 12px;
     border: none;
     text-align: center;
+    margin-top: 50px;
 
 }
 
@@ -437,7 +438,10 @@ select:focus{
 
 /** Admin Dashboard **/
 #Admin-UI{
-    background-color: #9888B8;
+    background: rgb(57,39,88);
+    background: linear-gradient(0deg, rgba(57,39,88,1) 0%, rgba(152,136,184,1) 56%);            
+    background-attachment: fixed;
+    height: 100%;
 }
 
 .AppHeader-Admin{
@@ -453,8 +457,39 @@ select:focus{
     line-height: 50px; /* 104.167% */
 }
 
-.AppDiv-Admin{
+.AppHeader-Admin{
+    display: flex; 
     margin-top: 100px;
+}
+
+#AdminHelloText{
+    height: 42px;
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    color: #fff;
+    text-align: center;
+    font-size: 45px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 50px; /* 104.167% */
+}
+
+
+#AdminHeader{
+    height: 42px;
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    color: #61488C;
+    text-align: center;
+    font-size: 45px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 50px; /* 104.167% */
+    padding-left: 5px;
+}
+
+.AppDiv-Admin{
+    margin-top: 50px;
 }
 
 
@@ -468,6 +503,20 @@ select:focus{
     border-radius: 12px;
     border: none;
     margin-top: 20px;
+}
+
+.Add-Buttons-Admin{
+    background-color: #61488C;
+    width: 264px;
+    height: 43px;
+    color: #fff;
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    border-radius: 4px;
+    border: 2px solid #000;   
+    margin-top: 20px;
+    margin-bottom: 20px;
+
 }
 
 #ManageFacultyBtn,#ManageStudentsBtn, #AddCourseBtn, #ViewCourseBtn{
@@ -492,6 +541,75 @@ select:focus{
 
 .rightText{
     float: right;
+}
+
+/** Modal Styling for Add Faculty**/
+
+/**Modal Overlay**/
+
+
+.modal-Overlay{
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(3px);
+    z-index: 1;
+    display: none;
+}
+
+.Add-Faculty-Modal{
+    background-color: #61488C;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.4rem;
+    width: 230px;
+    padding: 1.3rem;
+    min-height: 250px;
+    position: absolute;
+    top: 30%;
+    border: 2px solid #ddd;
+    border-radius: 15px;
+    z-index: 2;
+    display: none;
+}
+
+.ModalPrompts{
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    color: #fff;
+}
+
+.modal-flex{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.AdminTextInput{
+    width: 226px;
+    height: 30px;
+    border-radius: 4px;
+    border: none;
+    margin: 5px;
+}
+
+.ModalAddBtn{
+    background-color: #54C17F;
+    width: 230px;
+    height: 30px;
+    color: #000;
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    border-radius: 4px;
+    border: 2px solid #000;   
+    margin-top: 20px;
+    margin-bottom: 20px;
 }
 
 /** View Faculty **/
