@@ -4,7 +4,7 @@
 //import for SDKs
 import { FirebaseApp } from './firebase';
 import {getAuth,signInWithCredential,GoogleAuthProvider} from 'firebase/auth';
-import {getDatabase,ref,set, onValuek, get, update} from 'firebase/database';
+import {getDatabase,ref,set, onValuek, get, update,push, child} from 'firebase/database';
 //Initialize Firebase
 const auth = getAuth(FirebaseApp);
 //Initialize database
@@ -93,30 +93,39 @@ function createNewFaculty(){
               const user = auth.currentUser;
                 
               if (user !== null) {
-               
-                user.providerData.forEach((profile) => {
-                  const db = getDatabase(); 
-                    update(ref(db,'faculty-in-charge/'),{
-
-                      name: facultyName,
-                      email: facultyEmail,
-                      employeeNum: facultyID,
-                      classes: {}
-                      
-                    })
-                    .then(()=> {
-                      alert("Saved to database!");
-                    })
-                    .catch((err) => {
-                      console.log(("error with database" + err));
-                    })
-                  });
-    
+                //there is a user signed in
+                //new data 
+                var newFaculty = {
+                  name: facultyName,
+                  email: facultyEmail,
+                  employeeNum: facultyID,
+                  classes: {
+                    class1: false,
+                    class2: false
+                  }
                 }
+
+                //get a db reference
+                const db = getDatabase();
+                const facultyRef = ref(db,'faculty-in-charge');
+                const newfacultyKey = push(child(ref(db), 'faculty-in-charge')).key;
+
+                //update with the new data to the collection
+                const updates = {};
+                updates['/faculty-in-charge/' + newfacultyKey] = newFaculty;
+                update(ref(db), updates)
+                  .then(()=>{
+                    console.log('Success in Adding new Faculty with key: ' + newfacultyKey);
+                    alert('Success in Adding new Faculty');
+                  })
+                  .catch((err) => {
+                    console.log("Error with database: " + err);
+                  })
+
+                
+              }
            })//EOF signInWithCredential
           .catch(err =>{alert("SSO ended with an error" + err);})
       }) 
-    
-    alert('Added Faculty!');
     
 }
