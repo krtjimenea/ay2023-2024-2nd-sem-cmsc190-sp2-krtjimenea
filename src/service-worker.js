@@ -9,3 +9,18 @@ chrome.sidePanel
   .setPanelBehavior({ openPanelOnActionClick: true })
   .catch((error) => console.error(error));
 
+// // This code listens for changes in the sidePanel path
+// chrome.webNavigation.onHistoryStateUpdated.addListener(function(details) {
+//   chrome.tabs.sendMessage(details.tabId, { type: 'sidePanelPathChanged' });
+// });
+
+// chrome.runtime.onInstalled.addListener
+
+// chrome.tabs.onActivated.addListener(async ({ tabId }) => {
+//   const { path } = await chrome.sidePanel.getOptions({ tabId });
+//   console.log("current path" + path);
+//   // if (path === welcomePage) {
+//   //   chrome.sidePanel.setOptions({ path: mainPage });
+//   // }
+// });
+
