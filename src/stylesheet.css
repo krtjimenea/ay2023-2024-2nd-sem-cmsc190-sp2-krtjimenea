@@ -289,7 +289,18 @@ p{
 
 /**Exam Card CSS **/
 
-.card{
+/**Card CSS **/
+
+#cardList{
+    /* overflow: hidden;              */
+    display: flex;                
+    flex-direction: column;  
+    width: 264px; 
+    
+}
+
+.cards{
+    margin-bottom: 10px;
     background-color: #fff;
     width: 264px;             
     border: 2px solid #000;   
@@ -297,8 +308,7 @@ p{
     overflow: hidden;             
     display: flex;                
     flex-direction: column;  
-    box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-    
+    box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);     
 }
 
 .cardHeader{
@@ -546,8 +556,6 @@ select:focus{
 /** Modal Styling for Add Faculty**/
 
 /**Modal Overlay**/
-
-
 .modal-Overlay{
     position: fixed;
     top: 0;
@@ -562,7 +570,7 @@ select:focus{
     display: none;
 }
 
-.Add-Faculty-Modal{
+.Add-Modal{
     background-color: #61488C;
     display: flex;
     flex-direction: column;
@@ -611,6 +619,7 @@ select:focus{
     margin-top: 20px;
     margin-bottom: 20px;
 }
+
 
 /** View Faculty **/
 .nameButtonContainer{

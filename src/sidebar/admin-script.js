@@ -11,10 +11,11 @@ const auth = getAuth(FirebaseApp);
 const database = getDatabase(FirebaseApp);
 
 //Variables for HTML
-const AdminManageFaculty = '/AdminManageFaculty.html'
+const AdminManageFaculty = '/AdminManageFaculty.html';
+const AdminManageCourse = '/AdminManageCourses.html';
 
 //Variables for modal
-const modal = document.getElementsByClassName("Add-Faculty-Modal")[0];
+const modal = document.getElementsByClassName("Add-Modal")[0];
 const overlay = document.getElementsByClassName("modal-Overlay")[0];
 
 function openModal () {
@@ -50,37 +51,43 @@ function displayFacultyList(){
           if (user !== null) {
             const db = getDatabase(); 
             const facultyRef = ref(db,'faculty-in-charge/');
-            const facultyDiv = document.getElementsByClassName('card');
             get(facultyRef)
               .then((snapshot) => {
                 if (snapshot.exists()) {
                   alert("Success Firebase Access!");
-                  console.log(snapshot.val()); //checking for snapshot return
+                  // console.log(snapshot.val()); //checking for snapshot return
                   const facultyData = snapshot.val();
+                  var cardListDiv = document.getElementById('cardList');
                   //modify the card list div
                  
-                  facultyDiv.innerHTML='';
+                  cardListDiv.innerHTML='';
                   //loop through the snapshot
                   for(const facultyId in facultyData){
                     const faculty = facultyData[facultyId];
-                    const facultyHTML = document.createElement('div');
-                    //html for every faculty
-                    facultyHTML.innerHTML = `<div>
-                          <p class="cardHeader" id="FacultyName">Juan Dela Cruz Santos</p>
-                            <div class="cardDivText">
-                                <div class="cardSubDiv">
-                                    <p id="card-labels">ID Number:</p>
-                                    <p class="cardText" id="FacultyNumber">201201123</p>
-                                </div>
-                                <div class="cardSubDiv">
-                                    <p id="card-labels">Num of Courses:</p>
-                                    <p class="cardText" id="FacultyNumCourses">10</p>
-                                </div>
-                          </div>
-                        </div>`;
-                      
-                    facultyDiv.appendChild(facultyHTML);
+                    const facultyName = faculty.name;
+                    const facultyEmail = faculty.email;
+                    const FacultyIDNumber = faculty.employeeNum;
 
+                    
+                    //html for every faculty
+                    
+                      cardListDiv.innerHTML += `<div class="cards">
+                            <p class="cardHeader" id="FacultyName">${facultyName}</p>
+                              <div class="cardDivText">
+                                  <div class="cardSubDiv">
+                                      <p id="card-labels">ID Number:</p>
+                                      <p class="cardText" id="FacultyNumber">${FacultyIDNumber}</p>
+                                  </div>
+                                  <div class="cardSubDiv">
+                                      <p id="card-labels">Num of Courses:</p>
+                                      <p class="cardText" id="FacultyNumCourses">10</p>
+                                  </div>
+                            </div>
+                          </div>`;
+                        
+                      
+                      // facultyDiv.innerHTML+=facultyHTML
+                      
                   }
 
                 } else {
@@ -88,7 +95,7 @@ function displayFacultyList(){
                 }
               })
               .catch((err) => {
-                  console.log("Error with database: " + err.code + err.message);
+                  console.log("Error with database: " + err);
               });
           }
       })
@@ -136,9 +143,14 @@ window.addEventListener('DOMContentLoaded', function () {
         console.log('Clicked on Manage Faculty')
         chrome.sidePanel.setOptions({path:AdminManageFaculty})
       }
+
+      if(target.id === 'ManageCourseBtn'){
+        console.log('Clicked on Manage Courses');
+        chrome.sidePanel.setOptions({path:AdminManageCourse});
+      }
   
       // Check if the clicked element is the Add New Faculty
-      if (target.id === 'Add-New-Faculty') {
+      if (target.className === 'Add-Buttons-Admin') {
         console.log('Clicked on Add New Faculty');
         openModal();
       }
@@ -153,6 +165,19 @@ window.addEventListener('DOMContentLoaded', function () {
       if(target.id === 'Add-Faculty-DB'){
         console.log('Clicked Add New Faculty');
         createNewFaculty();
+      }
+
+      //modal open for new course
+      if(target.id ==='Add-New-Course'){
+        console.log('Clicked on Add New Course');
+        openModal();
+
+      }
+
+      //for adding a new course
+      if(target.id==='Add-Course-DB'){
+        console.log('Clicked Add New Course');
+        createNewCourse();
       }
 
 
@@ -212,6 +237,10 @@ function createNewFaculty(){
                   .then(()=>{
                     console.log('Success in Adding new Faculty with key: ' + newfacultyKey);
                     alert('Success in Adding new Faculty');
+                    //automatic close modal
+                    closeModal();
+                    //load the new database
+                    monitorSidePanelPath();
                   })
                   .catch((err) => {
                     console.log("Error with database: " + err);
@@ -223,4 +252,59 @@ function createNewFaculty(){
           .catch(err =>{alert("SSO ended with an error" + err);})
       }) 
     
+}
+
+//function to create and save the new course
+function createNewCourse(){
+   //get all the input
+   var courseTitle = document.getElementById('CourseTitleInput').value;
+   var courseCode = document.getElementById('CourseCode').value;
+
+   //check if there is a logged in user
+   chrome.identity.getAuthToken({ interactive: true }, token =>
+       {
+         if ( chrome.runtime.lastError || ! token ) {
+           alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
+           return
+         }
+   
+         //firebase authentication
+         signInWithCredential(auth, GoogleAuthProvider.credential(null, token))
+         .then(res =>{
+             const user = auth.currentUser;
+               
+             if (user !== null) {
+               //there is a user signed in
+               //new data 
+               var newCourse = {
+                 
+               }
+
+               //get a db reference
+               const db = getDatabase();
+               const facultyRef = ref(db,'faculty-in-charge');
+               const newfacultyKey = push(child(ref(db), 'faculty-in-charge')).key;
+
+               //update with the new data to the collection
+               const updates = {};
+               updates['/faculty-in-charge/' + newfacultyKey] = newFaculty;
+               update(ref(db), updates)
+                 .then(()=>{
+                   console.log('Success in Adding new Faculty with key: ' + newfacultyKey);
+                   alert('Success in Adding new Faculty');
+                   //automatic close modal
+                   closeModal();
+                   //load the new database
+                   monitorSidePanelPath();
+                 })
+                 .catch((err) => {
+                   console.log("Error with database: " + err);
+                 })
+
+               
+             }
+          })//EOF signInWithCredential
+         .catch(err =>{alert("SSO ended with an error" + err);})
+     }) 
+   
 }
