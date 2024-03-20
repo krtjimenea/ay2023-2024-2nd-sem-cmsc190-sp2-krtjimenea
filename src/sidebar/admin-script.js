@@ -13,6 +13,7 @@ const database = getDatabase(FirebaseApp);
 //Variables for HTML
 const AdminManageFaculty = '/AdminManageFaculty.html';
 const AdminManageCourse = '/AdminManageCourses.html';
+const AdminViewFaculty = '/AdminViewFaculty.html';
 
 //Variables for modal
 const modal = document.getElementsByClassName("Add-Modal")[0];
@@ -180,12 +181,28 @@ window.addEventListener('DOMContentLoaded', function () {
         createNewCourse();
       }
 
+      //for clicking the faculty card
+      if(target.id==='FacultyName'){
+        console.log('Clicked Faculty Card');
+        //get the clicked FacultyName or ID
+        var facultyNameValue = target.textContent;
+        // console.log("Clicked Faculty: " + facultyNameValue);
+        viewDetailsFaculty(facultyNameValue);
+      }
+
 
     });
 });
 
 
+//function to view the faculty details panel
+function viewDetailsFaculty(facultyNameValue){
+  console.log(facultyNameValue);
 
+  //change the path
+  chrome.sidePanel.setOptions({path:AdminViewFaculty})
+
+}
 
 //function to create and save the new faculty
 function createNewFaculty(){
