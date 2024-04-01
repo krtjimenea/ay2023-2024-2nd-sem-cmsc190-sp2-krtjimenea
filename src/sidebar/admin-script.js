@@ -120,6 +120,10 @@ function monitorSidePanelPath() {
       if(path === '/AdminManageFaculty.html'){
        displayFacultyList();
       }
+      // }else if(path ==='/'){
+      //   viewDetailsFaculty(facultyNameValue);
+
+      // }
       
     });
   });
@@ -186,8 +190,9 @@ window.addEventListener('DOMContentLoaded', function () {
         console.log('Clicked Faculty Card');
         //get the clicked FacultyName or ID
         var facultyNameValue = target.textContent;
-        // console.log("Clicked Faculty: " + facultyNameValue);
+        //call the function and pass the name value
         viewDetailsFaculty(facultyNameValue);
+
       }
 
 
@@ -197,10 +202,21 @@ window.addEventListener('DOMContentLoaded', function () {
 
 //function to view the faculty details panel
 function viewDetailsFaculty(facultyNameValue){
+  
+  //manipulate the DOM
+  // var currentHTML = document.getElementsByClassName("AppDiv-AdminManage");
+  document.getElementsByClassName("AppDiv-AdminManage")[0].innerHTML ="";
   console.log(facultyNameValue);
 
-  //change the path
-  chrome.sidePanel.setOptions({path:AdminViewFaculty})
+  //change the button
+  // document.getElementsByClassName("AdminAddButton").innerHTML = '';
+  document.getElementsByClassName("AppDiv-AdminManage")[0].innerHTML = `<div class="AdminAddButton"> <button type="button" class="Add-Buttons-Admin" id="Add-New-Course">Add New Course</button> </div>`;
+
+
+  // //check if path is the admin view faculty then render the passed faculty name
+  // var currentFaculty = document.getElementById("FacultyName");
+  // currentFaculty.textContent = facultyNameValue;
+  
 
 }
 
