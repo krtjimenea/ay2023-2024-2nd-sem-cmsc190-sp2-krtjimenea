@@ -48,7 +48,7 @@
             </div>
 
             <!--Modal for Adding New Faculty-->
-                <section class="Add-Modal">
+                <section class="Add-Faculty-Modal">
 
                     <div class="modal-flex">
                         <p class="ModalPrompts">Please input Faculty Details</p>
@@ -66,7 +66,28 @@
                         <button type="button" class="ModalAddBtn" id="Add-Faculty-DB">Add New Faculty</button>
                     </div>
                 </section>
-                <div class="modal-Overlay"></div>
+                <div class="modal-faculty-Overlay"></div>
+            
+                <!--Modal for Adding New Course-->
+                <section class="Add-Course-Modal">
+
+                    <div class="modal-flex">
+                        <p class="ModalPrompts">Please input Course Details</p>
+                        <button class="CourseModalCloseBtn">⨉</button>
+                    </div>
+                        <p id="input-labels">Course Code</p>
+                        <input type="text" class="AdminTextInput" id ="CourseCodeInput"  placeholder="CMSC 100"/>
+                        <p id="input-labels">Course Title</p>
+                        <input type="text" class="AdminTextInput" id ="CourseTitleInput" placeholder="Introduction to "/>
+
+                    
+                    <!--Button to Add Course to Database-->
+                    <div class="Modal-AddBtnDiv">
+                        <button type="button" class="ModalAddBtn" id="Add-Course-DB">Add New Course</button>
+                    </div>
+                </section>
+                <div class="modal-course-Overlay"></div>
+
 
             
         </div> 

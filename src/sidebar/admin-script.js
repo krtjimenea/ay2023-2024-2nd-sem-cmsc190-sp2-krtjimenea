@@ -4,7 +4,7 @@
 //import for SDKs
 import { FirebaseApp } from './firebase';
 import {getAuth,signInWithCredential,GoogleAuthProvider} from 'firebase/auth';
-import {getDatabase,ref,set, onValue, get, update,push, child} from 'firebase/database';
+import {getDatabase,ref,set, onValue, get, update,push, child, query,orderByChild} from 'firebase/database';
 //Initialize Firebase
 const auth = getAuth(FirebaseApp);
 //Initialize database
@@ -16,20 +16,22 @@ const AdminManageCourse = '/AdminManageCourses.html';
 const AdminViewFaculty = '/AdminViewFaculty.html';
 
 //Variables for modal
-const modal = document.getElementsByClassName("Add-Modal")[0];
-const overlay = document.getElementsByClassName("modal-Overlay")[0];
+// const modal = document.getElementsByClassName("Add-Modal")[0];
+// const overlay = document.getElementsByClassName("modal-Overlay")[0];
 
-function openModal () {
-    // const modal = document.getElementsByClassName("Add-Faculty-Modal");
-    modal.style.display = "block";
-    overlay.style.display = "block";
+// function openModal () {
+
+//     //check which modal to open
+//     // const modal = document.getElementsByClassName("Add-Faculty-Modal");
+//     modal.style.display = "block";
+//     overlay.style.display = "block";
     
-};
+// };
 
-function closeModal(){
-    modal.style.display = "none";
-    overlay.style.display = "none";
-};
+// function closeModal(){
+//     modal.style.display = "none";
+//     overlay.style.display = "none";
+// };
 
 //display the faculty data
 function displayFacultyList(){
@@ -136,6 +138,7 @@ monitorSidePanelPath();
 window.addEventListener('DOMContentLoaded', function () {
   
     const headDiv = document.getElementById('AppBody'); // Replace with the actual ID
+    var facultyNameValue;
     
   
     headDiv.addEventListener('click', function (event) {
@@ -155,14 +158,22 @@ window.addEventListener('DOMContentLoaded', function () {
       }
   
       // Check if the clicked element is the Add New Faculty
-      if (target.className === 'Add-Buttons-Admin') {
+      if (target.id === 'Add-New-Faculty') {
         console.log('Clicked on Add New Faculty');
-        openModal();
+        // openModal();
+        let modal = document.getElementsByClassName("Add-Faculty-Modal")[0];
+        let overlay = document.getElementsByClassName("modal-faculty-Overlay")[0];
+        modal.style.display = "block";
+        overlay.style.display = "block";
       }
 
       if (target.className === 'ModalCloseBtn'){
         console.log('Clicked Close Modal');
-        closeModal();
+        //closeModal();
+        let modal = document.getElementsByClassName("Add-Faculty-Modal")[0];
+        let overlay = document.getElementsByClassName("modal-faculty-Overlay")[0];
+        modal.style.display = "none";
+        overlay.style.display = "none";
 
       }
 
@@ -175,23 +186,34 @@ window.addEventListener('DOMContentLoaded', function () {
       //modal open for new course
       if(target.id ==='Add-New-Course'){
         console.log('Clicked on Add New Course');
-        openModal();
+        // openModal(); for adding new course
+        let modal = document.getElementsByClassName("Add-Course-Modal")[0];
+        let overlay = document.getElementsByClassName("modal-course-Overlay")[0];
+        modal.style.display = "block";
+        overlay.style.display = "block";
+      }
 
+      //modal close for course
+      if(target.className === 'CourseModalCloseBtn'){
+        let modal = document.getElementsByClassName("Add-Course-Modal")[0];
+        let overlay = document.getElementsByClassName("modal-course-Overlay")[0];
+        modal.style.display = "none";
+        overlay.style.display = "none";
       }
 
       //for adding a new course
       if(target.id==='Add-Course-DB'){
         console.log('Clicked Add New Course');
-        createNewCourse();
+        createNewCourse(facultyNameValue);
       }
 
       //for clicking the faculty card
       if(target.id==='FacultyName'){
         console.log('Clicked Faculty Card');
         //get the clicked FacultyName or ID
-        var facultyNameValue = target.textContent;
+        facultyNameValue = target.textContent;
         //call the function and pass the name value
-        viewDetailsFaculty(facultyNameValue);
+        viewDetailsFaculty();
 
       }
 
@@ -200,13 +222,13 @@ window.addEventListener('DOMContentLoaded', function () {
 });
 
 
-//function to view the faculty details panel
-function viewDetailsFaculty(facultyNameValue){
+//function to view the faculty details paneldf
+function viewDetailsFaculty(){
   
   //manipulate the DOM
   // var currentHTML = document.getElementsByClassName("AppDiv-AdminManage");
   document.getElementsByClassName("AppDiv-AdminManage")[0].innerHTML ="";
-  console.log(facultyNameValue);
+  
 
   //change the button
   // document.getElementsByClassName("AdminAddButton").innerHTML = '';
@@ -284,14 +306,14 @@ function createNewFaculty(){
            })//EOF signInWithCredential
           .catch(err =>{alert("SSO ended with an error" + err);})
       }) 
-    
 }
 
 //function to create and save the new course
-function createNewCourse(){
+function createNewCourse(facultyNameValue){
    //get all the input
    var courseTitle = document.getElementById('CourseTitleInput').value;
-   var courseCode = document.getElementById('CourseCode').value;
+   var courseCode = document.getElementById('CourseCodeInput').value;
+   console.log(facultyNameValue);
 
    //check if there is a logged in user
    chrome.identity.getAuthToken({ interactive: true }, token =>
@@ -308,31 +330,34 @@ function createNewCourse(){
                
              if (user !== null) {
                //there is a user signed in
-               //new data 
+               //new data for course
                var newCourse = {
-                 
+                title:courseTitle,
+                code:courseCode,
+                students: {
+                  student1: null,
+                  student2: null
+                },
+                assessment: {
+                  assessment1: null
+                }
                }
 
+               //find the current faculty
                //get a db reference
-               const db = getDatabase();
-               const facultyRef = ref(db,'faculty-in-charge');
-               const newfacultyKey = push(child(ref(db), 'faculty-in-charge')).key;
+                const db = getDatabase();
+                const facultyRef = ref(db,'faculty-in-charge');
+              //    //get snapshot
+              //    get(facultyRef)
+              //    .then((snapshot => {
+              //     if(snapshot.exists){
+                const facultyNames = query(ref(db, 'faculty-in-charge'), orderByChild('name'));
 
-               //update with the new data to the collection
-               const updates = {};
-               updates['/faculty-in-charge/' + newfacultyKey] = newFaculty;
-               update(ref(db), updates)
-                 .then(()=>{
-                   console.log('Success in Adding new Faculty with key: ' + newfacultyKey);
-                   alert('Success in Adding new Faculty');
-                   //automatic close modal
-                   closeModal();
-                   //load the new database
-                   monitorSidePanelPath();
-                 })
-                 .catch((err) => {
-                   console.log("Error with database: " + err);
-                 })
+              //   }
+              //  }))
+              //    .catch((err) => {
+              //      console.log("Error with database: " + err);
+              //    })
 
                
              }

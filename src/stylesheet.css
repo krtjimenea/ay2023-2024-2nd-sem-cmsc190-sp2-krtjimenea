@@ -556,7 +556,7 @@ select:focus{
 /** Modal Styling for Add Faculty**/
 
 /**Modal Overlay**/
-.modal-Overlay{
+.modal-faculty-Overlay,.modal-course-Overlay{
     position: fixed;
     top: 0;
     bottom: 0;
@@ -570,7 +570,8 @@ select:focus{
     display: none;
 }
 
-.Add-Modal{
+
+.Add-Faculty-Modal, .Add-Course-Modal{
     background-color: #61488C;
     display: flex;
     flex-direction: column;
