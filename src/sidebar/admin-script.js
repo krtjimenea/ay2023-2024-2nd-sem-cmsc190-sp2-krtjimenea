@@ -4,7 +4,7 @@
 //import for SDKs
 import { FirebaseApp } from './firebase';
 import {getAuth,signInWithCredential,GoogleAuthProvider} from 'firebase/auth';
-import {getDatabase,ref,set, onValue, get, update,push, child, query,orderByChild} from 'firebase/database';
+import {getDatabase,ref,set,on, onValue, get, update,push, child, query,orderByChild,equalTo, orderByValue} from 'firebase/database';
 //Initialize Firebase
 const auth = getAuth(FirebaseApp);
 //Initialize database
@@ -331,35 +331,41 @@ function createNewCourse(facultyNameValue){
              if (user !== null) {
                //there is a user signed in
                //new data for course
-               var newCourse = {
-                title:courseTitle,
-                code:courseCode,
-                students: {
-                  student1: null,
-                  student2: null
-                },
-                assessment: {
-                  assessment1: null
-                }
-               }
+              //  var newCourse = {
+              //   title:courseTitle,
+              //   code:courseCode,
+              //   students: {
+              //     student1: null,
+              //     student2: null
+              //   },
+              //   assessment: {
+              //     assessment1: null
+              //   }
+              //  }
 
                //find the current faculty
                //get a db reference
                 const db = getDatabase();
-                const facultyRef = ref(db,'faculty-in-charge');
-              //    //get snapshot
-              //    get(facultyRef)
-              //    .then((snapshot => {
-              //     if(snapshot.exists){
-                const facultyNames = query(ref(db, 'faculty-in-charge'), orderByChild('name'));
+                const facultyRef = ref(db,'faculty-in-charge/');
 
-              //   }
-              //  }))
-              //    .catch((err) => {
-              //      console.log("Error with database: " + err);
-              //    })
+                onValue(facultyRef, (snapshot) => {
+                  snapshot.forEach((childSnapshot) => {
+                    const childKey = childSnapshot.key;
+                    const childData = childSnapshot.val();
+                    //each childData is already the object itself
+                    if(childData.name === facultyNameValue){
+                      alert("Success Firebase Access!" + childData.name + "FIC Exists");
+                      console.log("FIC Exists:" + childData.name);
 
-               
+                    }else{
+                      alert("Cannot add course to FIC");
+                    }
+                    
+                  });
+                }, {
+                  onlyOnce: true
+                });
+                
              }
           })//EOF signInWithCredential
          .catch(err =>{alert("SSO ended with an error" + err);})
