@@ -331,17 +331,17 @@ function createNewCourse(facultyNameValue){
              if (user !== null) {
                //there is a user signed in
                //new data for course
-              //  var newCourse = {
-              //   title:courseTitle,
-              //   code:courseCode,
-              //   students: {
-              //     student1: null,
-              //     student2: null
-              //   },
-              //   assessment: {
-              //     assessment1: null
-              //   }
-              //  }
+               var newCourse = {
+                title:courseTitle,
+                code:courseCode,
+                students: {
+                  student1: null,
+                  student2: null
+                },
+                assessment: {
+                  assessment1: null
+                }
+               }
 
                //find the current faculty
                //get a db reference
@@ -354,14 +354,15 @@ function createNewCourse(facultyNameValue){
                     const childData = childSnapshot.val();
                     //each childData is already the object itself
                     if(childData.name === facultyNameValue){
-                      alert("Success Firebase Access!" + childData.name + "FIC Exists");
-                      console.log("FIC Exists:" + childData.name);
-
-                    }else{
-                      alert("Cannot add course to FIC");
+                      alert("Success Firebase Access! " + childData.name + " FIC Exists");
+                      //add the course
+                      //new key for the course
+                      // const newCourseKey = push(child(ref(db), 'faculty-in-charge')).key;
+                      const updates ={};
+                      updates['/clas']
                     }
                     
-                  });
+                  })//EOF forEach loop;
                 }, {
                   onlyOnce: true
                 });
