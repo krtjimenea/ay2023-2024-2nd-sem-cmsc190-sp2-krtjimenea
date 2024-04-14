@@ -242,6 +242,11 @@ function viewDetailsFaculty(){
 
 }
 
+//function to view the classes 
+function viewDetailsCourse(){
+  //manipulate AdminManageFaculty
+}
+
 //function to create and save the new faculty
 function createNewFaculty(){
 
@@ -358,9 +363,19 @@ function createNewCourse(facultyNameValue){
                       //add the course
                       //new key for the course
                       // const newCourseKey = push(child(ref(db), 'faculty-in-charge')).key;
-                      const updates ={};
-                      updates['/clas']
-                    }
+                      const updateCourse ={};
+                      updateCourse[`/faculty-in-charge/${childKey}/classes/class1/`] = newCourse;
+                      update(ref(db), updateCourse)
+                        .then(()=>{
+                          console.log('Success in Adding new course');
+                          alert('Success in Adding new course');
+                          
+                        })
+                        .catch((err) => {
+                          console.log("Error with database: " + err);
+                        })
+
+                      }
                     
                   })//EOF forEach loop;
                 }, {
