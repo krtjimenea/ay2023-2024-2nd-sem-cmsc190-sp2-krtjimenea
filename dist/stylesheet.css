@@ -515,6 +515,17 @@ select:focus{
     margin-top: 20px;
 }
 
+.AdminHeaderDetails{
+    width: 264px;
+    height: 43px;
+    font-size: 35px;
+    color: #fff;
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;   
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
 .Add-Buttons-Admin{
     background-color: #61488C;
     width: 264px;
