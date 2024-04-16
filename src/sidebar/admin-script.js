@@ -120,12 +120,26 @@ function monitorSidePanelPath() {
       const path = options.path;
       console.log('path: ' + path);
       if(path === '/AdminManageFaculty.html'){
-       displayFacultyList();
-      }
-      // }else if(path ==='/'){
-      //   viewDetailsFaculty(facultyNameValue);
+        displayFacultyList();
 
-      // }
+      }else if(path ==='/AdminManageCourses.html'){
+        //access chrome storage for any passed value
+        chrome.storage.local.get('value1', function(data) {
+          //course
+          var currentCourse = data.value1;
+          //faculty
+          chrome.storage.local.get('value2', function(data) {
+            var currentFaculty = data.value2;
+            if(currentCourse){
+              console.log('Current FIC and Course Selection: ', currentCourse + currentFaculty);
+              viewCoursePanel(currentFaculty, currentCourse);
+            } else {
+              console.error('Error: Value not found in storage.');
+            }
+          });
+        });
+
+      }
       
     });
   });
@@ -139,6 +153,7 @@ window.addEventListener('DOMContentLoaded', function () {
   
     const headDiv = document.getElementById('AppBody'); // Replace with the actual ID
     var facultyNameValue;
+    var courseCodeValue;
     
   
     headDiv.addEventListener('click', function (event) {
@@ -217,10 +232,100 @@ window.addEventListener('DOMContentLoaded', function () {
 
       }
 
+      //for clicking the course card
+      if(target.id === 'CourseCode'){
+        courseCodeValue = target.textContent;
+        chrome.runtime.sendMessage({action: 'passValue1', value: courseCodeValue});
+        chrome.runtime.sendMessage({action: 'passValue2', value: facultyNameValue});
+        chrome.sidePanel.setOptions({path:AdminManageCourse});
+        
+
+      }
+
 
     });
 });
 
+//function to view courses panel
+function viewCoursePanel(currentFacultyValue, currentCourseCodeValue){
+
+  console.log('Current FIC and Course Selection: ', currentFacultyValue + currentCourseCodeValue);
+  chrome.identity.getAuthToken({ interactive: true }, token =>
+    {
+      if ( chrome.runtime.lastError || ! token ) {
+        alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
+        return
+      }
+
+      //firebase authentication
+      signInWithCredential(auth, GoogleAuthProvider.credential(null, token))
+      .then(res =>{
+          const user = auth.currentUser;
+          //get profile uid
+          if (user !== null) {
+            const db = getDatabase(); 
+            const facultyRef = ref(db,'faculty-in-charge/');
+            onValue(facultyRef, (snapshot) => {
+              snapshot.forEach((childSnapshot) => {
+                const childKey = childSnapshot.key;
+                const childData = childSnapshot.val();
+                //each childData is already the object itself
+                if(childData.name === currentFacultyValue){
+                  var cardListDiv = document.getElementById('cardList');
+                  //modify the card list div
+                
+                  cardListDiv.innerHTML='';
+                  //loop through the child snapshot
+                  for(const courses in childData.classes){
+          
+                    const course = childData.classes[courses];
+                    const courseCode = course.code;
+                    const courseSection = course.section;
+                    const courseTitle = course.title;
+                    const courseSemester = course.semester;
+                    const courseUnits = course.units;
+                    // console.log("Course Key: " + courseCode);
+                    
+                      
+                    cardListDiv.innerHTML += `<div class="cards">
+                            <p class="cardHeader" id="CourseCode">${courseCode} </p>
+                              <div class="cardDivText">
+                                  <div class="cardSubDiv">
+                                      <p id="card-labels">Course Title:</p>
+                                      <p class="cardText" id="CourseTitle">${courseTitle}</p>
+                                  </div>
+                                  <div class="cardSubDiv">
+                                    <p id="card-labels">Course Semester:</p>
+                                    <p class="cardText" id="CourseTitle">${courseSemester}</p>
+                                </div>
+                                <div class="cardSubDiv">
+                                    <p id="card-labels">Course Units:</p>
+                                    <p class="cardText" id="CourseTitle">${courseUnits}</p>
+                                </div>
+
+                            </div>
+                          </div>
+                          <!-- Button to Add Classlist CSV -->
+                          <div class="AdminAddButton">
+                              <button type="button" class="Add-Buttons-Admin" id="Add-New-Classlist">Add Classlist</button>
+                          </div>`;
+
+                  
+                    
+                  }
+                }
+              })//EOF forEach loop;
+            }, {
+              onlyOnce: true
+            });
+          }
+      })
+      .catch((err) => {
+        alert("SSO ended with an error" + err);
+      });
+  });
+  
+}
 
 //function to view the faculty details paneldf
 function viewDetailsFaculty(facultyNameValue){
@@ -276,16 +381,21 @@ function viewDetailsCourse(facultyNameValue){
           
                     const course = childData.classes[courses];
                     const courseCode = course.code;
+                    const courseSection = course.section;
                     const courseTitle = course.title;
                     // console.log("Course Key: " + courseCode);
                     
                       
                     cardListDiv.innerHTML += `<div class="cards">
-                              <p class="cardHeader" id="FacultyName">${courseCode}</p>
+                              <p class="cardHeader" id="CourseCode">${courseCode} </p>
                                 <div class="cardDivText">
+                                <div class="cardSubDiv">
+                                        <p id="card-labels">Course Section:</p>
+                                        <p class="cardText" id="CourseTitle">${courseSection}</p>
+                                    </div>
                                     <div class="cardSubDiv">
                                         <p id="card-labels">Course Title:</p>
-                                        <p class="cardText" id="FacultyNumber">${courseTitle}</p>
+                                        <p class="cardText" id="CourseTitle">${courseTitle}</p>
                                     </div>
                               </div>
                             </div>`;
@@ -357,7 +467,10 @@ function createNewFaculty(){
                     console.log('Success in Adding new Faculty with key: ' + newfacultyKey);
                     alert('Success in Adding new Faculty');
                     //automatic close modal
-                    closeModal();
+                    let modal = document.getElementsByClassName("Add-Faculty-Modal")[0];
+                    let overlay = document.getElementsByClassName("modal-faculty-Overlay")[0];
+                    modal.style.display = "none";
+                    overlay.style.display = "none";
                     //load the new database
                     monitorSidePanelPath();
                   })
@@ -377,6 +490,10 @@ function createNewCourse(facultyNameValue){
    //get all the input
    var courseTitle = document.getElementById('CourseTitleInput').value;
    var courseCode = document.getElementById('CourseCodeInput').value;
+   var courseSection = document.getElementById('CourseSectionInput').value;
+   var courseSemester = document.getElementById('CourseSemInput').value;
+   var courseUnits = document.getElementById('CourseUnitsInput').value;
+
    console.log(facultyNameValue);
 
    //check if there is a logged in user
@@ -398,6 +515,9 @@ function createNewCourse(facultyNameValue){
                var newCourse = {
                 title:courseTitle,
                 code:courseCode,
+                section: courseSection,
+                units: courseUnits,
+                semester: courseSemester,
                 students: {
                   student1: null,
                   student2: null
@@ -429,6 +549,11 @@ function createNewCourse(facultyNameValue){
                         .then(()=>{
                           console.log('Success in Adding new course');
                           alert('Success in Adding new course');
+                          //close add course modal
+                          let modal = document.getElementsByClassName("Add-Course-Modal")[0];
+                          let overlay = document.getElementsByClassName("modal-course-Overlay")[0];
+                          modal.style.display = "none";
+                          overlay.style.display = "none";
                           
                         })
                         .catch((err) => {

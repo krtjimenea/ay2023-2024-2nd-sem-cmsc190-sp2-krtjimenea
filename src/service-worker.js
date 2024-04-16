@@ -24,3 +24,17 @@ chrome.sidePanel
 //   // }
 // });
 
+//chrome listener for message passing between panels
+chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+  if (message.action === 'passValue1') {
+    console.log('Received value:', message.value);
+    //chrome storage
+    chrome.storage.local.set({'value1': message.value});
+  }
+  
+  if(message.action === 'passValue2'){
+     //chrome storage
+     console.log('Received value:', message.value);
+     chrome.storage.local.set({'value2': message.value});
+  }
+});
