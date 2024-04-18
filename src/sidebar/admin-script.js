@@ -258,14 +258,52 @@ window.addEventListener('DOMContentLoaded', function () {
     });
 });
 
-//function to upload the classlist as CSV file
+//function to save each student data to the DB
+function saveStudentToDB(studentData){
+
+  // console.log(studentData)
+  const data = studentData.split(',');
+  console.log(data);
+  data.forEach((info,index,array) =>{
+    if(index === 0){
+      var studentNumber = array[index];
+      var studentFirstName = array[index+1];
+      var studentLastName = array[index+2];
+      var studentEmail = array[index+3];
+
+      console.log('Student Email is: ' + studentEmail);
+    }
+    
+    
+  })
+  //loop through the student data object list
+  // for(var info in data){
+  //   console.log(info);
+  // }
+  // // console.log('\n');
+}
+
+
+//function to upload the classlist as CSV file and parse each student line of data
 function uploadClasslistCSV(contents){
   //open file handler
  
     const rows = contents.split('\n');
-    rows.forEach(row => console.log(row));
+    //skip first line (label)
+    // console.log(rows);
+    rows.forEach((row, index)=>{
+      //skip first line (label)
+      if(index === 0) return;
+      parseData(row)
+    });
     
- 
+    function parseData(data){
+      const items = data.split('\n');
+      items.forEach(item=> {
+        //item is now each sudent data
+        saveStudentToDB(item);
+      });
+    } 
 }
 //function to view courses panel
 function viewCoursePanel(currentFacultyValue, currentCourseCodeValue){
