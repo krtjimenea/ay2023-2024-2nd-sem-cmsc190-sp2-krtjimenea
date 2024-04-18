@@ -271,18 +271,66 @@ function saveStudentToDB(studentData){
       var studentLastName = array[index+2];
       var studentEmail = array[index+3];
 
-      console.log('Student Email is: ' + studentEmail);
+      // console.log('Student Email is: ' + studentEmail);
+      //check if there is a logged in user
+    chrome.identity.getAuthToken({ interactive: true }, token =>
+      {
+        if ( chrome.runtime.lastError || ! token ) {
+          alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
+          return
+        }
+  
+        //firebase authentication
+        signInWithCredential(auth, GoogleAuthProvider.credential(null, token))
+        .then(res =>{
+            const user = auth.currentUser;
+              
+            if (user !== null) {
+              //there is a user signed in
+              //new data 
+              var newStudent = {
+                Email: studentEmail,
+                StudentNumber: studentNumber,
+                FirstName: studentFirstName,
+                LastName: studentLastName,
+                IPAddress: '',
+                OperatingSystem: '',
+                SystemCPU: '',
+                SystemDisplayResolution: '',
+                Browser: '',
+                Geolocation_lat: '',
+                Geolocation_long: ''
+
+              }
+
+              //get a db reference
+              const db = getDatabase();
+              const studentRef = ref(db,'students');
+              const newStudentKey = push(child(ref(db), 'students')).key;
+
+              //update with the new data to the collection
+              const updates = {};
+              updates['/students/' + newStudentKey] = newStudent;
+              update(ref(db), updates)
+                .then(()=>{
+                  console.log('Success in Adding new Student with key: ' + newStudentKey);
+                  alert('Success in Adding new Student with key: ' + newStudentKey);
+                })
+                .catch((err) => {
+                  console.log("Error with database: " + err);
+                })
+
+              
+            }
+         })//EOF signInWithCredential
+        .catch(err =>{alert("SSO ended with an error" + err);})
+    }) 
+
     }
     
-    
   })
-  //loop through the student data object list
-  // for(var info in data){
-  //   console.log(info);
-  // }
-  // // console.log('\n');
 }
-
+  
 
 //function to upload the classlist as CSV file and parse each student line of data
 function uploadClasslistCSV(contents){
