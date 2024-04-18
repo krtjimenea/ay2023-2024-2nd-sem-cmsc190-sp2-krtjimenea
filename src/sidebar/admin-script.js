@@ -261,6 +261,21 @@ window.addEventListener('DOMContentLoaded', function () {
 //function to save each student data to the DB
 function saveStudentToDB(studentData){
 
+   //access chrome storage for any passed value
+   chrome.storage.local.get('value1', function(data) {
+    //course
+    var currentCourse = data.value1;
+    //faculty
+    chrome.storage.local.get('value2', function(data) {
+      var currentFaculty = data.value2;
+      if(currentCourse){
+        console.log('Current FIC and Course Selection: ', currentCourse + currentFaculty);
+      } else {
+        console.error('Error: Value not found in storage.');
+      }
+    });
+  });
+
   // console.log(studentData)
   const data = studentData.split(',');
   console.log(data);
@@ -306,7 +321,8 @@ function saveStudentToDB(studentData){
               //get a db reference
               const db = getDatabase();
               const studentRef = ref(db,'students');
-              const newStudentKey = push(child(ref(db), 'students')).key;
+              // const newStudentKey = push(child(ref(db), 'students')).key;
+              const newStudentKey = studentNumber;
 
               //update with the new data to the collection
               const updates = {};
@@ -314,14 +330,45 @@ function saveStudentToDB(studentData){
               update(ref(db), updates)
                 .then(()=>{
                   console.log('Success in Adding new Student with key: ' + newStudentKey);
-                  alert('Success in Adding new Student with key: ' + newStudentKey);
+                  // alert('Success in Adding new Student with key: ' + newStudentKey);
                 })
                 .catch((err) => {
                   console.log("Error with database: " + err);
                 })
+              
+              //update the student under the course
+            //   const facultyRef = ref(db,'faculty-in-charge/');
+            //   onValue(facultyRef, (snapshot) => {
+            //   snapshot.forEach((childSnapshot) => {
+            //     const childKey = childSnapshot.key;
+            //     const childData = childSnapshot.val();
+            //     //each childData is already the object itself
+            //     if(childData.name === currentFaculty){
+            //       //loop through the courses
+            //       for(const courses in childData.classes){
+            //         if(courses === currentCourse){
+            //           updateCourseStudent[`/faculty-in-charge/${childKey}/classes/${childData.key}`] = newStudentKey; 
+            //           update(ref(db), updateCourseStudent)
+            //             .then(()=>{
+            //               console.log('Success in Adding Student Keys');
+            //               alert('Success in Adding new course');
+                          
+            //             })
+            //             .catch((err) => {
+            //               console.log("Error with database: " + err);
+            //             })
+            //         }
+            //       }
+                
+                 
+            //     }
+            //   })//EOF forEach loop;
+            // }, {
+            //   onlyOnce: true
+            // });
 
               
-            }
+          }
          })//EOF signInWithCredential
         .catch(err =>{alert("SSO ended with an error" + err);})
     }) 
@@ -627,11 +674,11 @@ function createNewCourse(facultyNameValue){
                 units: courseUnits,
                 semester: courseSemester,
                 students: {
-                  student1: null,
-                  student2: null
+                  student1: '',
+                  student2: ''
                 },
                 assessment: {
-                  assessment1: null
+                  assessment1: ''
                 }
                }
 
