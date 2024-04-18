@@ -38,3 +38,18 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
      chrome.storage.local.set({'value2': message.value});
   }
 });
+
+//chrome listener for uploading the csv file
+chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+  if (message.action === 'uploadCSV') {
+    const file = message.file;
+    const reader = new FileReader();
+    reader.onload = function (event) {
+      const csvData = event.target.result;
+      chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+        chrome.tabs.sendMessage(tabs[0].id, { action: 'processCSV', csvData });
+      });
+    };
+    reader.readAsText(file);
+  }
+});

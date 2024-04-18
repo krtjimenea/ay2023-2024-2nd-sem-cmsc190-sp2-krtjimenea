@@ -9,6 +9,8 @@ import {getDatabase,ref,set,on, onValue, get, update,push, child, query,orderByC
 const auth = getAuth(FirebaseApp);
 //Initialize database
 const database = getDatabase(FirebaseApp);
+// const fs = require("fs");
+// const { parse } = require("csv-parse");
 
 //Variables for HTML
 const AdminManageFaculty = '/AdminManageFaculty.html';
@@ -238,14 +240,33 @@ window.addEventListener('DOMContentLoaded', function () {
         chrome.runtime.sendMessage({action: 'passValue1', value: courseCodeValue});
         chrome.runtime.sendMessage({action: 'passValue2', value: facultyNameValue});
         chrome.sidePanel.setOptions({path:AdminManageCourse});
-        
+      }
 
+      //for clicking the add new classlist button
+      //add classlist csv modal and function
+      if(target.id === 'Add-New-Classlist'){
+        console.log("Clicked Add New Classlist CSV");
+        var reader = new FileReader();
+        reader.addEventListener('load', function() {
+          // console.log(this.result);
+          uploadClasslistCSV(this.result);
+        });
+        reader.readAsText(document.querySelector('input').files[0]);
       }
 
 
     });
 });
 
+//function to upload the classlist as CSV file
+function uploadClasslistCSV(contents){
+  //open file handler
+ 
+    const rows = contents.split('\n');
+    rows.forEach(row => console.log(row));
+    
+ 
+}
 //function to view courses panel
 function viewCoursePanel(currentFacultyValue, currentCourseCodeValue){
 
@@ -307,7 +328,8 @@ function viewCoursePanel(currentFacultyValue, currentCourseCodeValue){
                           </div>
                           <!-- Button to Add Classlist CSV -->
                           <div class="AdminAddButton">
-                              <button type="button" class="Add-Buttons-Admin" id="Add-New-Classlist">Add Classlist</button>
+                              <input id="csvFileInput" type="file"/>
+                              <button type="button" class="Add-Buttons-Admin" id="Add-New-Classlist">Upload</button>
                           </div>`;
 
                   

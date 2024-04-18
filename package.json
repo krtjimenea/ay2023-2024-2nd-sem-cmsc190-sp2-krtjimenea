@@ -8,6 +8,7 @@
   "release": "webpack --config webpack.production.js"
  },
  "dependencies": {
+  "csv": "^6.3.8",
   "file-loader": "^6.2.0",
   "firebase": "^10.6.0",
   "firebaseui": "^6.1.0",
