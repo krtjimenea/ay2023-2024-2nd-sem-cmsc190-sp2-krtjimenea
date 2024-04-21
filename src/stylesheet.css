@@ -311,6 +311,7 @@ p{
     box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);     
 }
 
+
 .cardHeader{
     color: #000;
     text-align: center;
@@ -651,4 +652,15 @@ select:focus{
 
 .admin-ViewCourse{
     float: right;
+}
+
+#Admin-SubmitExamSchedBtn{
+    background-color: #b7db90;
+    width: 246px;
+    height: 43px;
+    color: #000;
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    border-radius: 12px;
+    border: none;
 }
