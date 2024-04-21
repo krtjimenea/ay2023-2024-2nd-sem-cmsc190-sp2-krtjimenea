@@ -133,7 +133,7 @@ function monitorSidePanelPath() {
           chrome.storage.local.get('value2', function(data) {
             var currentFaculty = data.value2;
             if(currentCourse){
-              console.log('Current FIC and Course Selection: ', currentCourse + currentFaculty);
+              // console.log('Current FIC and Course Selection: ', currentCourse + currentFaculty);
               viewCoursePanel(currentFaculty, currentCourse);
             } else {
               console.error('Error: Value not found in storage.');
@@ -154,7 +154,7 @@ monitorSidePanelPath();
 window.addEventListener('DOMContentLoaded', function () {
   
     const headDiv = document.getElementById('AppBody'); // Replace with the actual ID
-    var facultyNameValue;
+    var facultyNumberValue;
     var courseCodeValue;
     
   
@@ -228,17 +228,17 @@ window.addEventListener('DOMContentLoaded', function () {
       if(target.id==='FacultyName'){
         // console.log('Clicked Faculty Card');
         //get the clicked FacultyName or ID
-        facultyNameValue = target.textContent;
+        facultyNumberValue = document.getElementById('FacultyNumber').textContent;
         //call the function and pass the name value
-        viewDetailsFaculty(facultyNameValue);
+        viewDetailsFaculty(facultyNumberValue);
 
       }
 
       //for clicking the course card
       if(target.id === 'CourseCode'){
-        courseCodeValue = target.textContent;
+        courseCodeValue = document.getElementById('CourseCode').textContent
         chrome.runtime.sendMessage({action: 'passValue1', value: courseCodeValue});
-        chrome.runtime.sendMessage({action: 'passValue2', value: facultyNameValue});
+        chrome.runtime.sendMessage({action: 'passValue2', value: facultyNumberValue});
         chrome.sidePanel.setOptions({path:AdminManageCourse});
       }
 
@@ -257,127 +257,6 @@ window.addEventListener('DOMContentLoaded', function () {
 
     });
 });
-
-//function to save each student data to the DB
-function saveStudentToDB(studentData){
-
-   //access chrome storage for any passed value
-   chrome.storage.local.get('value1', function(data) {
-    //course
-    var currentCourse = data.value1;
-    //faculty
-    chrome.storage.local.get('value2', function(data) {
-      var currentFaculty = data.value2;
-      if(currentCourse){
-        console.log('Current FIC and Course Selection: ', currentCourse + currentFaculty);
-      } else {
-        console.error('Error: Value not found in storage.');
-      }
-    });
-  });
-
-  // console.log(studentData)
-  const data = studentData.split(',');
-  console.log(data);
-  data.forEach((info,index,array) =>{
-    if(index === 0){
-      var studentNumber = array[index];
-      var studentFirstName = array[index+1];
-      var studentLastName = array[index+2];
-      var studentEmail = array[index+3];
-
-      // console.log('Student Email is: ' + studentEmail);
-      //check if there is a logged in user
-    chrome.identity.getAuthToken({ interactive: true }, token =>
-      {
-        if ( chrome.runtime.lastError || ! token ) {
-          alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
-          return
-        }
-  
-        //firebase authentication
-        signInWithCredential(auth, GoogleAuthProvider.credential(null, token))
-        .then(res =>{
-            const user = auth.currentUser;
-              
-            if (user !== null) {
-              //there is a user signed in
-              //new data 
-              var newStudent = {
-                Email: studentEmail,
-                StudentNumber: studentNumber,
-                FirstName: studentFirstName,
-                LastName: studentLastName,
-                IPAddress: '',
-                OperatingSystem: '',
-                SystemCPU: '',
-                SystemDisplayResolution: '',
-                Browser: '',
-                Geolocation_lat: '',
-                Geolocation_long: ''
-
-              }
-
-              //get a db reference
-              const db = getDatabase();
-              const studentRef = ref(db,'students');
-              // const newStudentKey = push(child(ref(db), 'students')).key;
-              const newStudentKey = studentNumber;
-
-              //update with the new data to the collection
-              const updates = {};
-              updates['/students/' + newStudentKey] = newStudent;
-              update(ref(db), updates)
-                .then(()=>{
-                  console.log('Success in Adding new Student with key: ' + newStudentKey);
-                  // alert('Success in Adding new Student with key: ' + newStudentKey);
-                })
-                .catch((err) => {
-                  console.log("Error with database: " + err);
-                })
-              
-              //update the student under the course
-            //   const facultyRef = ref(db,'faculty-in-charge/');
-            //   onValue(facultyRef, (snapshot) => {
-            //   snapshot.forEach((childSnapshot) => {
-            //     const childKey = childSnapshot.key;
-            //     const childData = childSnapshot.val();
-            //     //each childData is already the object itself
-            //     if(childData.name === currentFaculty){
-            //       //loop through the courses
-            //       for(const courses in childData.classes){
-            //         if(courses === currentCourse){
-            //           updateCourseStudent[`/faculty-in-charge/${childKey}/classes/${childData.key}`] = newStudentKey; 
-            //           update(ref(db), updateCourseStudent)
-            //             .then(()=>{
-            //               console.log('Success in Adding Student Keys');
-            //               alert('Success in Adding new course');
-                          
-            //             })
-            //             .catch((err) => {
-            //               console.log("Error with database: " + err);
-            //             })
-            //         }
-            //       }
-                
-                 
-            //     }
-            //   })//EOF forEach loop;
-            // }, {
-            //   onlyOnce: true
-            // });
-
-              
-          }
-         })//EOF signInWithCredential
-        .catch(err =>{alert("SSO ended with an error" + err);})
-    }) 
-
-    }
-    
-  })
-}
-  
 
 //function to upload the classlist as CSV file and parse each student line of data
 function uploadClasslistCSV(contents){
@@ -401,9 +280,9 @@ function uploadClasslistCSV(contents){
     } 
 }
 //function to view courses panel
-function viewCoursePanel(currentFacultyValue, currentCourseCodeValue){
+function viewCoursePanel(currentFacultyKey,currentCourseKey){
 
-  console.log('Current FIC and Course Selection: ', currentFacultyValue + currentCourseCodeValue);
+  console.log('Current FIC and Course Selection: ', currentFacultyKey + " " + currentCourseKey);
   chrome.identity.getAuthToken({ interactive: true }, token =>
     {
       if ( chrome.runtime.lastError || ! token ) {
@@ -414,68 +293,64 @@ function viewCoursePanel(currentFacultyValue, currentCourseCodeValue){
       //firebase authentication
       signInWithCredential(auth, GoogleAuthProvider.credential(null, token))
       .then(res =>{
-          const user = auth.currentUser;
-          //get profile uid
-          if (user !== null) {
-            const db = getDatabase(); 
-            const facultyRef = ref(db,'faculty-in-charge/');
-            onValue(facultyRef, (snapshot) => {
-              snapshot.forEach((childSnapshot) => {
-                const childKey = childSnapshot.key;
-                const childData = childSnapshot.val();
-                //each childData is already the object itself
-                if(childData.name === currentFacultyValue){
-                  var cardListDiv = document.getElementById('cardList');
-                  //modify the card list div
+        const user = auth.currentUser;
+        if (user !== null) {
+          const db = getDatabase(); 
+          const facultyRef = ref(db,`teachingClasses/${currentFacultyKey}/${currentCourseKey}`);
+          get(facultyRef)
+            .then((snapshot) => {
+              if (snapshot.exists()) {
+                alert("Success Firebase Access!");
+                const course = snapshot.val();
+                console.log("Data: " + course.code); //checking for snapshot return
+
+
+                var cardListDiv = document.getElementById('cardList');
+                cardListDiv.innerHTML='';
+    
+                const courseCode = course.code;
+                const courseSection = course.section;
+                const courseTitle = course.title;
+                const courseSemester = course.semester;
+                const courseUnits = course.units;
+                // console.log("Course Key: " + courseCode);
                 
-                  cardListDiv.innerHTML='';
-                  //loop through the child snapshot
-                  for(const courses in childData.classes){
-          
-                    const course = childData.classes[courses];
-                    const courseCode = course.code;
-                    const courseSection = course.section;
-                    const courseTitle = course.title;
-                    const courseSemester = course.semester;
-                    const courseUnits = course.units;
-                    // console.log("Course Key: " + courseCode);
-                    
-                      
-                    cardListDiv.innerHTML += `<div class="cards">
-                            <p class="cardHeader" id="CourseCode">${courseCode} </p>
-                              <div class="cardDivText">
-                                  <div class="cardSubDiv">
-                                      <p id="card-labels">Course Title:</p>
-                                      <p class="cardText" id="CourseTitle">${courseTitle}</p>
-                                  </div>
-                                  <div class="cardSubDiv">
-                                    <p id="card-labels">Course Semester:</p>
-                                    <p class="cardText" id="CourseTitle">${courseSemester}</p>
-                                </div>
-                                <div class="cardSubDiv">
-                                    <p id="card-labels">Course Units:</p>
-                                    <p class="cardText" id="CourseTitle">${courseUnits}</p>
-                                </div>
-
-                            </div>
-                          </div>
-                          <!-- Button to Add Classlist CSV -->
-                          <div class="AdminAddButton">
-                              <input id="csvFileInput" type="file"/>
-                              <button type="button" class="Add-Buttons-Admin" id="Add-New-Classlist">Upload</button>
-                          </div>`;
-
                   
-                    
-                  }
-                }
-              })//EOF forEach loop;
-            }, {
-              onlyOnce: true
+                cardListDiv.innerHTML += `<div class="cards">
+                        <p class="cardHeader" id="CourseCode">${courseCode}${courseSection}</p>
+                          <div class="cardDivText">
+                              <div class="cardSubDiv">
+                                  <p id="card-labels">Course Title:</p>
+                                  <p class="cardText" id="CourseTitle">${courseTitle}</p>
+                              </div>
+                              <div class="cardSubDiv">
+                                <p id="card-labels">Course Semester:</p>
+                                <p class="cardText" id="CourseTitle">${courseSemester}</p>
+                            </div>
+                            <div class="cardSubDiv">
+                                <p id="card-labels">Course Units:</p>
+                                <p class="cardText" id="CourseTitle">${courseUnits}</p>
+                            </div>
+        
+                        </div>
+                      </div>
+                      <!-- Button to Add Classlist CSV -->
+                      <div class="AdminAddButton">
+                          <input id="csvFileInput" type="file"/>
+                          <button type="button" class="Add-Buttons-Admin" id="Add-New-Classlist">Upload</button>
+                      </div>`;
+        
+             
+              } else {
+                alert("Snapshot does not exist!");
+              }
+            })
+            .catch((err) => {
+                console.log("Error with database: " + err);
             });
-          }
-      })
-      .catch((err) => {
+        }
+         
+      }).catch((err) => {
         alert("SSO ended with an error" + err);
       });
   });
@@ -485,6 +360,7 @@ function viewCoursePanel(currentFacultyValue, currentCourseCodeValue){
 //function to view the faculty details paneldf
 function viewDetailsFaculty(facultyNameValue){
   console.log('Clicked Faculty Card');
+  console.log(facultyNameValue);
 
   //manipulate the DOM
   // var currentHTML = document.getElementsByClassName("AppDiv-AdminManage");
@@ -504,7 +380,7 @@ function viewDetailsFaculty(facultyNameValue){
 //function to view the classes 
 function viewDetailsCourse(facultyNameValue){
   //manipulate AdminManageFaculty html panel
-  //manipulatr the DOM
+  //manipulate the DOM
    //check if there is a logged in user
    chrome.identity.getAuthToken({ interactive: true }, token =>
     {
@@ -520,49 +396,50 @@ function viewDetailsCourse(facultyNameValue){
           //get profile uid
           if (user !== null) {
             const db = getDatabase(); 
-            const facultyRef = ref(db,'faculty-in-charge/');
-            onValue(facultyRef, (snapshot) => {
-              snapshot.forEach((childSnapshot) => {
-                const childKey = childSnapshot.key;
-                const childData = childSnapshot.val();
-                //each childData is already the object itself
-                if(childData.name === facultyNameValue){
-                  var cardListDiv = document.getElementById('cardList');
-                  //modify the card list div
-                
-                  cardListDiv.innerHTML='';
-                  //loop through the child snapshot
-                  for(const courses in childData.classes){
-          
-                    const course = childData.classes[courses];
-                    const courseCode = course.code;
-                    const courseSection = course.section;
-                    const courseTitle = course.title;
-                    // console.log("Course Key: " + courseCode);
-                    
-                      
-                    cardListDiv.innerHTML += `<div class="cards">
-                              <p class="cardHeader" id="CourseCode">${courseCode} </p>
-                                <div class="cardDivText">
-                                <div class="cardSubDiv">
-                                        <p id="card-labels">Course Section:</p>
-                                        <p class="cardText" id="CourseTitle">${courseSection}</p>
-                                    </div>
-                                    <div class="cardSubDiv">
-                                        <p id="card-labels">Course Title:</p>
-                                        <p class="cardText" id="CourseTitle">${courseTitle}</p>
-                                    </div>
-                              </div>
-                            </div>`;
+            const facultyRef = ref(db,`teachingClasses/${facultyNameValue}`);
+            get(facultyRef)
+              .then((snapshot) => {
+                if (snapshot.exists()) {
+                  alert("Success Firebase Access!");
+                  // console.log(snapshot.val()); //checking for snapshot return
+                  const childData = snapshot.val();
 
+  
+                  var cardListDiv = document.getElementById('cardList');
+                  cardListDiv.innerHTML='';
+                  //loop through the snapshot
+                  for(const courseId in childData){
+
+                    const courseTeaching = childData[courseId];
+                    const courseCode = courseTeaching.code;
+                    const courseSection = courseTeaching.section;
+                    const courseTitle = courseTeaching.title;
+                    console.log("Course Key: " + courseCode);
+                        
                   
-                    
+                    cardListDiv.innerHTML += `<div class="cards">
+                                  <p class="cardHeader" id="CourseCode">${courseCode}${courseSection}</p>
+                                    <div class="cardDivText">
+                                    <div class="cardSubDiv">
+                                            <p id="card-labels">Course Section:</p>
+                                            <p class="cardText" id="CourseSection">${courseSection}</p>
+                                        </div>
+                                        <div class="cardSubDiv">
+                                            <p id="card-labels">Course Title:</p>
+                                            <p class="cardText" id="CourseTitle">${courseTitle}</p>
+                                        </div>
+                                  </div>
+                                </div>`;
                   }
+               
+                
+                } else {
+                  alert("Success Firebase Access!");
                 }
-              })//EOF forEach loop;
-            }, {
-              onlyOnce: true
-            });
+              })
+              .catch((err) => {
+                  console.log("Error with database: " + err);
+              });
           }
       })
       .catch((err) => {
@@ -603,35 +480,53 @@ function createNewFaculty(){
                   name: facultyName,
                   email: facultyEmail,
                   employeeNum: facultyID,
-                  classes: {
-                    class1: false,
-                    class2: false
-                  }
+                  numOfClasses: 0
                 }
 
                 //get a db reference
                 const db = getDatabase();
-                const facultyRef = ref(db,'faculty-in-charge');
-                const newfacultyKey = push(child(ref(db), 'faculty-in-charge')).key;
+                const facultyRef = ref(db,'faculty-in-charge/');
+                const teachingRef = ref(db,'teachingClasses/')
+                
 
                 //update with the new data to the collection
                 const updates = {};
-                updates['/faculty-in-charge/' + newfacultyKey] = newFaculty;
+                updates['/faculty-in-charge/' + facultyID] = newFaculty;
                 update(ref(db), updates)
                   .then(()=>{
-                    console.log('Success in Adding new Faculty with key: ' + newfacultyKey);
+                    console.log('Success in Adding new Faculty with key: ' + facultyID);
                     alert('Success in Adding new Faculty');
-                    //automatic close modal
-                    let modal = document.getElementsByClassName("Add-Faculty-Modal")[0];
-                    let overlay = document.getElementsByClassName("modal-faculty-Overlay")[0];
-                    modal.style.display = "none";
-                    overlay.style.display = "none";
-                    //load the new database
-                    monitorSidePanelPath();
+                    // //automatic close modal
+                    // let modal = document.getElementsByClassName("Add-Faculty-Modal")[0];
+                    // let overlay = document.getElementsByClassName("modal-faculty-Overlay")[0];
+                    // modal.style.display = "none";
+                    // overlay.style.display = "none";
+                    // //load the new database
+                    // monitorSidePanelPath();
                   })
                   .catch((err) => {
                     console.log("Error with database: " + err);
                   })
+
+                //update teaching classes collection
+                var newRelationship = {courseId:''}
+                const updatesRelation = {};
+                updatesRelation['/teachingClasses/' + facultyID] = newRelationship;
+                update(ref(db), updatesRelation)
+                .then(()=>{
+                  console.log('Success in Adding new Faculty to teaching Classes');
+                  alert('Success in Adding new Faculty to teaching Classes');
+                  //automatic close modal
+                  let modal = document.getElementsByClassName("Add-Faculty-Modal")[0];
+                  let overlay = document.getElementsByClassName("modal-faculty-Overlay")[0];
+                  modal.style.display = "none";
+                  overlay.style.display = "none";
+                  //load the new database
+                  monitorSidePanelPath();
+                })
+                .catch((err) => {
+                  console.log("Error with database: " + err);
+                })
 
                 
               }
@@ -672,59 +567,61 @@ function createNewCourse(facultyNameValue){
                 code:courseCode,
                 section: courseSection,
                 units: courseUnits,
-                semester: courseSemester,
-                students: {
-                  student1: '',
-                  student2: ''
-                },
-                assessment: {
-                  assessment1: ''
-                }
+                semester: courseSemester
                }
 
-               //find the current faculty
-               //get a db reference
+                //find the current faculty
+                //get a db reference
                 const db = getDatabase();
-                const facultyRef = ref(db,'faculty-in-charge/');
+                const classesRef = ref(db,'classes/');
+                const takingRef = ref(db,'takingClasses/')
+                const teachingRef = ref(db,'teachingClasses/')
+                //make a key
+                const courseKey = courseCode+courseSection;
                 
-
-                onValue(facultyRef, (snapshot) => {
-                  snapshot.forEach((childSnapshot) => {
-                    const childKey = childSnapshot.key;
-                    const childData = childSnapshot.val();
-                    //each childData is already the object itself
-                    if(childData.name === facultyNameValue){
-                      alert("Success Firebase Access! " + childData.name + " FIC Exists");
-                      //add the course
-                      //new key for the course
-                      const newCourseKey = push(child(ref(db), `/faculty-in-charge/${childKey}/classes`)).key;
-                      const updateCourse ={};
-                      updateCourse[`/faculty-in-charge/${childKey}/classes/` + newCourseKey] = newCourse;
-                      update(ref(db), updateCourse)
-                        .then(()=>{
-                          console.log('Success in Adding new course');
-                          alert('Success in Adding new course');
-                          //close add course modal
-                          let modal = document.getElementsByClassName("Add-Course-Modal")[0];
-                          let overlay = document.getElementsByClassName("modal-course-Overlay")[0];
-                          modal.style.display = "none";
-                          overlay.style.display = "none";
-                          
-                        })
-                        .catch((err) => {
-                          console.log("Error with database: " + err);
-                        })
-
-                      }
-                    
-                  })//EOF forEach loop;
-                }, {
-                  onlyOnce: true
-                });
+                //update classes collection
+                const updateCourse ={};
+                updateCourse[`/classes/` + courseKey] = newCourse;
+                update(ref(db), updateCourse)
+                  .then(()=>{
+                    console.log('Success in Adding new course');
+                    alert('Success in Adding new course');  
+                  }).catch((err) => {
+                      console.log("Error with database: " + err);
+                  })
                 
-             }
-          })//EOF signInWithCredential
-         .catch(err =>{alert("SSO ended with an error" + err);})
-     }) 
-   
+                
+                //update the Student and Course relationship
+                var newRelationship = {studentId:''}
+                const updatesRelation = {};
+                updatesRelation['/takingClasses/' + courseKey] = newRelationship;
+                update(ref(db), updatesRelation)
+                .then(()=>{
+                  console.log('Success in Adding new course to taking Classes');
+                })
+                .catch((err) => {
+                  console.log("Error with database: " + err);
+                })
+
+                //update the FIC and Course relationship
+                // var newRelationshipFaculty = { `${courseKey}`: newCourse};
+                const updatesRelationFaculty = {};
+                updatesRelationFaculty[`/teachingClasses/${facultyNameValue}/${courseKey}`] = newCourse
+                update(ref(db), updatesRelationFaculty)
+                .then(()=>{
+                  console.log('Success in Adding new course to teaching Classes');
+                   //close add course modal
+                   let modal = document.getElementsByClassName("Add-Course-Modal")[0];
+                   let overlay = document.getElementsByClassName("modal-course-Overlay")[0];
+                   modal.style.display = "none";
+                   overlay.style.display = "none";
+                })
+                .catch((err) => {
+                  console.log("Error with database: " + err);
+                })
+               
+            }
+        
+            }).catch(err =>{alert("SSO ended with an error" + err);})
+          })
 }
