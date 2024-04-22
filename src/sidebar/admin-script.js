@@ -17,6 +17,7 @@ const AdminManageFaculty = '/AdminManageFaculty.html';
 const AdminManageCourse = '/AdminManageCourses.html';
 const AdminViewFaculty = '/AdminViewFaculty.html';
 const AdminManageAssessments = '/AdminManageAssessments.html';
+const AdminSchedulePage = '/AdminSchedulePage.html';
 
 //Variables for modal
 // const modal = document.getElementsByClassName("Add-Modal")[0];
@@ -142,6 +143,9 @@ function monitorSidePanelPath() {
           });
         });
 
+      }else if(path === '/AdminSchedulePage.html'){
+        //load the function to display the schedule page
+        displayFacultyDropdown();
       }
       
     });
@@ -268,6 +272,7 @@ window.addEventListener('DOMContentLoaded', function () {
       if(target.id==='Admin-Sched-Assessment'){
         console.log("Clicked Schedule Exam");
         //go to different path for schedule
+        chrome.sidePanel.setOptions({path:AdminSchedulePage});
       }
 
       if(target.id==='Admin-View-Assessment'){
@@ -280,6 +285,8 @@ window.addEventListener('DOMContentLoaded', function () {
         //function add the exam to the database then generate a link
         createNewAssessment();
       }
+
+      
 
 
     });
@@ -511,7 +518,7 @@ function viewDetailsFaculty(facultyKeyValue){
 function viewDetailsCourse(facultyKeyValue){
   //manipulate AdminManageFaculty html panel
   //manipulate the DOM
-   //check if there is a logged in user
+  //check if there is a logged in user
    chrome.identity.getAuthToken({ interactive: true }, token =>
     {
       if ( chrome.runtime.lastError || ! token ) {
@@ -748,8 +755,185 @@ function createNewCourse(facultyKeyValue){
           })
 }
 
+function viewFacultyCourses(facultyKeyValue){
+  //check if there is a logged in user
+  chrome.identity.getAuthToken({ interactive: true }, token =>
+    {
+      if ( chrome.runtime.lastError || ! token ) {
+        alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
+        return
+      }
 
-//function add the exam to the database then generate a link
-function createNewAssessment(){
+      //firebase authentication
+      signInWithCredential(auth, GoogleAuthProvider.credential(null, token))
+      .then(res =>{
+          const user = auth.currentUser;
+          //get profile uid
+          if (user !== null) {
+            const db = getDatabase(); 
+            const facultyRef = ref(db,`teachingClasses/${facultyKeyValue}`);
+            get(facultyRef)
+              .then((snapshot) => {
+                if (snapshot.exists()) {
+                  alert("Success Firebase Access!");
+                  // console.log(snapshot.val()); //checking for snapshot return
+                  const childData = snapshot.val();
+                  var courseDropdownDiv = document.getElementById('courselist');
+                  courseDropdownDiv.innerHTML ='';
+                  //loop through the snapshot
+                  for(const courseId in childData){
+                    
+                    const course = childData[courseId];
+                    const courseCode = course.code;
+                    const courseSection = course.section;
+                    console.log("Course Key: " + courseCode);
+
+                    const courseOption = document.createElement('option');
+                    courseOption.value =courseId;
+                    courseOption.textContent = courseCode + courseSection;
+                    courseDropdownDiv.append(courseOption);
+                  }
+               
+                
+                } else {
+                  alert("Success Firebase Access!");
+                }
+              })
+              .catch((err) => {
+                  console.log("Error with database: " + err);
+              });
+          }
+      })
+      .catch((err) => {
+        alert("SSO ended with an error" + err);
+      });
+  });
+}
+//function to display the options for the dropdown menu
+function displayFacultyDropdown(){
+  console.log("Create New Assessment");
+  //manipulate the DOM
+  //check if there is a logged in user
+  chrome.identity.getAuthToken({ interactive: true }, token =>
+    {
+      if ( chrome.runtime.lastError || ! token ) {
+        alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
+        return
+      }
+
+      //firebase authentication
+      signInWithCredential(auth, GoogleAuthProvider.credential(null, token))
+      .then(res =>{
+          const user = auth.currentUser;
+          //get profile uid
+          if (user !== null) {
+            const db = getDatabase(); 
+            const facultyRef = ref(db,'/faculty-in-charge');
+            const teachingRef = ref(db,'/teachingClasses');
+            get(facultyRef)
+              .then((snapshot) => {
+                if (snapshot.exists()) {
+                  alert("Success Firebase Access!");
+                  // console.log(snapshot.val()); //checking for snapshot return
+                  const childData = snapshot.val();
+                 
+
   
+                  var facultyDropdownDiv = document.getElementById('facultylist');
+                  // cardListDiv.innerHTML='';
+                  //loop through the snapshot
+                  for(const facultyId in childData){
+                    const faculty = childData[facultyId];
+                    const facultyName = faculty.name;
+                    console.log("Faculty Key: " + facultyId);      
+                    
+                    const facultyOption = document.createElement('option');
+                    facultyOption.value =facultyId;
+                    facultyOption.textContent = facultyName;
+                    facultyDropdownDiv.append(facultyOption);
+                  }
+               
+                
+                } else {
+                  alert("Success Firebase Access!");
+                }
+              })
+              .catch((err) => {
+                  console.log("Error with database: " + err);
+              });
+            
+            //get the input faculty of the user
+            var selectedFaculty;
+            document.getElementById('facultylist').addEventListener('change', function(){
+              selectedFaculty = this.value;
+              console.log("Selected Faculty: " + selectedFaculty);
+              //loop through the courses taught by the chosen faculty
+              viewFacultyCourses(selectedFaculty);
+            })
+           
+          }
+      })
+      .catch((err) => {
+        alert("SSO ended with an error" + err);
+      });
+  });
+  
+}
+
+//function to add the scheduled exam by the admin
+function createNewAssessment(){
+  //get all the input
+  var examName = document.getElementById('assessmentName').value;
+  var facultySelected = document.getElementById('facultylist').value;
+  var courseSelected = document.getElementById('courselist').value;
+  var startDateSelected = document.getElementById('start-date').value;
+  var endDateSelected = document.getElementById('end-date').value;
+  var examLink = document.getElementById('assessmentLinkInput').value;
+
+  var assessmentKey = examName+courseSelected+startDateSelected;
+
+  //save to database
+  //check if there is a logged in user
+  chrome.identity.getAuthToken({ interactive: true }, token =>
+    {
+      if ( chrome.runtime.lastError || ! token ) {
+        alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
+        return
+      }
+
+      //firebase authentication
+      signInWithCredential(auth, GoogleAuthProvider.credential(null, token))
+      .then(res =>{
+          const user = auth.currentUser;
+            
+          if (user !== null) {
+            user.providerData.forEach((profile) => {
+              const FIC = profile.displayName;
+                
+              const db = getDatabase(); 
+                set(ref(db,'assessments/' + assessmentKey),{
+                  FacultyInCharge: FIC,
+                  name: examName,
+                  course: courseSelected,
+                  link:examLink,
+                  access_code: 'GHB456',
+                  expected_time_start: startDateSelected,
+                  expected_time_end: endDateSelected,
+                  
+                })
+                .then(()=> {
+                  alert("Saved to database!");
+                })
+                .catch((err) => {
+                  console.log(("error with database" + err));
+                })
+              });
+
+            }
+       })//EOF signInWithCredential
+      .catch(err =>{alert("SSO ended with an error" + err);})
+  }) 
+
+  alert('Exam Scheduled! The code is: GHB456');
+
 }
