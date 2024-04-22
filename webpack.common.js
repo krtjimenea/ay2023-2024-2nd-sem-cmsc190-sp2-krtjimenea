@@ -105,6 +105,11 @@ module.exports = {
       filename: "AdminSchedulePage.html",
       chunks: ["admin"] // This is script from entry point
     }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, "src", "sidebar", "AdminViewAssessments.html"),
+      filename: "AdminViewAssessments.html",
+      chunks: ["admin"] // This is script from entry point
+    }),
     
     // Note: you can add as many new HtmlWebpackPlugin objects  
     // filename: being the html filename
