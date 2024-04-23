@@ -19,24 +19,9 @@ const AdminViewFaculty = '/AdminViewFaculty.html';
 const AdminManageAssessments = '/AdminManageAssessments.html';
 const AdminSchedulePage = '/AdminSchedulePage.html';
 const AdminViewAssessments = '/AdminViewAssessments.html';
+const AdminManageStudents = '/AdminManageStudents.html';
+const AdminViewAllCourses = '/AdminViewAllCourses.html';
 
-//Variables for modal
-// const modal = document.getElementsByClassName("Add-Modal")[0];
-// const overlay = document.getElementsByClassName("modal-Overlay")[0];
-
-// function openModal () {
-
-//     //check which modal to open
-//     // const modal = document.getElementsByClassName("Add-Faculty-Modal");
-//     modal.style.display = "block";
-//     overlay.style.display = "block";
-    
-// };
-
-// function closeModal(){
-//     modal.style.display = "none";
-//     overlay.style.display = "none";
-// };
 
 //display the faculty data
 function displayFacultyList(){
@@ -150,7 +135,10 @@ function monitorSidePanelPath() {
       }else if(path === '/AdminViewAssessments.html'){
         //load all the assessments in the database
         viewAssessmentsList();
-      }
+      }else if(path === '/AdminManageStudents.html'){
+        viewStudentsList();
+      }else if(path === '/AdminViewAllCourses.html')
+        viewCoursesList();
       
     });
   });
@@ -179,7 +167,7 @@ window.addEventListener('DOMContentLoaded', function () {
       }
 
       if(target.id === 'ManageCourseBtn'){
-        console.log('Clicked on Manage Courses');
+        console.log('Clicked on Manage Courses FIC');
         chrome.sidePanel.setOptions({path:AdminManageCourse});
       }
 
@@ -187,6 +175,16 @@ window.addEventListener('DOMContentLoaded', function () {
         console.log('Clicked on Manage Assessments');
         chrome.sidePanel.setOptions({path:AdminManageAssessments});
 
+      }
+      
+      if(target.id==='ManageStudentsBtn'){
+        console.log('Clicked on Manage Students');
+        chrome.sidePanel.setOptions({path:AdminManageStudents});
+      }
+
+      if(target.id === 'ManageViewCourseBtn'){
+        console.log('Clicked on Manage Courses');
+        chrome.sidePanel.setOptions({path:AdminViewAllCourses});
       }
   
       // Check if the clicked element is the Add New Faculty
@@ -576,7 +574,7 @@ function viewDetailsCourse(facultyKeyValue){
                                       </div>      
                                 </div>
                               </div>`;
-            }
+                  }
                
                 
                 } else {
@@ -1046,4 +1044,139 @@ function viewAssessmentsList(){
         alert("SSO ended with an error" + err);
       });
   });
+}
+
+//function to view the list of all students
+function viewStudentsList(){
+  //check if there is a logged in user
+  chrome.identity.getAuthToken({ interactive: true }, token =>
+  {
+      if ( chrome.runtime.lastError || ! token ) {
+        alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
+        return
+      }
+
+      //firebase authentication
+      signInWithCredential(auth, GoogleAuthProvider.credential(null, token))
+      .then(res =>{
+          const user = auth.currentUser;
+          //get profile uid
+          if (user !== null) {
+            const db = getDatabase(); 
+            const studentRef = ref(db,`/students`);
+            get(studentRef)
+              .then((snapshot) => {
+                if (snapshot.exists()) {
+                  alert("Success Firebase Access!");
+                  //checking for snapshot return
+                  const childData = snapshot.val();
+                  var cardListDiv = document.getElementById('cardList');
+                  cardListDiv.innerHTML='';
+                  //loop through the snapshot
+                  for(const studentId in childData){
+                    const student = childData[studentId];
+                    const studentFirstName = student.FirstName;
+                    const studentLastName = student.LastName;
+                    const studentNumber = student.StudentNumber;
+                    
+
+                    cardListDiv.innerHTML += `<div class="cards">
+                                <p class="cardHeader" id="StudentFullName">${studentFirstName}  ${studentLastName}</p>
+                                  <div class="cardDivText">
+                                      <div class="cardSubDiv">
+                                          <p id="card-labels">Studenr Number:</p>
+                                          <p class="cardText" id="CourseTitle">${studentNumber}</p>
+                                      </div>
+                                     
+                                  </div>
+                              </div>`;
+
+                  }
+               
+                } else {
+                  alert("ERROR: Firebase Access!");
+                }
+              })
+              .catch((err) => {
+                  console.log("Error with database: " + err);
+              });
+          }
+      })
+      .catch((err) => {
+        alert("SSO ended with an error" + err);
+      });
+  });
+}
+
+//function to view all courses /classes
+function viewCoursesList(){
+  //check if there is a logged in user
+  chrome.identity.getAuthToken({ interactive: true }, token =>
+    {
+        if ( chrome.runtime.lastError || ! token ) {
+          alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
+          return
+        }
+  
+        //firebase authentication
+        signInWithCredential(auth, GoogleAuthProvider.credential(null, token))
+        .then(res =>{
+            const user = auth.currentUser;
+            //get profile uid
+            if (user !== null) {
+              const db = getDatabase(); 
+              const studentRef = ref(db,`/classes`);
+              get(studentRef)
+                .then((snapshot) => {
+                  if (snapshot.exists()) {
+                    alert("Success Firebase Access!");
+                    //checking for snapshot return
+                    const childData = snapshot.val();
+                    var cardListDiv = document.getElementById('cardList');
+                    cardListDiv.innerHTML='';
+                    //loop through the snapshot
+                    for(const courseId in childData){
+                      
+                      const course = childData[courseId];
+                      const courseCode = course.code;
+                      const courseSection = course.section;
+                      const courseTitle = course.title;
+                      const courseSemester = course.semester;
+                      const courseUnits = course.units;
+                      console.log("Course Key: " + courseCode);
+                        
+                          
+                      cardListDiv.innerHTML += `<div class="cards">
+                        <p class="cardHeader" id="CourseCode">${courseCode}${courseSection}</p>
+                            <div class="cardDivText">
+                            <div class="cardSubDiv">
+                              <p id="card-labels">Course Title:</p>
+                              <p class="cardText" id="CourseTitle">${courseTitle}</p>
+                            </div>   
+                            <div class="cardSubDiv">
+                            <p id="card-labels">Course Semester:</p>
+                            <p class="cardText" id="CourseTitle">${courseSemester}</p>
+                        </div>
+                        <div class="cardSubDiv">
+                            <p id="card-labels">Course Units:</p>
+                            <p class="cardText" id="CourseTitle">${courseUnits}</p>
+                        </div>   
+                            </div>
+                        </div>`;
+  
+                    }
+                 
+                  } else {
+                    alert("ERROR: Firebase Access!");
+                  }
+                })
+                .catch((err) => {
+                    console.log("Error with database: " + err);
+                });
+            }
+        })
+        .catch((err) => {
+          alert("SSO ended with an error" + err);
+        });
+    });
 }
