@@ -296,8 +296,66 @@ window.addEventListener('DOMContentLoaded', function () {
 });
 
 //function to update the path /takingAssessments/assessmentKey/Student
-function updateTakingAssessmentsStudent(){
+function updateTakingAssessmentsStudent(courseGivenAssessment, assessmentKey){
+
   console.log("Update the path !!!");
+  console.log(courseGivenAssessment);
+  //save to database
+  //check if there is a logged in user
+  chrome.identity.getAuthToken({ interactive: true }, token =>
+    {
+      if ( chrome.runtime.lastError || ! token ) {
+        alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
+        return
+      }
+
+      //firebase authentication
+      signInWithCredential(auth, GoogleAuthProvider.credential(null, token))
+      .then(res =>{
+          const user = auth.currentUser;
+            
+          if (user !== null) {
+            //look for which students are taking the exam
+            const db = getDatabase(); 
+            const takingClassesRef = ref(db,`takingClasses/${courseGivenAssessment}`);
+            get(takingClassesRef)
+              .then((snapshot) => {
+                if (snapshot.exists()) {
+                  alert("Success Firebase Access!");
+                  //checking for snapshot return
+                  const childData = snapshot.val();
+                  for(const studentId in childData){
+                    const student = childData[studentId];
+                    // console.log(studentEmail);
+                    var studentInfo = {
+                      studentNumber: studentId,
+                      studentEmail: student.Email
+                    }
+                    //now update the database path /takingAssessments/assessmentKey/student
+                    const updateTakingAssessments = {};
+                    updateTakingAssessments[`/takingAssessments/${assessmentKey}/${studentId}`] = studentInfo;
+                    update(ref(db),updateTakingAssessments)
+                    .then(()=> {
+                      alert("Saved Exam to database!");
+                    }).catch((err) => {
+                      console.log(("error with database" + err));
+                    })
+                    
+                  }
+                
+                } else {
+                  alert("Success Firebase Access!");
+                }
+              })
+              .catch((err) => {
+                  console.log("Error with database: " + err);
+              });
+          }
+       })//EOF signInWithCredential
+      .catch(err =>{alert("SSO ended with an error" + err);})
+  }) 
+
+
 }
 
 //function to save each student data to the database
@@ -381,8 +439,12 @@ function saveStudentToDB(studentData){
               })
 
               //update the Student and Course relationship
+              var studentInfo = {
+                Email: studentEmail,
+                StudentNumber: studentNumber
+              }
               var updateRelationship = {};
-              updateRelationship[`takingClasses/${currentCourse}/` + newStudentKey] = studentEmail;
+              updateRelationship[`takingClasses/${currentCourse}/` + newStudentKey] = studentInfo;
               update(ref(db), updateRelationship)
               .then(()=>{
                 console.log('Success in Adding new student to taking Classes');
@@ -763,7 +825,7 @@ function createNewCourse(facultyKeyValue){
           })
 }
 
-//function to loop through the courses taught by the chosen faculty
+//function to loop through the courses taught by the chosen faculty for the dropdown menu
 function viewFacultyCourses(facultyKeyValue){
   //check if there is a logged in user
   chrome.identity.getAuthToken({ interactive: true }, token =>
@@ -944,6 +1006,10 @@ function createNewAssessment(){
               access_code: 'GHB456',
               expected_time_start: startDateSelected,
               expected_time_end: endDateSelected,
+              students: {
+                studentNumber:'',
+                studentEmail:''
+              }
                   
             }).then(()=> {
               alert("Saved to database!");
@@ -952,7 +1018,7 @@ function createNewAssessment(){
             })
            
             //call function that will update which students will take the assessment
-            updateTakingAssessmentsStudent();
+            updateTakingAssessmentsStudent(courseSelected, assessmentKey);
           }
        })//EOF signInWithCredential
       .catch(err =>{alert("SSO ended with an error" + err);})
