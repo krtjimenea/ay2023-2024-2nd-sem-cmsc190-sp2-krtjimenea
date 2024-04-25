@@ -12,6 +12,7 @@ module.exports = {
   entry: {
     Firebase_Config: './src/sidebar/firebase.js',
     script: './src/sidebar/script.js',
+    faculty_script: './src/sidebar/faculty-script.js',
     admin: './src/sidebar/admin-script.js'
   },
   module: {
@@ -67,12 +68,17 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: path.join(__dirname, "src", "sidebar", "FacultyDashboardPage.html"),
       filename: "FacultyDashboardPage.html",
-      chunks: ["script"] // This is script from entry point
+      chunks: ["faculty_script"] // This is script from entry point
     }),
     new HtmlWebpackPlugin({
       template: path.join(__dirname, "src", "sidebar", "FacultySchedulePage.html"),
       filename: "FacultySchedulePage.html",
-      chunks: ["script"] // This is script from entry point
+      chunks: ["faculty_script"] // This is script from entry point
+    }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, "src", "sidebar", "FacultyManageAssessments.html"),
+      filename: "FacultyManageAssessments.html",
+      chunks: ["faculty_script"] // This is script from entry point
     }),
     //Admin Pages
     new HtmlWebpackPlugin({

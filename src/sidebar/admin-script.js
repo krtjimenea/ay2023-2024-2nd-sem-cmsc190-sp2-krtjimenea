@@ -5,6 +5,8 @@
 import { FirebaseApp } from './firebase';
 import {getAuth,signInWithCredential,GoogleAuthProvider} from 'firebase/auth';
 import {getDatabase,ref,set,on, onValue, get, update,push, child, query,orderByChild,equalTo, orderByValue,setValue} from 'firebase/database';
+import { nanoid } from 'nanoid';
+import { customAlphabet } from 'nanoid';
 //Initialize Firebase
 const auth = getAuth(FirebaseApp);
 //Initialize database
@@ -298,7 +300,7 @@ window.addEventListener('DOMContentLoaded', function () {
 //function to update the path /takingAssessments/assessmentKey/Student
 function updateTakingAssessmentsStudent(courseGivenAssessment, assessmentKey){
 
-  console.log("Update the path !!!");
+  console.log("ADMIN - Update the path !!!");
   console.log(courseGivenAssessment);
   //save to database
   //check if there is a logged in user
@@ -333,7 +335,7 @@ function updateTakingAssessmentsStudent(courseGivenAssessment, assessmentKey){
                     }
                     //now update the database path /takingAssessments/assessmentKey/student
                     const updateTakingAssessments = {};
-                    updateTakingAssessments[`/takingAssessments/${assessmentKey}/${studentId}`] = studentInfo;
+                    updateTakingAssessments[`/takingAssessments/${assessmentKey}/students/${studentId}`] = studentInfo;
                     update(ref(db),updateTakingAssessments)
                     .then(()=> {
                       alert("Saved Exam to database!");
@@ -951,6 +953,13 @@ function displayFacultyDropdown(){
   
 }
 
+//function to generate a 6 digit code
+function generateExamCode(){
+  const nanoid = customAlphabet('1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ', 6)
+  var ID = nanoid(6);
+  return ID;
+}
+
 //function to add the scheduled exam by the admin
 function createNewAssessment(){
   //get all the input
@@ -960,8 +969,10 @@ function createNewAssessment(){
   var startDateSelected = document.getElementById('start-date').value;
   var endDateSelected = document.getElementById('end-date').value;
   var examLink = document.getElementById('assessmentLinkInput').value;
-
-  var assessmentKey = examName+courseSelected+startDateSelected;
+  //generate 6 character code
+  var examAccessCode = generateExamCode();
+  var assessmentKeyGenerator = examName+courseSelected+examAccessCode;
+  var assessmentKey =  assessmentKeyGenerator.split(" ").join("");
 
   //save to database
   //check if there is a logged in user
@@ -987,7 +998,7 @@ function createNewAssessment(){
               name: examName,
               course: courseSelected,
               link:examLink,
-              access_code: 'GHB456',
+              access_code: examAccessCode,
               expected_time_start: startDateSelected,
               expected_time_end: endDateSelected,
                   
@@ -1003,13 +1014,10 @@ function createNewAssessment(){
               name: examName,
               course: courseSelected,
               link:examLink,
-              access_code: 'GHB456',
+              access_code: examAccessCode,
               expected_time_start: startDateSelected,
               expected_time_end: endDateSelected,
-              students: {
-                studentNumber:'',
-                studentEmail:''
-              }
+              students: {}
                   
             }).then(()=> {
               alert("Saved to database!");
@@ -1024,7 +1032,7 @@ function createNewAssessment(){
       .catch(err =>{alert("SSO ended with an error" + err);})
   }) 
 
-  alert('Exam Scheduled! The code is: GHB456');
+  alert('Exam Scheduled! The code is: ' + examAccessCode);
 
 }
 

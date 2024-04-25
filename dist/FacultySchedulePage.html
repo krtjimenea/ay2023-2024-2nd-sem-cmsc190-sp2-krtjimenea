@@ -5,7 +5,7 @@
     <link rel="stylesheet" href="../stylesheet.css" />
     <title>title</title>
     <!-- <script src="script.js" type="module"></script> -->
-<script defer src="script.js"></script></head>
+<script defer src="faculty_script.js"></script></head>
 <body id="FacultyUI">
     <div id="AppBody">
         <div id="flex-row">
@@ -17,29 +17,22 @@
                 </svg>
             </div>
 
-            <div class="AppHeaderFaculty">Hello, Faculty</div>
+            <div class="AppHeaderFaculty">
+                <p id="FacultyHelloText">Hello,</p>
+                <p id="FacultyHeader">Faculty</p>
+            </div>
             <div class="AppSubHeader">Enter Assessment Details:</div>
 
             
             <div id="FacultySchedInput">
                 <p id="input-labels">Exam Name</p>
-                <input type="text" id ="assessmentName" name="studentNum" placeholder="Exam Name"/>
-                <p id="input-labels">Course</p>
+                <input type="text" id ="assessmentName" placeholder="Exam Name"/>
+                <p id="input-labels">Course and Section</p>
                 <div class="dropdown">
                     <select name="courselist" id="courselist">
-                        <option value="course1">Course 1</option>
-                        <option value="course2">Course 2</option>
-                        <option value="course3">Course 3</option>
                     </select>
                 </div>
-                <p id="input-labels">Section</p>
-                <div class="dropdown">
-                    <select name="sectionlist" id="sectionlist">
-                        <option value="section1">Section 1</option>
-                        <option value="section2">Section 2</option>
-                    </select>
-                </div>
-
+           
                 <p id="input-labels">Date and Time Start</p>
                 <input type="datetime-local" id="start-date" name="dateTimeInput">
                 <p id="input-labels">Date and Time End</p>
