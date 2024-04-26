@@ -13,8 +13,10 @@ const database = getDatabase(FirebaseApp);
 
 
 import '../stylesheet.css';
+const landingPage = '/LandingPage.html';
 const studentInputPage = '/StudentInputPage.html';
 const InputNumberPage = '/RegistrationPage.html';
+const FacultySuccessReg = '/FacultySuccessRegistration.html';
 const facultyDashboardPage = '/FacultyDashboardPage.html';
 const facultySchedulePage = '/FacultySchedulePage.html';
 const StudentExamDetailsPage = '/StudentAssessmentDetails.html';
@@ -73,7 +75,10 @@ window.addEventListener('DOMContentLoaded', function () {
     if (target.id === 'SubmitIDBtn') {
       console.log('Clicked on SubmitIDBtn');
       checkUser();
-      
+    }
+
+    if (target.id === 'SignInAgain') {
+      chrome.sidePanel.setOptions({path:landingPage});
     }
 
     //For faculty dashboard events
@@ -168,11 +173,11 @@ function checkUser(){
 
     if(IDinput[0]=== '1'){
       console.log('Faculty');
-      //route to Faculty Dashboard
-      chrome.sidePanel.setOptions({path:facultyDashboardPage})
+      //check the database first if that faculty exists
+      isFacultyRegistered(IDinput);
     }else if(IDinput[0] === '2'){
       console.log('Student');
-      checkRegister();
+      isStudentRegistered();
       //route to Student Dashboard
     }else if(IDinput[0] === '0'){
       //route to Admin Dashboard
@@ -190,7 +195,100 @@ function checkUser(){
 
 }
 
-function checkRegister(){
+//function to check if faculty is already registered
+function isFacultyRegistered(IDnumber){
+  console.log(IDnumber);
+   //check if there is a logged in user
+   chrome.identity.getAuthToken({ interactive: true }, token =>
+    {
+      if ( chrome.runtime.lastError || ! token ) {
+        alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
+        return
+      }
+
+      //firebase authentication
+      signInWithCredential(auth, GoogleAuthProvider.credential(null, token))
+      .then(res =>{
+          const user = auth.currentUser;
+          //get profile uid
+          if (user !== null) {
+            user.providerData.forEach((profile) => {
+              const profileID = profile.uid;
+              const email = profile.email;
+              const db = getDatabase(); 
+              const studentRef = ref(db,'faculty-in-charge/' + IDnumber);
+              //find if the profile UID exists
+              get(studentRef)
+              .then((snapshot) => {
+                if (snapshot.exists()) {
+                  alert("Success Firebase Access!");
+                  console.log("UID Exists, Faculty is Registered");
+                  //route to Faculty Dashboard
+                  chrome.sidePanel.setOptions({path:facultyDashboardPage})
+                } else {
+                  alert("Success Firebase Access!");
+                  console.log("UID does not exist, Faculty is NOT REGISTERED");
+                  //Register Process, Add The Faculty to the database
+                  //get all the input
+                  //split name
+                  const nameArray = profile.displayName.split(" ");
+                  const FirstName = nameArray[0];
+                  const LastName = nameArray[nameArray.length-1];
+                  var newFaculty = {
+                    authProviderUID: profileID,
+                    name: FirstName+ " " + LastName,
+                    email: email,
+                    employeeNum: IDnumber,
+                    numOfClasses: 0
+                  }
+                  const facultyRef = ref(db,'faculty-in-charge/');
+                  const teachingRef = ref(db,'teachingClasses/')
+                
+
+                  //update with the new data to the collection
+                  const updates = {};
+                  updates['/faculty-in-charge/' + IDnumber] = newFaculty;
+                  update(ref(db), updates)
+                    .then(()=>{
+                      console.log('Success in Adding new Faculty with key: ' + IDnumber);
+                      alert('Success in Adding new Faculty');
+                    })
+                    .catch((err) => {
+                      console.log("Error with database: " + err);
+                    })
+
+                  //update teaching classes collection
+                  var newRelationship = {courseId:''}
+                  const updatesRelation = {};
+                  updatesRelation['/teachingClasses/' + IDnumber] = newRelationship;
+                  update(ref(db), updatesRelation)
+                    .then(()=>{
+                      console.log('Success in Adding new Faculty to teaching Classes');
+                      alert('Success in Adding new Faculty to teaching Classes');
+                    
+                    })
+                    .catch((err) => {
+                      console.log("Error with database: " + err);
+                    })
+                  //after adding the new faculty, set path to the You are now registered, sign in again
+                  chrome.sidePanel.setOptions({path:FacultySuccessReg});
+
+                }//EOF else not registered
+              })
+              .catch((err) => {
+                console.log("Error with database: " + err);
+              });
+          });
+        }
+      })
+      .catch((err) => {
+        alert("SSO ended with an error" + err);
+      });
+  });
+
+}
+
+function isStudentRegistered(){
    //check log in
    //check if there is a logged in user
    chrome.identity.getAuthToken({ interactive: true }, token =>
