@@ -47,7 +47,12 @@ function monitorSidePanelPath() {
           receivedUserId = data.currentUserId;
           viewFacultyAssessmentsList(receivedUserId);
         });
+
+      }else if(path ==='/StudentAssessmentDetails.html'){
+        //view the details of the assessment
+        viewStudentAssessmentDetails();
       }
+      
     });
   });
 };
@@ -275,7 +280,7 @@ function getStudentDetails(IDnumber){
                 updates[`/students/${IDnumber}/OperatingSystem`] = studentOS;
                 updates[`/students/${IDnumber}/IPAddress`] = ipAddress;
                 updates[`/students/${IDnumber}/Geolocation_lat`]= geolocation.latitude;
-                updates[`/students/${IDnumber}/Geolocation_long`]= geolocation.latitude;
+                updates[`/students/${IDnumber}/Geolocation_long`]= geolocation.longitude;
                 updates[`/students/${IDnumber}/UserAgentString`]= studentBrowser;
                 updates[`/students/${IDnumber}/SystemDisplayResolution`]= studentDisplay;
                 updates[`/students/${IDnumber}/SystemCPU`]= studentCPU;
@@ -490,9 +495,11 @@ function checkExamCode(){
                     get(takingAssessmentRef)
                     .then((snapshot) =>{
                       if(snapshot.exists()){
-                        console.log(snapshot.val());
+                        //console.log(snapshot.val());
                         alert("Valid, Student is SET TO TAKE THIS ASSESSMENT");
-                        chrome.sidePanel.setOptions({path:StudentExamDetailsPage})
+                        //calculate first the risk score
+                        compareAuthRiskScore(assessmentId);
+                        // chrome.sidePanel.setOptions({path:StudentExamDetailsPage})
 
                       }else{
                         alert("You are not valid to take this assessment");
@@ -533,7 +540,11 @@ function checkExamCode(){
 }
 
 //function to compare Auth Risk Score
-function compareAuthRiskScore(){
+function compareAuthRiskScore(assessmentId){
+  var IDnumber;
+  chrome.storage.local.get('currentUserId', function(data) {
+    IDnumber = data.currentUserId;
+  });
   //check if there is a logged in user
   chrome.identity.getAuthToken({ interactive: true }, token =>
     {
@@ -549,7 +560,7 @@ function compareAuthRiskScore(){
       chrome.runtime.getPlatformInfo(function(info){
         if(info){
           studentOS = info.os;
-          console.log(studentOS);
+          // console.log(studentOS);
         }
       });
 
@@ -557,7 +568,7 @@ function compareAuthRiskScore(){
       var studentBrowser;
       const userAgent = window.navigator.userAgent;
       if (userAgent.includes('Chrome')){
-        console.log('Google Chrome');
+        // console.log('Google Chrome');
         studentBrowser = 'Google Chrome';
       }else if (userAgent.includes('Firefox')) {
         studentBrowser = 'Mozilla Firefox';
@@ -574,9 +585,9 @@ function compareAuthRiskScore(){
           //loop through
           info.forEach(display => {
             // studentDisplay = info.bounds.width + 'x' + info.bounds.height;
-            console.log('Bounds:', display.bounds);
-            console.log('Width:', display.bounds.width);
-            console.log('Height:', display.bounds.height);
+            // console.log('Bounds:', display.bounds);
+            // console.log('Width:', display.bounds.width);
+            // console.log('Height:', display.bounds.height);
             studentDisplay = display.bounds.width + 'x' + display.bounds.height;
 
           })
@@ -606,54 +617,54 @@ function compareAuthRiskScore(){
               user.providerData.forEach((profile) => {
                 const profileID = profile.uid;
                 const db = getDatabase();
-                const studentRef = ref(db,'students/' + profile.uid);
+                const studentRef = ref(db,'students/' + IDnumber);
                 
                 get(studentRef)
                 //get the snapshot of the database
                 .then((snapshot)=> {
                   //get the gathered student attributes
                   const data = snapshot.val();
-                  console.log(data);
-                  const geolocationlat = data.geolocation_lat;
-                  const geolocationlong = data.geolocation_long;
-                  const ipAddressStudent = data.ipAddress;
+                  const geolocationlat = data.Geolocation_lat;
+                  const geolocationlong = data.Geolocation_long;
+                  const ipAddressStudent = data.IPAddress;
                   const display = data.SystemDisplayResolution;
                   const cpu = data.SystemCPU;
                   const os = data.OperatingSystem;
-                  const browser = data.SystemBrowser;
+                  const browser = data.Browser;
                   let totalMatchedWeight = 0;
-                  // //compare geolocation
-                  // if(geolocation.latitude === geolocationlat){
-                  //   console.log('Matched Geolocation Latitude');
-                  //   if(geolocation.longitude === geolocationlongitude){
-                  //     console.log('Matched Geolocation Longitude');
-                  //     //Current Total Matched Weight = 6
-                  //     totalMatchedWeight = 6;
-                  //   }else{
-                  //     console.log('Did not match Geolocation Long');
+                  //compare geolocation
+                  if(geolocation.latitude === geolocationlat){
+                    console.log('Matched Geolocation Latitude');
+                    if(geolocation.longitude === geolocationlong){
+                      console.log('Matched Geolocation Longitude');
+                      //Current Total Matched Weight = 6
+                      totalMatchedWeight = 6;
+                    }else{
+                      console.log('Did not match Geolocation Long');
                       
-                  //   }
-                  // }else{
-                  //   console.log('Did not match Geolocation Lat');
-                  //   console.log('Current Signin GeoLat:'+ geolocation.latitude);
-                  //   console.log('Saved GeoLat'+ geolocationlat);
-                  // }
+                    }
+                  }else{
+                    console.log('Did not match Geolocation Lat');
+                  }
+                  console.log('Saved GeoLat'+ geolocationlat + ' Current Signin GeoLat:'+ geolocation.latitude);
 
                   //compare IP address
-                  // if(ipAddress===ipAddressStudent){
-                  //   alert('IP Matched');
-                  //   totalMatchedWeight = 5;
-                  // }else{
-                  //   alert('IP Did not match, Saved IP: ' + ipAddressStudent + 'Current IP: '+ ipAddress);
-                  // }
+                  if(ipAddress===ipAddressStudent){
+                    alert('IP Matched');
+                    totalMatchedWeight = totalMatchedWeight + 5;
+                  }else{
+                    alert('IP Did not match');
+                  }
+                  console.log('Saved IP: ' + ipAddressStudent + ' Current IP: '+ ipAddress);
 
                   //compare system Display
                   if(studentDisplay===display){
                     alert('Display Matched');
                     totalMatchedWeight = totalMatchedWeight + 4;
                   }else{
-                    alert('Did not match, Saved Display: ' + studentDisplay + 'Current Display: '+ display);
+                    alert('Did not match');
                   }
+                  console.log( 'Saved Display: ' + display + ' Current Display: ' + studentDisplay)
 
                   //compare system CPU
                   if(studentCPU===cpu){
@@ -662,16 +673,41 @@ function compareAuthRiskScore(){
                   }else{
                     alert('Did not match');
                   }
-                  console.log(totalMatchedWeight);
+                  console.log('Saved CPU: ' + cpu + ' Current CPU: ' + studentCPU);
+
+                  //compare system OS
+                  if(studentOS===os){
+                    alert('OS Matched');
+                    totalMatchedWeight = totalMatchedWeight + 2;
+                  }else{
+                    alert('Did not match');
+                  }
+                  console.log('Saved OS: '+ os + ' Current OS: ' + studentOS);
+
+                  //compare system browser
+                  if(studentBrowser===browser){
+                    alert('OS Matched');
+                    totalMatchedWeight = totalMatchedWeight + 1;
+                  }else{
+                    alert('Did not match');
+                  }
+                  console.log('Saved Browser: ' + browser + ' Current Browser: ' + studentBrowser);
+
+                  console.log('Total Matched Weight: ' + totalMatchedWeight);
                   //compute AuthRiskScore
                   var AuthRiskScore = getAuthRiskScore(totalMatchedWeight);
                   console.log('AuthRiskScore is = ' + AuthRiskScore);
 
                   //if riskscore is 0.90 above go to next page
                   if(AuthRiskScore >= 1){
-                    console.log('tEST');
+                    console.log('SUCCESS: Auth Risk Score is: ' + AuthRiskScore);
+                    //send the message first containing assessment ID
+                    chrome.runtime.sendMessage({action: 'currentAssessment', value: assessmentId});
                     chrome.sidePanel.setOptions({path: StudentExamDetailsPage});
-                    isBrowserMinimized();
+                    // isBrowserMinimized();
+
+                  }else{
+                    console.log('FAILED: Auth Risk Score is: ' + AuthRiskScore);
 
                   }
                 })
@@ -708,6 +744,25 @@ function getAuthRiskScore(totalMatchedWeight){
 
   return AuthRiskScore;
 }
+
+function viewStudentAssessmentDetails(){
+
+  //get the assessment ID
+  var receivedAssessmentId ="hello!";
+  // chrome.storage.local.get('currentAssessementId', function(data) {
+  //   receivedAssessmentId = data.currentAssessementId;
+  // });
+  
+  //get the student ID
+  var IDnumber;
+  chrome.storage.local.get('currentUserId', function(data) {
+    IDnumber = data.currentUserId;
+  });
+
+  console.log(receivedAssessmentId + "?? " + IDnumber);
+}
+
+
 
 
 //function to check if browser is minimized

@@ -177,41 +177,36 @@ p{
 
 /*** Assessment Details Student ***/
 
-.output-student{
-    text-align: center;
-    width: 230px; /* Set your desired fixed width */
-    height: 30px;
-    padding: 5px;
-    background-color: #eee;
-    border-radius: 12px;
-    font-family: 'Raleway', sans-serif;
-    font-family: 'Urbanist', sans-serif;
-    line-height: 30px;
-    display: inline-block;
-  
+#ExamDetailsStudent{
+    display: flex;                
+    flex-direction: column;  
+    width: 264px; 
 }
+/** Scheduled Exam Output **/
 
 .greenBtn{
-    background-color: #0CB83CA1;
-    width: 246px;
+    background-color: #5eff8cda;
+    width: 264px;
     height: 43px;
     color: #000;
     font-family: 'Raleway', sans-serif;
     font-family: 'Urbanist', sans-serif;
-    border-radius: 12px;
-    border: none;
+    border-radius: 4px;
+    border: 2px solid #000;   
+    box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);     
 }
 
 .redBtn{
     margin-top: 10px;
     background-color: #F98667;
-    width: 246px;
+    width: 264px;
     height: 43px;
     color: #000;
     font-family: 'Raleway', sans-serif;
     font-family: 'Urbanist', sans-serif;
-    border-radius: 12px;
-    border: none;
+    border-radius: 4px;
+    border: 2px solid #000;   
+    box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);     
 }
 
 /*** Student READY to take exam ***/
@@ -431,19 +426,7 @@ select:focus{
 }
 
 
-/** Scheduled Exam Output **/
-#output-labels{
-    text-align: center;
-    background-color: #CFD2F1;
-    width: 246px;
-    height: 43px;
-    color: #000;
-    font-family: 'Raleway', sans-serif;
-    font-family: 'Urbanist', sans-serif;
-    border-radius: 12px;
-    border: none;
-    
-}
+
 
 /** Admin Pages **/
 

@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <link rel="stylesheet" href="../stylesheet.css" />
     <title>title</title>
-    <script src="script.js" type="module"></script>
 </head>
 <body id="StudentUI">
     <div id="AppBody">
@@ -22,11 +21,36 @@
 
 
             <div id="ExamDetailsStudent">
-                <p class="output-student">Exam Name</p>
-                <p class="output-student">Exam Subject</p>
-                <p class="output-student">Exam FIC</p>
-                <p class="output-student">Exam Start Time and Date</p>
-                <p class="output-student">Exam End Time and Date</p>
+                <div class="cards">
+                    <p class="cardHeader" id="ExamName">assessmentName</p>
+                    <div class="cardDivText">
+                        <div class="cardSubDiv">
+                            <p id="card-labels">Assigned Course:</p>
+                            <p class="cardText" id="ExamCourse">${assessmentCourseSection}</p>
+                        </div>
+                        <div class="cardSubDiv">
+                            <p id="card-labels">Faculty-in-Charge:</p>
+                            <p class="cardText" id="ExamFIC">${assessmentFIC}</p>
+                        </div>  
+                        <div class="cardSubDiv">
+                            <p id="card-labels">Link:</p>
+                            <p class="cardText" id="ExamLink">${assessmentLink}</p>
+                        </div>  
+                        <div class="cardSubDiv">
+                            <p id="card-labels">Access Code:</p>
+                            <p class="cardText" id="ExamCode">${assessmentCode}</p>
+                        </div>  
+                        <div class="cardSubDiv">
+                            <p id="card-labels">Start Time and Date:</p>
+                            <p class="cardText" id="ExamStartTimeDate">${assessmentStartTime}</p>
+                        </div>  
+                        <div class="cardSubDiv">
+                            <p id="card-labels">End Time and Date:</p>
+                            <p class="cardText" id="ExamEndTimeDate">${assessmentEndTime}</p>
+                        </div>  
+                </div>
+
+            </div>
 
                 <div class="SubmitDiv">
                     <button type="button" class="greenBtn" id="getExamLinkBtn">This is correct, Get Exam Link</button>

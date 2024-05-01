@@ -43,4 +43,10 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     console.log('Received value:', message.value);
     chrome.storage.local.set({'currentUserId': message.value});
  }
+
+ if(message.action === 'currentAssessment'){
+    //chrome storage
+    console.log('Received value:', message.value);
+    chrome.storage.local.set({'currentAssessmentId': message.value});
+  }
 });
