@@ -418,7 +418,8 @@ function saveStudentToDB(studentData){
                 SystemDisplayResolution: '',
                 Browser: '',
                 Geolocation_lat: '',
-                Geolocation_long: ''
+                Geolocation_long: '',
+                authProviderUID:''
 
               }
 
@@ -608,10 +609,12 @@ function viewDetailsCourse(facultyKeyValue){
             const facultyRef = ref(db,`teachingClasses/${facultyKeyValue}`);
             get(facultyRef)
               .then((snapshot) => {
-                if (snapshot.exists()) {
+                if (snapshot.exists() && snapshot.hasChildren()) {
                   alert("Success Firebase Access!");
+                  
                   // console.log(snapshot.val()); //checking for snapshot return
                   const childData = snapshot.val();
+
                  
 
   
@@ -642,7 +645,7 @@ function viewDetailsCourse(facultyKeyValue){
                
                 
                 } else {
-                  alert("Success Firebase Access!");
+                  alert("Snapshot does not exist! No courses to show");
                 }
               })
               .catch((err) => {
@@ -686,6 +689,7 @@ function createNewFaculty(){
                 //new data 
                 var newFaculty = {
                   name: facultyName,
+                  authProviderUID: "",
                   email: facultyEmail,
                   employeeNum: facultyID,
                   numOfClasses: 0
@@ -710,7 +714,7 @@ function createNewFaculty(){
                   })
 
                 //update teaching classes collection
-                var newRelationship = {courseId:''}
+                var newRelationship = {}
                 const updatesRelation = {};
                 updatesRelation['/teachingClasses/' + facultyID] = newRelationship;
                 update(ref(db), updatesRelation)
@@ -816,6 +820,9 @@ function createNewCourse(facultyKeyValue){
                    let overlay = document.getElementsByClassName("modal-course-Overlay")[0];
                    modal.style.display = "none";
                    overlay.style.display = "none";
+                   //load the new database
+                   location.reload();
+
                 })
                 .catch((err) => {
                   console.log("Error with database: " + err);

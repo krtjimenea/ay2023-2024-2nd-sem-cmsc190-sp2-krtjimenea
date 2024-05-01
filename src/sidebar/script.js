@@ -20,6 +20,7 @@ const FacultySuccessReg = '/FacultySuccessRegistration.html';
 const facultyDashboardPage = '/FacultyDashboardPage.html';
 const facultySchedulePage = '/FacultySchedulePage.html';
 const StudentExamDetailsPage = '/StudentAssessmentDetails.html';
+const StudentSuccessReg =  '/StudentSuccessReg.html';
 //Admin Routes
 const AdminDashboard = '/AdminDashboard.html';
 const facultyViewAssessments = '/FacultyManageAssessments.html';
@@ -93,12 +94,6 @@ window.addEventListener('DOMContentLoaded', function () {
 
     }
 
-    if(target.id === 'SubmitExamSchedBtn'){
-      console.log('Clicked Submit Exam Sched');
-      scheduleExam(currentUserId);
-     
-    }
-
     //For student
     if(target.id==='SubmitBtn'){
       console.log('Clicked Submit Exam Code');
@@ -164,22 +159,24 @@ function getChromeIdentity(){
 
 //function after input of ID Number
 function checkUser(){
-  //get the input
+  //get the input of the dropdown
+  var Dropdowninput = document.getElementById('userlist').value;
+  //get the input of Id Number
   var IDinput = document.getElementById('IDNumInput').value;
   //check if valid number format
   var IDNumFormat = /^[0-9]{9}$/;
   if(IDinput.match(IDNumFormat)){
     chrome.runtime.sendMessage({action: 'currentUser', value: IDinput});
 
-    if(IDinput[0]=== '1'){
+    if(IDinput[0]=== '1' && Dropdowninput === 'Faculty' ){
       console.log('Faculty');
       //check the database first if that faculty exists
       isFacultyRegistered(IDinput);
-    }else if(IDinput[0] === '2'){
+    }else if(IDinput[0] === '2' && Dropdowninput === 'Student'){
       console.log('Student');
-      isStudentRegistered();
+      isStudentRegistered(IDinput);
       //route to Student Dashboard
-    }else if(IDinput[0] === '0'){
+    }else if(IDinput[0] === '0' && Dropdowninput === 'Admin'){
       //route to Admin Dashboard
       console.log('Admin')
       chrome.sidePanel.setOptions({path: AdminDashboard})
@@ -195,148 +192,10 @@ function checkUser(){
 
 }
 
-//function to check if faculty is already registered
-function isFacultyRegistered(IDnumber){
-  console.log(IDnumber);
-   //check if there is a logged in user
-   chrome.identity.getAuthToken({ interactive: true }, token =>
-    {
-      if ( chrome.runtime.lastError || ! token ) {
-        alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
-        return
-      }
-
-      //firebase authentication
-      signInWithCredential(auth, GoogleAuthProvider.credential(null, token))
-      .then(res =>{
-          const user = auth.currentUser;
-          //get profile uid
-          if (user !== null) {
-            user.providerData.forEach((profile) => {
-              const profileID = profile.uid;
-              const email = profile.email;
-              const db = getDatabase(); 
-              const studentRef = ref(db,'faculty-in-charge/' + IDnumber);
-              //find if the profile UID exists
-              get(studentRef)
-              .then((snapshot) => {
-                if (snapshot.exists()) {
-                  alert("Success Firebase Access!");
-                  console.log("UID Exists, Faculty is Registered");
-                  //route to Faculty Dashboard
-                  chrome.sidePanel.setOptions({path:facultyDashboardPage})
-                } else {
-                  alert("Success Firebase Access!");
-                  console.log("UID does not exist, Faculty is NOT REGISTERED");
-                  //Register Process, Add The Faculty to the database
-                  //get all the input
-                  //split name
-                  const nameArray = profile.displayName.split(" ");
-                  const FirstName = nameArray[0];
-                  const LastName = nameArray[nameArray.length-1];
-                  var newFaculty = {
-                    authProviderUID: profileID,
-                    name: FirstName+ " " + LastName,
-                    email: email,
-                    employeeNum: IDnumber,
-                    numOfClasses: 0
-                  }
-                  const facultyRef = ref(db,'faculty-in-charge/');
-                  const teachingRef = ref(db,'teachingClasses/')
-                
-
-                  //update with the new data to the collection
-                  const updates = {};
-                  updates['/faculty-in-charge/' + IDnumber] = newFaculty;
-                  update(ref(db), updates)
-                    .then(()=>{
-                      console.log('Success in Adding new Faculty with key: ' + IDnumber);
-                      alert('Success in Adding new Faculty');
-                    })
-                    .catch((err) => {
-                      console.log("Error with database: " + err);
-                    })
-
-                  //update teaching classes collection
-                  var newRelationship = {courseId:''}
-                  const updatesRelation = {};
-                  updatesRelation['/teachingClasses/' + IDnumber] = newRelationship;
-                  update(ref(db), updatesRelation)
-                    .then(()=>{
-                      console.log('Success in Adding new Faculty to teaching Classes');
-                      alert('Success in Adding new Faculty to teaching Classes');
-                    
-                    })
-                    .catch((err) => {
-                      console.log("Error with database: " + err);
-                    })
-                  //after adding the new faculty, set path to the You are now registered, sign in again
-                  chrome.sidePanel.setOptions({path:FacultySuccessReg});
-
-                }//EOF else not registered
-              })
-              .catch((err) => {
-                console.log("Error with database: " + err);
-              });
-          });
-        }
-      })
-      .catch((err) => {
-        alert("SSO ended with an error" + err);
-      });
-  });
-
-}
-
-function isStudentRegistered(){
-   //check log in
-   //check if there is a logged in user
-   chrome.identity.getAuthToken({ interactive: true }, token =>
-    {
-      if ( chrome.runtime.lastError || ! token ) {
-        alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
-        return
-      }
-
-      //firebase authentication
-      signInWithCredential(auth, GoogleAuthProvider.credential(null, token))
-      .then(res =>{
-          const user = auth.currentUser;
-          //get profile uid
-          if (user !== null) {
-            user.providerData.forEach((profile) => {
-              const profileID = profile.uid;
-              const db = getDatabase(); 
-              const studentRef = ref(db,'students/' + profile.uid);
-              //find if the profile UID exists
-              get(studentRef)
-              .then((snapshot) => {
-                if (snapshot.exists()) {
-                  alert("Success Firebase Access!");
-                  console.log("UID Exists, Student is Registered");
-                  chrome.sidePanel.setOptions({path:studentInputPage})
-                } else {
-                  alert("Success Firebase Access!");
-                  console.log("UID does not exist, Student is NOT REGISTERED");
-                  //Register Process, Add to database, Add them to the course
-                }
-              })
-              .catch((err) => {
-                console.log("Error with database: " + err);
-              });
-          });
-        }
-      })
-      .catch((err) => {
-        alert("SSO ended with an error" + err);
-      });
-  });
-}
-
-
 
 //function once student submitted all information
-function getAuthFirebase(){
+function getStudentDetails(IDnumber){
+  console.log("??????");
     //check if there is a logged in user
     chrome.identity.getAuthToken({ interactive: true }, token =>
       {
@@ -406,42 +265,30 @@ function getAuthFirebase(){
               const user = auth.currentUser;
               
               if (user !== null) {
-                user.providerData.forEach((profile) => {
-                  // console.log("Sign-in provider: " + profile.providerId);
-                  // console.log("  Provider-specific UID: " + profile.uid);
-                  // console.log("  Name: " + profile.displayName);
-                  // console.log("  Email: " + profile.email);
-                  // console.log("  Photo URL: " + profile.photoURL);
-                
-                  //write student info in database
-                  //split name
-                  const nameArray = profile.displayName.split(" ");
-                  const FirstName = nameArray[0];
-                  const LastName = nameArray[1];
-                  var studentNum = document.getElementById("studentNumInput").value;
+                const profileID = user.uid;
+                const db = getDatabase(); 
+                const studentRef = ref(db,'students/' + IDnumber);
+           
 
-                  const db = getDatabase(); 
-                  set(ref(db,'students/' + profile.uid),{
-                    FirstName: FirstName,
-                    LastName: LastName,
-                    Email: profile.email,
-                    OperatingSystem: studentOS,
-                    StudentNumber: studentNum,
-                    IPAddress: ipAddress,
-                    geolocation_lat: geolocation.latitude,
-                    geolocation_long: geolocation.longitude,
-                    UserAgentString: studentBrowser,
-                    SystemDisplayResolution: studentDisplay,
-                    SystemCPU: studentCPU,
-                    SystemBrowser: studentBrowser
-                  })
-                  .then(()=> {
-                    alert("Saved to database!");
-                  })
-                  .catch((err) => {
-                    console.log(("error with database" + err));
-                  })
-                });
+                const updates = {};
+                updates[`/students/${IDnumber}/authProviderUID`] = profileID;
+                updates[`/students/${IDnumber}/OperatingSystem`] = studentOS;
+                updates[`/students/${IDnumber}/IPAddress`] = ipAddress;
+                updates[`/students/${IDnumber}/Geolocation_lat`]= geolocation.latitude;
+                updates[`/students/${IDnumber}/Geolocation_long`]= geolocation.latitude;
+                updates[`/students/${IDnumber}/UserAgentString`]= studentBrowser;
+                updates[`/students/${IDnumber}/SystemDisplayResolution`]= studentDisplay;
+                updates[`/students/${IDnumber}/SystemCPU`]= studentCPU;
+                updates[`/students/${IDnumber}/Browser`]= studentBrowser;
+
+                update(ref(db), updates)
+                .then(()=>{
+                  alert('Success in Registering Student with UID and Info');
+                  chrome.sidePanel.setOptions({path:StudentSuccessReg});
+                })
+                .catch((err) => {
+                  console.log("Error with database: " + err);
+                })
 
               }
             }) //EOF signInWithCredential
@@ -455,18 +302,233 @@ function getAuthFirebase(){
     })//EOF getAuthToken     
 }
 
+//function to check if faculty is already registered
+function isFacultyRegistered(IDnumber){
+  console.log(IDnumber);
+   //check if there is a logged in user
+   chrome.identity.getAuthToken({ interactive: true }, token =>
+    {
+      if ( chrome.runtime.lastError || ! token ) {
+        alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
+        return
+      }
+
+      //firebase authentication
+      signInWithCredential(auth, GoogleAuthProvider.credential(null, token))
+      .then(res =>{
+          const user = auth.currentUser;
+          //get profile uid
+          if (user !== null) {
+            user.providerData.forEach((profile) => {
+              const profileID = profile.uid;
+              const email = profile.email;
+              const db = getDatabase(); 
+              const facultyRef = ref(db,'faculty-in-charge/' + IDnumber);
+              //find if the faculty ID exists, already added by the admin
+              get(facultyRef)
+              .then((snapshot) => {
+                if(snapshot.exists()){
+                  alert("Success Firebase Access!");
+                  //check the UID
+                  const facultyData = snapshot.val();
+                  if(facultyData.authProviderUID === ""){
+                    //register the account
+                    //check if it matches the email added by the admin
+                    if(facultyData.email===email){
+                      const updates = {};
+                      updates[`/faculty-in-charge/${IDnumber}/authProviderUID`] = profileID;
+                      update(ref(db), updates)
+                        .then(()=>{
+                          console.log('Success in Registering Email: ' + IDnumber);
+                          alert('Success in Faculty Registration');
+                          chrome.sidePanel.setOptions({path:FacultySuccessReg});
+                        })
+                        .catch((err) => {
+                          console.log("Error with database: " + err);
+                        })
+                    }else{
+                      //it means that the user is using a different email not registered
+                      alert("Please use a valid Email");
+                      //route to Faculty Dashboard
+                      chrome.sidePanel.setOptions({path:landingPage})
+                    }
+                   
+                  }else{
+                    //user already registerd
+                    alert("Your Faculty Number is already registered with an Email");
+                    chrome.sidePanel.setOptions({path:FacultySuccessReg});
+                  }
+                  
+                }else{
+                  alert("You are not yet registered, Please contact the Admin");
+                  //route to Faculty Dashboard
+                  chrome.sidePanel.setOptions({path:landingPage})
+                }
+              })
+              .catch((err) => {
+                console.log("Error with database: " + err);
+              });
+          });
+        }
+      })
+      .catch((err) => {
+        alert("SSO ended with an error" + err);
+      });
+  });
+
+}
+
+function isStudentRegistered(IDnumber){
+   //check log in
+   //check if there is a logged in user
+   chrome.identity.getAuthToken({ interactive: true }, token =>
+    {
+      if ( chrome.runtime.lastError || ! token ) {
+        alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
+        return
+      }
+
+      //firebase authentication
+      signInWithCredential(auth, GoogleAuthProvider.credential(null, token))
+      .then(res =>{
+          const user = auth.currentUser;
+          //get profile uid
+          if (user !== null) {
+            user.providerData.forEach((profile) => {
+              const profileID = profile.uid;
+              const email = profile.email;
+              const db = getDatabase(); 
+              const studentRef = ref(db,'students/' + IDnumber);
+              //find if the profile UID exists
+              get(studentRef)
+              .then((snapshot) => {
+                if (snapshot.exists()) {
+                  alert("Success Firebase Access!");
+                  //check the UID
+                  const studentData = snapshot.val();
+                  if(studentData.authProviderUID===""){
+                    console.log("auth UID is empty");
+                    //register
+                    //check if it matches the email added by the admin
+                    if(studentData.Email===email){
+                      console.log("email is the same");
+                      //register the student
+                      //get the information of the student
+                      getStudentDetails(IDnumber);
+                    
+                    }
+                  }else{
+                    //student with the id num input has existing UID
+                    //check now if they used the same email
+                    if(studentData.Email===email){
+                      //if correct proceed to input of exam code
+                      chrome.sidePanel.setOptions({path:studentInputPage});
+                    }else{
+                      //email used is not registered
+                      alert("Please use a valid email");
+                    }
+                  }
+                  
+                } else {
+                  alert("ID does not exist, Student is NOT VALID");
+                  //Register Process, Add to database, Add them to the course
+                }
+              })
+              .catch((err) => {
+                console.log("Error with database: " + err);
+              });
+          });
+        }
+      })
+      .catch((err) => {
+        alert("SSO ended with an error" + err);
+      });
+  });
+}
+
+
+
 //function to check exam code
 function checkExamCode(){
-  //for demo purposes but must check with database
+  //check with database
+  var IDnumber;
+  chrome.storage.local.get('currentUserId', function(data) {
+    IDnumber = data.currentUserId;
+  });
   var examCodeInput = document.getElementById('assessmentCodeInput').value;
-  // examCodeInput.match('GHB456');
-  if(examCodeInput === 'GHB456'){
-    //compute AuthRiskScore
-    //move to next panel
-    compareAuthRiskScore();
-  }else{
-    alert('Wrong Exam Code Input');
-  }
+  //check if there is a logged in user
+  chrome.identity.getAuthToken({ interactive: true }, token =>
+    {
+      if ( chrome.runtime.lastError || ! token ) {
+        alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
+        return
+      }
+
+      //firebase authentication
+      signInWithCredential(auth, GoogleAuthProvider.credential(null, token))
+      .then(res =>{
+          const user = auth.currentUser;
+          //get profile uid
+          if (user !== null) {
+            const db = getDatabase(); 
+            const assessmentRef = ref(db,'/assessments');
+            //find if the profile UID exists
+            get(assessmentRef)
+            .then((snapshot) => {
+              if(snapshot.exists()) {
+                const assessmentData = snapshot.val();
+                //loop through each assessment access code
+                for(const assessmentId in assessmentData){
+                  const assessment = assessmentData[assessmentId];
+                  const accessCode = assessment.access_code;
+                  if(examCodeInput===accessCode){
+                    //there is an exam with the that code
+                    console.log(accessCode);
+                    console.log(assessmentId);
+                    //find if that student should be taking that exams
+                    const takingAssessmentRef = ref(db, `/takingAssessments/${assessmentId}/students/${IDnumber}`);
+                    get(takingAssessmentRef)
+                    .then((snapshot) =>{
+                      if(snapshot.exists()){
+                        console.log(snapshot.val());
+                        alert("Valid, Student is SET TO TAKE THIS ASSESSMENT");
+                        chrome.sidePanel.setOptions({path:StudentExamDetailsPage})
+
+                      }else{
+                        alert("You are not valid to take this assessment");
+                        chrome.sidePanel.setOptions({path:landingPage})
+                      }
+                    })
+                    .catch((err) => {
+                      console.log("Error with database: " + err);
+                    });
+                  }
+                }
+                 
+                  
+                  
+                  
+          
+              }
+            })
+            .catch((err) => {
+              console.log("Error with database: " + err);
+            });
+          
+        }
+      })
+      .catch((err) => {
+        alert("SSO ended with an error" + err);
+      });
+  });
+  // // examCodeInput.match('GHB456');
+  // if(examCodeInput === 'GHB456'){
+  //   //compute AuthRiskScore
+  //   //move to next panel
+  //   compareAuthRiskScore();
+  // }else{
+  //   alert('Wrong Exam Code Input');
+  // }
       
 }
 
