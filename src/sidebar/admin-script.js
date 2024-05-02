@@ -23,6 +23,7 @@ const AdminSchedulePage = '/AdminSchedulePage.html';
 const AdminViewAssessments = '/AdminViewAssessments.html';
 const AdminManageStudents = '/AdminManageStudents.html';
 const AdminViewAllCourses = '/AdminViewAllCourses.html';
+const AdminViewCourseOnly = '/AdminViewCourseOnly.html';
 
 
 //display the faculty data
@@ -139,9 +140,15 @@ function monitorSidePanelPath() {
         viewAssessmentsList();
       }else if(path === '/AdminManageStudents.html'){
         viewStudentsList();
-      }else if(path === '/AdminViewAllCourses.html')
+      }else if(path === '/AdminViewAllCourses.html'){
         viewCoursesList();
-      
+      }else if(path === '/AdminViewCourseOnly.html'){
+       //access chrome storage for any passed value
+       chrome.storage.local.get('value1', function(data) {
+        var currentCourse = data.value1;
+        viewOneCourseOnly(currentCourse);
+       });
+      }
     });
   });
 };
@@ -258,6 +265,14 @@ window.addEventListener('DOMContentLoaded', function () {
         chrome.runtime.sendMessage({action: 'passValue1', value: courseCodeValue});
         chrome.runtime.sendMessage({action: 'passValue2', value: facultyKeyValue});
         chrome.sidePanel.setOptions({path:AdminManageCourse});
+      }
+
+      //for clicking the course card via courses only
+      if(target.id === 'CourseCodeOnly'){
+        courseCodeValue = target.innerText;
+        // chrome.runtime.sendMessage({action: 'passValue1', value: courseCodeValue});
+        // chrome.sidePanel.setOptions({path:AdminViewCourseOnly});
+
       }
 
       //for clicking the add new classlist button
@@ -1228,7 +1243,7 @@ function viewCoursesList(){
                         
                           
                       cardListDiv.innerHTML += `<div class="cards">
-                        <p class="cardHeader" id="CourseCode">${courseCode}${courseSection}</p>
+                        <p class="cardHeader" id="CourseCodeOnly">${courseCode}${courseSection}</p>
                             <div class="cardDivText">
                             <div class="cardSubDiv">
                               <p id="card-labels">Course Title:</p>
@@ -1260,4 +1275,77 @@ function viewCoursesList(){
           alert("SSO ended with an error" + err);
         });
     });
+}
+
+//function to view one course/class only from viewCoursesList
+function viewOneCourseOnly(currentCourseKey){
+
+
+  chrome.identity.getAuthToken({ interactive: true }, token =>
+    {
+      if ( chrome.runtime.lastError || ! token ) {
+        alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
+        return
+      }
+
+      //firebase authentication
+      signInWithCredential(auth, GoogleAuthProvider.credential(null, token))
+      .then(res =>{
+        const user = auth.currentUser;
+        if (user !== null) {
+          const db = getDatabase(); 
+          const courseRef = ref(db,`classes/${currentCourseKey}`);
+          get(courseRef)
+            .then((snapshot) => {
+              if (snapshot.exists()) {
+                alert("Success Firebase Access!");
+                const course = snapshot.val();
+                // console.log("Data: " + course.code); //checking for snapshot return
+
+
+                var cardListDiv = document.getElementById('cardList');
+                cardListDiv.innerHTML='';
+    
+                const courseCode = course.code;
+                const courseSection = course.section;
+                const courseTitle = course.title;
+                const courseSemester = course.semester;
+                const courseUnits = course.units;
+                // console.log("Course Key: " + courseCode);
+                
+                  
+                cardListDiv.innerHTML += `<div class="cards">
+                        <p class="cardHeader" id="CourseCode">${courseCode}${courseSection}</p>
+                          <div class="cardDivText">
+                              <div class="cardSubDiv">
+                                  <p id="card-labels">Course Title:</p>
+                                  <p class="cardText" id="CourseTitle">${courseTitle}</p>
+                              </div>
+                              <div class="cardSubDiv">
+                                <p id="card-labels">Course Semester:</p>
+                                <p class="cardText" id="CourseTitle">${courseSemester}</p>
+                            </div>
+                            <div class="cardSubDiv">
+                                <p id="card-labels">Course Units:</p>
+                                <p class="cardText" id="CourseTitle">${courseUnits}</p>
+                            </div>
+        
+                        </div>
+                      </div>`;
+        
+             
+              } else {
+                alert("Snapshot does not exist!");
+              }
+            })
+            .catch((err) => {
+                console.log("Error with database: " + err);
+            });
+        }
+         
+      }).catch((err) => {
+        alert("SSO ended with an error" + err);
+      });
+  });
+
 }

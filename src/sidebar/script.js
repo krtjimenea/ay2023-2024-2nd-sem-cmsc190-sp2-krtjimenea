@@ -49,8 +49,20 @@ function monitorSidePanelPath() {
         });
 
       }else if(path ==='/StudentAssessmentDetails.html'){
-        //view the details of the assessment
-        viewStudentAssessmentDetails();
+        //get the assessment ID
+        var receivedAssessmentId;
+        chrome.storage.local.get('currentAssessmentId', function(data) {
+          receivedAssessmentId = data.currentAssessmentId;
+          console.log("Data in storage: " + receivedAssessmentId);
+          //get the student ID
+          var receivedUserId;
+          chrome.storage.local.get('currentUserId', function(data) {
+            receivedUserId = data.currentUserId;
+            //view the details of the assessment
+            viewStudentAssessmentDetails(receivedAssessmentId, receivedUserId);
+          });
+        });
+              
       }
       
     });
@@ -545,6 +557,7 @@ function compareAuthRiskScore(assessmentId){
   chrome.storage.local.get('currentUserId', function(data) {
     IDnumber = data.currentUserId;
   });
+
   //check if there is a logged in user
   chrome.identity.getAuthToken({ interactive: true }, token =>
     {
@@ -745,21 +758,93 @@ function getAuthRiskScore(totalMatchedWeight){
   return AuthRiskScore;
 }
 
-function viewStudentAssessmentDetails(){
+function viewStudentAssessmentDetails(assessmentId, IDnumber){
 
-  //get the assessment ID
-  var receivedAssessmentId ="hello!";
-  // chrome.storage.local.get('currentAssessementId', function(data) {
-  //   receivedAssessmentId = data.currentAssessementId;
-  // });
+  //access the database
+   //check if there is a logged in user
+   chrome.identity.getAuthToken({ interactive: true }, token =>
+    {
+      if ( chrome.runtime.lastError || ! token ) {
+        alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
+        return
+      }
+
+      //firebase authentication
+      signInWithCredential(auth, GoogleAuthProvider.credential(null, token))
+      .then(res =>{
+          const user = auth.currentUser;
+          //get profile uid
+          if (user !== null) {
+            const db = getDatabase(); 
+            const takingAssessmentRef = ref(db, `/takingAssessments/${assessmentId}/students/${IDnumber}`);
+            get(takingAssessmentRef)
+            .then((snapshot) =>{
+              if(snapshot.exists()){
+                //loop through the information
+                const AssessmentRef = ref(db, `/assessments/${assessmentId}`);
+                get(AssessmentRef)
+                .then((snapshot)=>{
+                  if(snapshot.exists()){
+                    var childData = snapshot.val();
+                    console.log(childData.FacultyInCharge);
+                    var ExamDetailsDiv = document.getElementById('ExamDetailsStudent');
+                    ExamDetailsDiv.innerHTML='';
+      
+                    // const assessmentFIC = childData.FacultyInCharge;
+                    const assessmentName = childData.name;
+                    const assessmentCourseSection = childData.course;
+                    const assessmentLink = childData.link;
+                    const assessmentStartTime = childData.expected_time_start;
+                    const assessmentEndTime = childData.expected_time_end;
+
+                    ExamDetailsDiv.innerHTML += `<div class="cards">
+                      <p class="cardHeader" id="ExamName">${assessmentName}</p>
+                      <div class="cardDivText">
+                          <div class="cardSubDiv">
+                              <p id="card-labels">Assigned Course:</p>
+                              <p class="cardText" id="ExamCourse">${assessmentCourseSection}</p>
+                          </div>    
+                          <div class="cardSubDiv">
+                              <p id="card-labels">Start Time and Date:</p>
+                              <p class="cardText" id="ExamStartTimeDate">${assessmentStartTime}</p>
+                          </div>  
+                          <div class="cardSubDiv">
+                              <p id="card-labels">End Time and Date:</p>
+                              <p class="cardText" id="ExamEndTimeDate">${assessmentEndTime}</p>
+                          </div>  
+                      </div>`
   
-  //get the student ID
-  var IDnumber;
-  chrome.storage.local.get('currentUserId', function(data) {
-    IDnumber = data.currentUserId;
+
+                    
+
+                  }
+                })
+                
+
+               
+                        
+                        
+
+              }else{
+                alert("Snapshot does not exist");
+                        
+              }
+            }).catch((err) => {
+              console.log("Error with database: " + err);
+            });
+                  
+                
+                 
+                  
+                  
+                  
+          
+          }//EOF If User
+      }).catch((err) => {
+        alert("SSO ended with an error" + err);
+      });
   });
 
-  console.log(receivedAssessmentId + "?? " + IDnumber);
 }
 
 
