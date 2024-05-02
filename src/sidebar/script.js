@@ -21,6 +21,8 @@ const facultyDashboardPage = '/FacultyDashboardPage.html';
 const facultySchedulePage = '/FacultySchedulePage.html';
 const StudentExamDetailsPage = '/StudentAssessmentDetails.html';
 const StudentSuccessReg =  '/StudentSuccessReg.html';
+const StudentReadyExam = '/StudentReadyExam.html';
+const StudentActiveExam = '/StudentActiveTakingExam.html';
 //Admin Routes
 const AdminDashboard = '/AdminDashboard.html';
 const facultyViewAssessments = '/FacultyManageAssessments.html';
@@ -63,6 +65,38 @@ function monitorSidePanelPath() {
           });
         });
               
+      }else if(path === '/StudentReadyExam.html'){
+        //student will get the exam link
+        //get the assessment ID
+        var receivedAssessmentId;
+        chrome.storage.local.get('currentAssessmentId', function(data) {
+          receivedAssessmentId = data.currentAssessmentId;
+          console.log("Data in storage: " + receivedAssessmentId);
+          //get the student ID
+          var receivedUserId;
+          chrome.storage.local.get('currentUserId', function(data) {
+            receivedUserId = data.currentUserId;
+            //view the details of the assessment
+            studentIsReadyExam(receivedAssessmentId, receivedUserId);
+          });
+        });
+
+      }else if(path === 'StudentActiveTakingExam.html'){
+        //Student is now taking the exam, monitor
+         //get the assessment ID
+         var receivedAssessmentId;
+         chrome.storage.local.get('currentAssessmentId', function(data) {
+           receivedAssessmentId = data.currentAssessmentId;
+           console.log("Data in storage: " + receivedAssessmentId);
+           //get the student ID
+           var receivedUserId;
+           chrome.storage.local.get('currentUserId', function(data) {
+             receivedUserId = data.currentUserId;
+             //view the details of the assessment
+             studentIsTakingExam(receivedAssessmentId, receivedUserId);
+           });
+         });
+        
       }
       
     });
@@ -116,9 +150,19 @@ window.addEventListener('DOMContentLoaded', function () {
       console.log('Clicked Submit Exam Code');
       //check if the exam code is valid then show the assessment details
       checkExamCode();
+    }
 
+    //student clicked get examlink
+    if(target.id==='getExamLinkBtn'){
+      console.log('Student Get Exam Link');
+      chrome.sidePanel.setOptions({path:StudentReadyExam});
+    }
 
-      
+    //STUDENT CLICKED THE EXAM LINK
+    if(target.id==='output-student-examName'){
+      console.log('Student Clicked Exam Link');
+      chrome.sidePanel.setOptions({path:StudentActiveExam});
+
 
     }
   });
@@ -792,6 +836,7 @@ function viewStudentAssessmentDetails(assessmentId, IDnumber){
       
                     // const assessmentFIC = childData.FacultyInCharge;
                     const assessmentName = childData.name;
+                    const assessmentFIC = childData.FacultyInChargeName;
                     const assessmentCourseSection = childData.course;
                     const assessmentLink = childData.link;
                     const assessmentStartTime = childData.expected_time_start;
@@ -800,6 +845,10 @@ function viewStudentAssessmentDetails(assessmentId, IDnumber){
                     ExamDetailsDiv.innerHTML += `<div class="cards">
                       <p class="cardHeader" id="ExamName">${assessmentName}</p>
                       <div class="cardDivText">
+                          <div class="cardSubDiv">
+                            <p id="card-labels">Faculty-in-Charge:</p>
+                            <p class="cardText" id="CourseTitle">${assessmentFIC}</p>
+                          </div> 
                           <div class="cardSubDiv">
                               <p id="card-labels">Assigned Course:</p>
                               <p class="cardText" id="ExamCourse">${assessmentCourseSection}</p>
@@ -847,8 +896,152 @@ function viewStudentAssessmentDetails(assessmentId, IDnumber){
 
 }
 
+//function called when student is ready to take the exam
+function studentIsReadyExam(assessmentId, IDnumber){
+
+  //render the link first
+  //check if there is a logged in user
+  chrome.identity.getAuthToken({ interactive: true }, token =>
+    {
+      if ( chrome.runtime.lastError || ! token ) {
+        alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
+        return
+      }
+
+      //firebase authentication
+      signInWithCredential(auth, GoogleAuthProvider.credential(null, token))
+      .then(res =>{
+          const user = auth.currentUser;
+          //get profile uid
+          if (user !== null) {
+            const db = getDatabase(); 
+            const takingAssessmentRef = ref(db, `/takingAssessments/${assessmentId}/students/${IDnumber}`);
+            get(takingAssessmentRef)
+            .then((snapshot) =>{
+              if(snapshot.exists()){
+                //loop through the information
+                const AssessmentRef = ref(db, `/assessments/${assessmentId}`);
+                get(AssessmentRef)
+                .then((snapshot)=>{
+                  if(snapshot.exists()){
+                    var childData = snapshot.val();
+                    console.log(childData.FacultyInCharge);
+                    var ExamDetailsDiv = document.getElementById('ExamDetailsStudent');
+                    ExamDetailsDiv.innerHTML='';
+      
+                    const assessmentFIC = childData.FacultyInChargeName;
+                    const assessmentName = childData.name;
+                    const assessmentCourseSection = childData.course;
+                    const assessmentLink = childData.link;
+                    const assessmentStartTime = childData.expected_time_start;
+                    const assessmentEndTime = childData.expected_time_end;
+
+                    ExamDetailsDiv.innerHTML += `
+                    <div class="output-student-examLink">
+                      <a href="${assessmentLink}" target="_blank" class="ExamLinkBtn" id="output-student-examName">${assessmentName}</a>
+                    </div>
+                      
+                    <div class="studentDivText">
+                      <p class="output-student-exam">Course: ${assessmentCourseSection}</p>
+                      <p class="output-student-exam">Course: ${assessmentFIC}</p>
+                      <p class="output-student-exam">Start Time and Date: ${assessmentStartTime}</p>
+                      <p class="output-student-exam">End Time and Date: ${assessmentEndTime}</p>
+                    </div>`
+
+                  }
+                })
+
+              }else{
+                alert("Snapshot does not exist");
+                        
+              }
+            }).catch((err) => {
+              console.log("Error with database: " + err);
+            });
+                  
+          }//EOF If User
+      }).catch((err) => {
+        alert("SSO ended with an error" + err);
+      });
+  });
 
 
+}
+
+//function to flag that student is now taking the exam
+function studentIsTakingExam(assessmentId, IDnumber){
+
+  //render the information
+  chrome.identity.getAuthToken({ interactive: true }, token =>
+    {
+      if ( chrome.runtime.lastError || ! token ) {
+        alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
+        return
+      }
+
+      //firebase authentication
+      signInWithCredential(auth, GoogleAuthProvider.credential(null, token))
+      .then(res =>{
+          const user = auth.currentUser;
+          //get profile uid
+          if (user !== null) {
+            const db = getDatabase(); 
+            const takingAssessmentRef = ref(db, `/takingAssessments/${assessmentId}/students/${IDnumber}`);
+            get(takingAssessmentRef)
+            .then((snapshot) =>{
+              if(snapshot.exists()){
+                //loop through the information
+                const AssessmentRef = ref(db, `/assessments/${assessmentId}`);
+                get(AssessmentRef)
+                .then((snapshot)=>{
+                  if(snapshot.exists()){
+                    var childData = snapshot.val();
+                    console.log(childData.FacultyInCharge);
+                    var ExamDetailsDiv = document.getElementById('ExamDetailsStudent');
+                    ExamDetailsDiv.innerHTML='';
+      
+                    // const assessmentFIC = childData.FacultyInCharge;
+                    const assessmentName = childData.name;
+                    const assessmentCourseSection = childData.course;
+                    const assessmentLink = childData.link;
+                    const assessmentStartTime = childData.expected_time_start;
+                    const assessmentEndTime = childData.expected_time_end;
+
+                    //time calculation
+                    var currentTime = new Date();
+                    var currentTimeDate = currentTime.toLocaleString();  
+                    console.log("End Time:" + assessmentEndTime);
+
+
+
+
+                    ExamDetailsDiv.innerHTML += `
+                    <p class="output-student-active-exam" id="student-current-examName">${assessmentName}</p>
+                    <p class="output-student-active-exam" id="student-current-examSection">${assessmentCourseSection}</p>
+                    <p class="output-student-active-exam" id="student-current-examFIC">Faculty-in-Charge</p>                 
+                  
+    
+                    <p class="output-student-active-time-exam" id="student-current-examTimeStarted">Time Started: </p>
+                    <p class="output-student-active-time-exam" id="student-current-examTimeLeft">Time Left: 20 minutes</p>`
+                  }
+                })
+
+              }else{
+                alert("Snapshot does not exist");
+                        
+              }
+            }).catch((err) => {
+              console.log("Error with database: " + err);
+            });
+                  
+          }//EOF If User
+      }).catch((err) => {
+        alert("SSO ended with an error" + err);
+      });
+  });
+
+
+}
 
 //function to check if browser is minimized
 function isBrowserMinimized(){

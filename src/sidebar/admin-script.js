@@ -162,6 +162,7 @@ window.addEventListener('DOMContentLoaded', function () {
     const headDiv = document.getElementById('AppBody'); // Replace with the actual ID
     var facultyKeyValue;
     var courseCodeValue;
+    var facultyNameValue;
     
   
     headDiv.addEventListener('click', function (event) {
@@ -253,7 +254,8 @@ window.addEventListener('DOMContentLoaded', function () {
         var facultyString = target.textContent.split(" ");
         // var facultyStringValue = facultyString.split(" ");
         facultyKeyValue = facultyString[0];
-        console.log(facultyKeyValue);
+        facultyNameValue = facultyString[1];
+        // console.log(facultyKeyValue);
         //call the function and pass the name value
         viewDetailsFaculty(facultyKeyValue);
 
@@ -302,8 +304,13 @@ window.addEventListener('DOMContentLoaded', function () {
 
       if(target.id==='Admin-SubmitExamSchedBtn'){
         console.log('Clicked Admin Get Assessment Link');
-        //function add the exam to the database then generate a link
-        createNewAssessment();
+        chrome.storage.local.get('value3', function(data) {
+          var currentFacultyName = data.value3;
+          console.log("Passing: "+ currentFacultyName);
+          //function add the exam to the database then generate a link
+          createNewAssessment(currentFacultyName);
+        });
+      
       }
 
       
@@ -959,12 +966,21 @@ function displayFacultyDropdown(){
             
             //get the input faculty of the user
             var selectedFaculty;
+            var selectedFacultyName;
             document.getElementById('facultylist').addEventListener('change', function(){
-              selectedFaculty = this.value;
-              console.log("Selected Faculty: " + selectedFaculty);
-              //loop through the courses taught by the chosen faculty
-              viewFacultyCourses(selectedFaculty);
+              selectedFacultyName = this.options[this.selectedIndex].text;
+              console.log("Selected Faculty Name: " + selectedFacultyName);
+              chrome.runtime.sendMessage({action:'passValue3', value: selectedFacultyName});
+
             })
+            // document.getElementById('facultylist').addEventListener('change', function(){
+            //   selectedFaculty = this.value;
+            //   console.log("Selected Faculty: " + selectedFaculty);
+            //   //loop through the courses taught by the chosen faculty
+            //   viewFacultyCourses(selectedFaculty);
+            // })
+
+
            
           }
       })
@@ -983,13 +999,16 @@ function generateExamCode(){
 }
 
 //function to add the scheduled exam by the admin
-function createNewAssessment(){
+function createNewAssessment(currentFacultyName){
   //get all the input
   var examName = document.getElementById('assessmentName').value;
   var facultySelected = document.getElementById('facultylist').value;
+  var facultyNameSelected = currentFacultyName;
   var courseSelected = document.getElementById('courselist').value;
   var startDateSelected = document.getElementById('start-date').value;
+  var startTimeSelected = document.getElementById('start-time').value;
   var endDateSelected = document.getElementById('end-date').value;
+  var endTimeSelected = document.getElementById('end-time').value;
   var examLink = document.getElementById('assessmentLinkInput').value;
   //generate 6 character code
   var examAccessCode = generateExamCode();
@@ -1017,12 +1036,15 @@ function createNewAssessment(){
             // const takingAssessmentsRef = ref(db, 'takingAssessments/');
             update(ref(db,'assessments/' + assessmentKey),{
               FacultyInCharge: facultySelected,
+              FacultyInChargeName: facultyNameSelected,
               name: examName,
               course: courseSelected,
               link:examLink,
               access_code: examAccessCode,
-              expected_time_start: startDateSelected,
-              expected_time_end: endDateSelected,
+              expected_time_start: startTimeSelected,
+              expected_time_end: endTimeSelected,
+              date_start:startDateSelected,
+              date_end:endDateSelected
                   
             }).then(()=> {
               alert("Saved to database!");
@@ -1033,12 +1055,15 @@ function createNewAssessment(){
             //update taking assessments
             update(ref(db,'takingAssessments/' + assessmentKey),{
               FacultyInCharge: facultySelected,
+              FacultyInChargeName: facultyNameSelected,
               name: examName,
               course: courseSelected,
               link:examLink,
               access_code: examAccessCode,
-              expected_time_start: startDateSelected,
-              expected_time_end: endDateSelected,
+              expected_time_start: startTimeSelected,
+              expected_time_end: endTimeSelected,
+              date_start:startDateSelected,
+              date_end:endDateSelected,
               students: {}
                   
             }).then(()=> {
@@ -1049,6 +1074,23 @@ function createNewAssessment(){
            
             //call function that will update which students will take the assessment
             updateTakingAssessmentsStudent(courseSelected, assessmentKey);
+
+            //update scheduled assessments
+            update(ref(db,`scheduledAssessments/${facultySelected}/${assessmentKey}`),{
+              name: examName,
+              FacultyInChargeName: facultyNameSelected,
+              course: courseSelected,
+              link:examLink,
+              access_code: examAccessCode,
+              expected_time_start: startTimeSelected,
+              expected_time_end: endTimeSelected,
+              date_start:startDateSelected,
+              date_end:endDateSelected
+            }).then(()=> {
+              alert("Saved to database!");
+            }).catch((err) => {
+              console.log(("error with database" + err));
+            })
           }
        })//EOF signInWithCredential
       .catch(err =>{alert("SSO ended with an error" + err);})
@@ -1087,7 +1129,7 @@ function viewAssessmentsList(){
                   //loop through the snapshot
                   for(const assessmentId in childData){
                     const assessment = childData[assessmentId];
-                    const assessmentFIC = assessment.FacultyInCharge;
+                    const assessmentFIC = assessment.FacultyInChargeName;
                     const assessmentName = assessment.name;
                     const assessmentCourseSection = assessment.course;
                     const assessmentLink = assessment.link;

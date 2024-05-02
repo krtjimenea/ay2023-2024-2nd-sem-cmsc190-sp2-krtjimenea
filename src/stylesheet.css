@@ -182,6 +182,8 @@ p{
     flex-direction: column;  
     width: 264px; 
 }
+
+
 /** Scheduled Exam Output **/
 
 .greenBtn{
@@ -210,9 +212,146 @@ p{
 }
 
 /*** Student READY to take exam ***/
-#exam-link{
+.ExamLinkBtn{
+    display: block;
+    text-align: justify;
     background-color: #ACB4FB;
+    width: 264px;
+    height: 40px;
+    color: #000;
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    border-radius: 4px;
+    border: 2px solid #000;   
+    box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); 
+    line-height: 40px;
+    font-size: 25px;
+    text-align: center;
 }
+
+
+
+.output-student-exam{
+    text-align: justify;
+    background-color: #cdd1f6;
+    width: 264px;
+    height: 40px;
+    color: #000;
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif; 
+    box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); 
+    line-height: 40px;
+    text-align: center;
+    margin-top: 20px;
+
+}
+
+/*** Student TAKING ACTIVE EXAM ***/
+.AppHeaderStudentExam{
+    display: flex; 
+    justify-content: space-between;
+    margin-top: 100px;
+    height: 42px;
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    color: #fff;
+    text-align: center;
+    font-size: 45px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 50px; /* 104.167% */
+
+}
+.AppHeader-Student{
+    display: flex; 
+    justify-content: space-between;
+    margin-top: 50px;
+}
+
+#StudentHelloText{
+    font-weight: 400;
+    height: 42px;
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    color: #000000;
+    text-align: center;
+    font-size: 45px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 50px; /* 104.167% */
+}
+
+#StudentHeader{
+    font-weight: 400;
+    height: 42px;
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    color: #353C83;
+    text-align: center;
+    font-size: 45px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 50px; /* 104.167% */
+    padding-left: 10px;
+}
+
+.AppSubHeaderExam{
+    height: 42px;
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    color: #000000;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 50px; /* 104.167% */
+}
+
+.output-student-active-exam{
+    font-size: 12px;
+    text-align: center;
+    background-color: #ffffff;
+    width: 264px;
+    height: 40px;
+    color: #000;
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif; 
+    box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); 
+    line-height: 40px;
+    margin-top: 8px;
+    border-radius: 4px;
+
+}
+
+.output-student-active-time-exam{
+    font-size: 12px;
+    text-align: center;
+    background-color:#ACB4FB;
+    width: 264px;
+    height: 40px;
+    color: #000;
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif; 
+    box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); 
+    line-height: 40px;
+    margin-top: 8px;
+    border-radius: 4px;
+}
+
+.output-student-active-exam-record{
+    font-size: 18px;
+    background-color:#FE974D;
+    width: 264px;
+    height: 50px;
+    color: #000;
+    /* font-family: 'Raleway', sans-serif; */
+    font-family: 'Urbanist', sans-serif; 
+    box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); 
+    margin-top: 20px;
+    border-radius: 4px;
+    text-align: center;
+}
+
+
 /*** Faculty Dashboard **/
 
 #FacultyUI{
@@ -379,24 +518,60 @@ select:focus{
     
 }
 
-#start-date{
+.AppHeader-Admin{
+    margin-top: 100px;
+    height: 42px;
     font-family: 'Raleway', sans-serif;
     font-family: 'Urbanist', sans-serif;
+    color: #000;
+    text-align: center;
+    font-size: 48px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 50px; /* 104.167% */
+}
+
+.datetime-div{
+    display: flex; 
+    margin-top: 10px;
+    width: 246px;
+}
+
+#start-date{
+    font-family: 'Urbanist', sans-serif;
     border:none;
-    padding: 10px 20px;
-    width: 210px;
+    padding: 5px 10px;
+    margin-right: 5px;
+    width: 150px;
+    border-radius: 12px;
+}
+
+#start-time{
+    font-family: 'Urbanist', sans-serif;
+    border:none;
+    padding: 5px 10px;
+    width: 130px;
     border-radius: 12px;
 }
 
 #end-date{
-    font-family: 'Raleway', sans-serif;
     font-family: 'Urbanist', sans-serif;
     border:none;
-    padding: 10px 20px;
-    width: 210px;
+    padding: 5px 10px;
+    margin-right: 5px;
+    width: 150px;
     border-radius: 12px;
 }
-  
+
+#end-time{
+    font-family: 'Urbanist', sans-serif;
+    border:none;
+    padding: 5px 10px;
+    width: 130px;
+    border-radius: 12px;
+}
+
+
 
 #input-labels {
     text-align: center;

@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <link rel="stylesheet" href="../stylesheet.css" />
     <title>title</title>
-    <script src="script.js" type="module"></script>
+
 </head>
 <body id="StudentUI">
     <div id="AppBody">
@@ -17,21 +17,23 @@
                 </svg>
             </div>
 
-            <div class="AppHeaderStudent">Hello, Student</div>
-            <div class="AppSubHeader">Currently taking</div>
-
-
-            <div id="ExamDetailsStudent">               
-                <p class="output-student">Exam Subject</p>
-                <p class="output-student">Exam FIC</p>
+            <div class="AppHeader-Student">
+                <p id="StudentHelloText">Hello,</p>
+                <p id="StudentHeader">Student</p>
             </div>
+            <div class="AppSubHeaderExam">Currently taking:</div>
 
-            <div id="ExamTrackingStudent">
-                <p class="output-student" id="current-time">Exam Start Time and Date</p>
-                <p class="output-student" id="time-left">20 minutes</p>
-                <p class="output-student" id="recorded-message">Your browser activity is being recorded</p>
-            </div>
+            <div id="ExamDetailsStudent"> 
+                <!-- <p class="output-student-active-exam" id="student-current-examName">Exam Name</p>
+                <p class="output-student-active-exam" id="student-current-examSection">Course and Section</p>
+                <p class="output-student-active-exam" id="student-current-examFIC">Faculty-in-Charge</p>                 
+              
 
+                <p class="output-student-active-time-exam" id="student-current-examTimeStarted">Time Started: </p>
+                <p class="output-student-active-time-exam" id="student-current-examTimeLeft">Time Left: 20 minutes</p> -->
+
+                <p class="output-student-active-exam-record" id="recorded-message">Your browser activity is being recorded</p>
+            
             <div class="SubmitDiv">
                 <button type="button" class="greenBtn" id="submitExamBtn">SUBMIT EXAM</button>
             </div>

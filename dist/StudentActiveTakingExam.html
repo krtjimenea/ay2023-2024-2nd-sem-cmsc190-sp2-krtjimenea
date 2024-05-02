@@ -4,7 +4,8 @@
     <meta charset="UTF-8" />
     <link rel="stylesheet" href="../stylesheet.css" />
     <title>title</title>
-</head>
+
+<script defer src="script.js"></script></head>
 <body id="StudentUI">
     <div id="AppBody">
         <div id="flex-row">
@@ -16,15 +17,26 @@
                 </svg>
             </div>
 
-            <div class="AppHeaderStudent">Hello, Student</div>
-            <div class="AppSubHeader">Click the assessment link below</div>
-
-
-            <div id="ExamDetailsStudent">
-             
-                
+            <div class="AppHeader-Student">
+                <p id="StudentHelloText">Hello,</p>
+                <p id="StudentHeader">Student</p>
             </div>
+            <div class="AppSubHeaderExam">Currently taking:</div>
 
+            <div id="ExamDetailsStudent"> 
+                <!-- <p class="output-student-active-exam" id="student-current-examName">Exam Name</p>
+                <p class="output-student-active-exam" id="student-current-examSection">Course and Section</p>
+                <p class="output-student-active-exam" id="student-current-examFIC">Faculty-in-Charge</p>                 
+              
+
+                <p class="output-student-active-time-exam" id="student-current-examTimeStarted">Time Started: </p>
+                <p class="output-student-active-time-exam" id="student-current-examTimeLeft">Time Left: 20 minutes</p> -->
+
+                <p class="output-student-active-exam-record" id="recorded-message">Your browser activity is being recorded</p>
+            
+            <div class="SubmitDiv">
+                <button type="button" class="greenBtn" id="submitExamBtn">SUBMIT EXAM</button>
+            </div>
             
         </div> 
     </div>

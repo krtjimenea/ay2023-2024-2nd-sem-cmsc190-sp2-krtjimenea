@@ -219,7 +219,9 @@ function scheduleExam(){
   var examName = document.getElementById('assessmentName').value;
   var courseSelected = document.getElementById('courselist').value;
   var startDateSelected = document.getElementById('start-date').value;
+  var startTimeSelected = document.getElementById('start-time').value;
   var endDateSelected = document.getElementById('end-date').value;
+  var endTimeSelected = document.getElementById('end-time').value;
   var examLink = document.getElementById('assessmentLinkInput').value;
 
   console.log(examName);
@@ -247,55 +249,68 @@ function scheduleExam(){
           const user = auth.currentUser;
             
           if (user !== null) {
-            const db = getDatabase(); 
-            update(ref(db,'assessments/' + assessmentKey),{
-              FacultyInCharge: receivedUserId,
-              name: examName,
-              course: courseSelected,
-              link:examLink,
-              access_code: examAccessCode,
-              expected_time_start: startDateSelected,
-              expected_time_end: endDateSelected,
-                  
-            }).then(()=> {
-              alert("Saved to database!");
-            }).catch((err) => {
-              console.log(("error with database" + err));
-            })
+            user.providerData.forEach((profile) => {
+              const facultyName = profile.displayName;
+              const db = getDatabase(); 
+              update(ref(db,'assessments/' + assessmentKey),{
+                FacultyInCharge: receivedUserId,
+                FacultyInChargeName: facultyName,
+                name: examName,
+                course: courseSelected,
+                link:examLink,
+                access_code: examAccessCode,
+                expected_time_start: startTimeSelected,
+                expected_time_end: endTimeSelected,
+                date_start:startDateSelected,
+                date_end:endDateSelected
+                    
+              }).then(()=> {
+                alert("Saved to database!");
+              }).catch((err) => {
+                console.log(("error with database" + err));
+              })
 
-             //update taking assessments
-             update(ref(db,'takingAssessments/' + assessmentKey),{
-              FacultyInCharge: receivedUserId,
-              name: examName,
-              course: courseSelected,
-              link:examLink,
-              access_code: examAccessCode,
-              expected_time_start: startDateSelected,
-              expected_time_end: endDateSelected,
-              students: {}
-                  
-            }).then(()=> {
-              alert("Saved to database!");
-            }).catch((err) => {
-              console.log(("error with database" + err));
-            })
-           
-            //call function that will update which students will take the assessment
-            updateTakingAssessmentsStudent(courseSelected, assessmentKey);
+              //update taking assessments
+              update(ref(db,'takingAssessments/' + assessmentKey),{
+                FacultyInCharge: receivedUserId,
+                FacultyInChargeName: facultyName,
+                name: examName,
+                course: courseSelected,
+                link:examLink,
+                access_code: examAccessCode,
+                expected_time_start: startTimeSelected,
+                expected_time_end: endTimeSelected,
+                date_start:startDateSelected,
+                date_end:endDateSelected,
+                students: {}
+                    
+              }).then(()=> {
+                alert("Saved to database!");
+              }).catch((err) => {
+                console.log(("error with database" + err));
+              })
+            
+              //call function that will update which students will take the assessment
+              updateTakingAssessmentsStudent(courseSelected, assessmentKey);
 
-            //update scheduled assessments
-            update(ref(db,`scheduledAssessments/${receivedUserId}/${assessmentKey}`),{
-              name: examName,
-              course: courseSelected,
-              link:examLink,
-              access_code: examAccessCode,
-              expected_time_start: startDateSelected,
-              expected_time_end: endDateSelected,
-            }).then(()=> {
-              alert("Saved to database!");
-            }).catch((err) => {
-              console.log(("error with database" + err));
-            })
+              //update scheduled assessments
+              update(ref(db,`scheduledAssessments/${receivedUserId}/${assessmentKey}`),{
+                name: examName,
+                course: courseSelected,
+                FacultyInCharge: receivedUserId,
+                FacultyInChargeName: facultyName,
+                link:examLink,
+                access_code: examAccessCode,
+                expected_time_start: startTimeSelected,
+                expected_time_end: endTimeSelected,
+                date_start:startDateSelected,
+                date_end:endDateSelected
+              }).then(()=> {
+                alert("Saved to database!");
+              }).catch((err) => {
+                console.log(("error with database" + err));
+              })
+            });
 
           }
        })//EOF signInWithCredential
@@ -335,6 +350,7 @@ function viewFacultyAssessmentsList(facultyKeyValue){
                   //loop through the snapshot
                   for(const assessmentId in childData){
                     const assessment = childData[assessmentId];
+                    const assessmentFIC = assessment.FacultyInChargeName;
                     const assessmentName = assessment.name;
                     const assessmentCourseSection = assessment.course;
                     const assessmentLink = assessment.link;
@@ -349,7 +365,11 @@ function viewFacultyAssessmentsList(facultyKeyValue){
                                           <p id="card-labels">Assigned Course and Section:</p>
                                           <p class="cardText" id="CourseTitle">${assessmentCourseSection}</p>
                                       </div>
-                                  
+                                      
+                                      <div class="cardSubDiv">
+                                        <p id="card-labels">Faculty-in-Charge:</p>
+                                        <p class="cardText" id="CourseTitle">${assessmentFIC}</p>
+                                      </div> 
                                       <div class="cardSubDiv">
                                           <p id="card-labels">Link:</p>
                                           <p class="cardText" id="CourseTitle">${assessmentLink}</p>

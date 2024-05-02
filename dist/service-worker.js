@@ -38,6 +38,12 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
      chrome.storage.local.set({'value2': message.value});
   }
 
+  if(message.action === 'passValue3'){
+    //chrome storage
+    console.log('Received value:', message.value);
+    chrome.storage.local.set({'value3': message.value});
+ }
+
   if(message.action === 'currentUser'){
     //chrome storage
     console.log('Received value:', message.value);

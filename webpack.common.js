@@ -71,6 +71,16 @@ module.exports = {
       chunks: ["script"] // This is script from entry point
     }),
     new HtmlWebpackPlugin({
+      template: path.join(__dirname, "src", "sidebar", "StudentReadyExam.html"),
+      filename: "StudentReadyExam.html",
+      chunks: ["script"] // This is script from entry point
+    }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, "src", "sidebar", "StudentActiveTakingExam.html"),
+      filename: "StudentActiveTakingExam.html",
+      chunks: ["script"] // This is script from entry point
+    }),
+    new HtmlWebpackPlugin({
       template: path.join(__dirname, "src", "sidebar", "FacultyDashboardPage.html"),
       filename: "FacultyDashboardPage.html",
       chunks: ["faculty_script"] // This is script from entry point

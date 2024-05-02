@@ -17,7 +17,10 @@
                 </svg>
             </div>
 
-            <div class="AppHeader-Admin">Hello, Admin</div>
+            <div class="AppHeader-Admin">
+                <p id="AdminHelloText">Hello,</p>
+                <p id="AdminHeader">Admin</p>
+            </div>
 
 
             <div class="AppDiv-Admin">
@@ -47,9 +50,17 @@
                 </div>
                
                 <p id="input-labels">Date and Time Start</p>
-                <input type="datetime-local" id="start-date" name="dateTimeInput">
+                <div class="datetime-div">
+                    <input type="date" id="start-date" min="2024-05-01" max="2024-12-31" />
+                    <input type="time" id="start-time"/>
+                </div>
+                
+
                 <p id="input-labels">Date and Time End</p>
-                <input type="datetime-local" id="end-date" name="dateTimeInput">
+                <div class="datetime-div">
+                    <input type="date" id="end-date" min="2024-05-01" max="2024-12-31" />
+                    <input type="time" id="end-time"/>
+                </div>
                 <p id="input-labels">Assessment Link</p>
                 <input type="text" id ="assessmentLinkInput" name="assessmentCode" placeholder="Assessment Link"/>
                
