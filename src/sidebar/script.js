@@ -81,7 +81,7 @@ function monitorSidePanelPath() {
           });
         });
 
-      }else if(path === 'StudentActiveTakingExam.html'){
+      }else if(path === '/StudentActiveTakingExam.html'){
         //Student is now taking the exam, monitor
          //get the assessment ID
          var receivedAssessmentId;
@@ -1002,27 +1002,83 @@ function studentIsTakingExam(assessmentId, IDnumber){
       
                     // const assessmentFIC = childData.FacultyInCharge;
                     const assessmentName = childData.name;
+                    const assessmentFIC = childData.FacultyInChargeName;
                     const assessmentCourseSection = childData.course;
                     const assessmentLink = childData.link;
                     const assessmentStartTime = childData.expected_time_start;
                     const assessmentEndTime = childData.expected_time_end;
+                    const assessmentStartDate = childData.date_start;
+                    const assessmentEndDate = childData.date_end;
+                    var timeRemaining = 0;
 
                     //time calculation
-                    var currentTime = new Date();
-                    var currentTimeDate = currentTime.toLocaleString();  
-                    console.log("End Time:" + assessmentEndTime);
+                    // console.log(assessmentEndDate);
+                    // console.log(assessmentEndTime);
+                    var countDownDate = new Date(assessmentEndDate + " " + assessmentEndTime).getTime();
+                    //format for 12hr
+                    function formatAMPM(date) {
+                      // var month = date.getMonth();
+                      var month = date.toLocaleString('default', { month: 'long' });
+                      var day = date.getDay();
+                      var year = date.getFullYear();
+                      var hours = date.getHours();
+                      var minutes = date.getMinutes();
+                      var ampm = hours >= 12 ? 'pm' : 'am';
+                      hours = hours % 12;
+                      hours = hours ? hours : 12; // the hour '0' should be '12'
+                      minutes = minutes < 10 ? '0'+minutes : minutes;
+                      var strTime = month + ' ' + day + ' ' + year + ' ' + hours + ':' + minutes + ' ' + ampm;
+                      return strTime;
+                    }
+                    
+                    var startTime = formatAMPM(new Date());
+                    // document.getElementById("student-current-examTimeStarted").innerHTML = "Time Started: " +  startTime;
+
+                    isBrowserMinimized();
+                    // Update the count down every 1 second
+                    var x = setInterval(function() {
+
+                      // Get today's date and time
+                      var now = new Date().getTime();
+
+                      // Find the distance between now and the count down date
+                      // console.log(countDownDate);
+                      // console.log(now);
+                      var distance = countDownDate - now;
+                        
+                      // Time calculations for days, hours, minutes and seconds
+                      var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                      var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                      var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                      var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                        
+                      // Output the result in an element with id="demo"
+                      timeRemaining = days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
+                      document.getElementById("student-current-examTimeLeft").innerHTML = "Time Left: " +  timeRemaining;
+                      // console.log(timeRemaining);
+                        
+                      // If the count down is over, write some text 
+                      if (distance < 0) {
+                        clearInterval(x);
+                        document.getElementById("student-current-examTimeLeft").innerHTML = "EXPIRED";
+                      }
 
 
-
+                    },1000);
 
                     ExamDetailsDiv.innerHTML += `
-                    <p class="output-student-active-exam" id="student-current-examName">${assessmentName}</p>
-                    <p class="output-student-active-exam" id="student-current-examSection">${assessmentCourseSection}</p>
-                    <p class="output-student-active-exam" id="student-current-examFIC">Faculty-in-Charge</p>                 
+                    <p class="output-student-active-exam" id="student-current-examName">Exam: ${assessmentName}</p>
+                    <p class="output-student-active-exam" id="student-current-examSection">Course & Section: ${assessmentCourseSection}</p>
+                    <p class="output-student-active-exam" id="student-current-examFIC">Faculty-in-Charge: ${assessmentFIC}</p>                 
                   
     
-                    <p class="output-student-active-time-exam" id="student-current-examTimeStarted">Time Started: </p>
-                    <p class="output-student-active-time-exam" id="student-current-examTimeLeft">Time Left: 20 minutes</p>`
+                    <p class="output-student-active-time-exam" id="student-current-examTimeStarted">Time Started: ${startTime}</p>
+                    <p class="output-student-active-time-exam" id="student-current-examTimeLeft">Time Left: ${timeRemaining}</p>
+                    <p class="output-student-active-exam-record" id="recorded-message">Your browser activity is being recorded</p>
+            
+                    <div class="SubmitDiv">
+                        <button type="button" class="greenBtn" id="submitExamBtn">SUBMIT EXAM</button>
+                    </div`
                   }
                 })
 
@@ -1040,7 +1096,7 @@ function studentIsTakingExam(assessmentId, IDnumber){
       });
   });
 
-
+  
 }
 
 //function to check if browser is minimized
@@ -1050,7 +1106,7 @@ function isBrowserMinimized(){
     windows.forEach(function(window) {
       console.log("Window ID:", window.id);
       console.log("Window State:", window.state);
-      alert("Window State: " + window.state);
+      // alert("Window State: " + window.state);
     });
   });
 

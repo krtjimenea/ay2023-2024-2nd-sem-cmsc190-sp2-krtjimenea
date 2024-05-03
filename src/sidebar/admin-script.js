@@ -973,12 +973,12 @@ function displayFacultyDropdown(){
               chrome.runtime.sendMessage({action:'passValue3', value: selectedFacultyName});
 
             })
-            // document.getElementById('facultylist').addEventListener('change', function(){
-            //   selectedFaculty = this.value;
-            //   console.log("Selected Faculty: " + selectedFaculty);
-            //   //loop through the courses taught by the chosen faculty
-            //   viewFacultyCourses(selectedFaculty);
-            // })
+            document.getElementById('facultylist').addEventListener('change', function(){
+              selectedFaculty = this.value;
+              console.log("Selected Faculty: " + selectedFaculty);
+              //loop through the courses taught by the chosen faculty
+              viewFacultyCourses(selectedFaculty);
+            })
 
 
            
