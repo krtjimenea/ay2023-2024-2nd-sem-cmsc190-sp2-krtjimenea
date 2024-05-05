@@ -55,4 +55,17 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     console.log('Received value:', message.value);
     chrome.storage.local.set({'currentAssessmentId': message.value});
   }
+
+  if(message.event === "copy") {
+    alert("copy detected");
+  }
 });
+
+
+
+// chrome.extension.onMessage.addListener(function(message, sender, sendResponse) {
+//   if(message.event == "copy") {
+//     alert("copy detected");
+//   }
+  
+// });

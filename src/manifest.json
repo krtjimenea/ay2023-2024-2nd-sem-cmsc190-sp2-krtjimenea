@@ -23,6 +23,16 @@
         "system.display",
         "system.cpu"
      ],
+     "content_scripts": [
+      {
+        "matches": [
+          "<all_urls>"
+        ],
+        "js": [
+          "content-script.js"
+        ]
+      }
+    ],
   "oauth2": {
     "client_id": "205164436846-qg1sfv6uvcfvftqmv98arktleerfbtlf.apps.googleusercontent.com",
     "scopes": [

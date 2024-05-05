@@ -94,6 +94,7 @@ function monitorSidePanelPath() {
              receivedUserId = data.currentUserId;
              //view the details of the assessment
              studentIsTakingExam(receivedAssessmentId, receivedUserId);
+             
            });
          });
         
@@ -106,6 +107,7 @@ function monitorSidePanelPath() {
 
 //gets the current path of the sidePanel
 monitorSidePanelPath();
+
 
 window.addEventListener('DOMContentLoaded', function () {
   
@@ -968,9 +970,10 @@ function studentIsReadyExam(assessmentId, IDnumber){
 
 }
 
+
 //function to flag that student is now taking the exam
 function studentIsTakingExam(assessmentId, IDnumber){
-
+ 
   //render the information
   chrome.identity.getAuthToken({ interactive: true }, token =>
     {
@@ -999,7 +1002,6 @@ function studentIsTakingExam(assessmentId, IDnumber){
                     console.log(childData.FacultyInCharge);
                     var ExamDetailsDiv = document.getElementById('ExamDetailsStudent');
                     ExamDetailsDiv.innerHTML='';
-      
                     // const assessmentFIC = childData.FacultyInCharge;
                     const assessmentName = childData.name;
                     const assessmentFIC = childData.FacultyInChargeName;
@@ -1034,7 +1036,7 @@ function studentIsTakingExam(assessmentId, IDnumber){
                     var startTime = formatAMPM(new Date());
                     // document.getElementById("student-current-examTimeStarted").innerHTML = "Time Started: " +  startTime;
 
-                    isBrowserMinimized();
+                    
                     // Update the count down every 1 second
                     var x = setInterval(function() {
 
@@ -1079,6 +1081,11 @@ function studentIsTakingExam(assessmentId, IDnumber){
                     <div class="SubmitDiv">
                         <button type="button" class="greenBtn" id="submitExamBtn">SUBMIT EXAM</button>
                     </div`
+
+                    isBrowserMinimized();
+                    getActiveTabs();
+                    isThereNewTab();
+                    didCopy();
                   }
                 })
 
@@ -1099,15 +1106,52 @@ function studentIsTakingExam(assessmentId, IDnumber){
   
 }
 
+
+
 //function to check if browser is minimized
 function isBrowserMinimized(){
-  //using chrome.window.windowState API
-  chrome.windows.getAll({ populate: true }, function(windows) {
-    windows.forEach(function(window) {
-      console.log("Window ID:", window.id);
-      console.log("Window State:", window.state);
-      // alert("Window State: " + window.state);
+  chrome.windows.onFocusChanged.addListener(function(windowId) {
+    // Check if the focus change event is due to window being minimized
+    if (windowId === chrome.windows.WINDOW_ID_NONE) {
+        console.log("Browser window is OUT OF FOCUS");
+    }else{
+      console.log("BROWSER IS IN FOCUS");
+    }
+  });
+}
+
+//function to check what tabs are open
+function getActiveTabs(){
+  chrome.tabs.query({}, function(tabs) {
+    // tabs is an array of Tab objects
+    tabs.forEach(function(tab) {
+        console.log("Tab ID:", tab.id);
+        console.log("Tab URL:", tab.url);
+        console.log("Tab Title:", tab.title);
+        console.log("Is Tab Active:", tab.active);
+        console.log("---");
     });
   });
 
 }
+
+//function to check if a new tab was opened
+function isThereNewTab(){
+  chrome.tabs.onCreated.addListener(function(tab) {
+    console.log("New tab created:", tab.id);
+    chrome.tabs.get(tab.id, function(tabInfo) {
+      console.log("URL of the new tab:", tabInfo.url);
+    });
+   
+  });
+
+}
+
+// function didCopy(){
+//   chrome.extension.onMessage.addListener(function(message, sender, sendResponse) {
+//   if(message.event == "copy") {
+//     alert("copy detected");
+//   }
+  
+// });
+// }
