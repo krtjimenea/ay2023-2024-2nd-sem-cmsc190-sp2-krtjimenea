@@ -56,16 +56,29 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     chrome.storage.local.set({'currentAssessmentId': message.value});
   }
 
-  if(message.event === "copy") {
-    alert("copy detected");
-  }
+  // if(message.event === "copy") {
+  //   alert("copy detected");
+  // }
 });
 
+let copyCounter = 0;
+chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+  if(message.event === "copy") {
+    copyCounter+=1;
+    console.log("Copy detected " + copyCounter);
+    // chrome.storage.local.set({'copyCounter': copyCounter});
+  }
+  console.log("TOTAL COPIES" + copyCounter);
 
+});
 
-// chrome.extension.onMessage.addListener(function(message, sender, sendResponse) {
-//   if(message.event == "copy") {
-//     alert("copy detected");
-//   }
-  
-// });
+let pasteCounter = 0;
+chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+  if(message.event === "paste") {
+    pasteCounter+=1;
+    console.log("Paste detected " + pasteCounter);
+    // chrome.storage.local.set({'copyCounter': copyCounter});
+  }
+  console.log("TOTAL PASTE" + pasteCounter);
+
+});

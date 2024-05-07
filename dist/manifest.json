@@ -21,7 +21,9 @@
         "storage",
         "geolocation",
         "system.display",
-        "system.cpu"
+        "system.cpu",
+        "clipboardRead",
+        "clipboardWrite"
      ],
      "content_scripts": [
       {

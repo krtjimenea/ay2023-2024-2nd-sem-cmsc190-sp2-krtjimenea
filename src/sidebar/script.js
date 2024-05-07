@@ -1147,11 +1147,10 @@ function isThereNewTab(){
 
 }
 
-// function didCopy(){
-//   chrome.extension.onMessage.addListener(function(message, sender, sendResponse) {
-//   if(message.event == "copy") {
-//     alert("copy detected");
-//   }
-  
-// });
-// }
+function didCopy(){
+  var countedCopyAction;
+  chrome.storage.local.get('copyCounter', function(data) {
+    countedCopyAction = data.copyCounter;
+    console.log("Student copied " + countedCopyAction + " times");
+  });
+}
