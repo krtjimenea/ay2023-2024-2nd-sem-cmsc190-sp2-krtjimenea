@@ -66,6 +66,12 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     chrome.storage.local.set({'currentBrowserOutOfFocus': message.value});
   }
 
+  if(message.action === 'tabsData'){
+    console.log('Received value:', message.value);
+    chrome.storage.local.set({'currenttabsListData': message.value});
+
+  }
+
 });
 
 let copyCounter = 0;

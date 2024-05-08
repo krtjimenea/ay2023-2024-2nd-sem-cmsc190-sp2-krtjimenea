@@ -1147,6 +1147,7 @@ function studentIsTakingExam(assessmentId, IDnumber){
                     getActiveTabs();
                     isThereNewTab();
                     didCopy();
+                    didSwitchTabs();
                   }
                 })
 
@@ -1190,6 +1191,7 @@ function isBrowserMinimized(){
 //function to check what tabs are open
 function getActiveTabs(){
   chrome.tabs.query({}, function(tabs) {
+    var tabsList = [];
     // tabs is an array of Tab objects
     tabs.forEach(function(tab) {
         console.log("Tab ID:", tab.id);
@@ -1197,23 +1199,55 @@ function getActiveTabs(){
         console.log("Tab Title:", tab.title);
         console.log("Is Tab Active:", tab.active);
         console.log("---");
+
+        //json for every open tab
+        var tabObject = {
+          "id": tab.id,
+          "url": tab.url,
+          "title": tab.title,
+          "active": tab.active
+        }
+
+        //push the tabObject to the tabsList
+        tabsList.push(tabObject);
     });
+
+    //stringify json
+    var tabsJson = JSON.stringify(tabsList, null, 2);
+    //send as message
+    chrome.runtime.sendMessage({action: 'tabsData', value: tabsJson});
+
+
   });
 
-  
+
 }
 
 //function to check if a new tab was opened
 function isThereNewTab(){
   chrome.tabs.onCreated.addListener(function(tab) {
     console.log("New tab created:", tab.id);
-    chrome.tabs.get(tab.id, function(tabInfo) {
-      console.log("URL of the new tab:", tabInfo.url);
-      console.log("New Tab Title:", tabInfo.title);
-      
-    });
-   
   });
+  chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+    if(changeInfo.status === 'complete' && tab.url && tab.title) {
+        console.log("URL of the new tab:", tab.url);
+        console.log("New Tab Title:", tab.title);
+    }
+  });
+
+}
+
+//function to monitor tab switching
+function didSwitchTabs(){
+  chrome.tabs.onActivated.addListener(function(activeInfo) {
+    //get active tab
+    var tabId = activeInfo.tabId;
+    chrome.tabs.get(tabId, function(tab) {
+      var tabUrl = tab.url;
+      console.log("Tab switched. Tab ID:", tabId, "URL:", tabUrl);
+  });
+   
+});
 
 }
 
@@ -1247,7 +1281,13 @@ function saveProctoringReport(assessmentId, IDnumber, submissionTime){
     });
   });
 
- 
+  var tabsDataList;
+  chrome.storage.local.get('currenttabsListData', function(data){
+    tabsDataList = data.currenttabsListData;
+    console.log('tabs data: ' + tabsDataList);
+  })
+
+  
   //check if there is a logged in user
   chrome.identity.getAuthToken({ interactive: true }, token =>
     {
