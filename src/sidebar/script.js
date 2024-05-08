@@ -1,7 +1,7 @@
 //contains listeners and functions
 // Import the functions you need from the SDKs you need
 import { FirebaseApp } from './firebase';
-import {getAuth,signInWithCredential,GoogleAuthProvider} from 'firebase/auth';
+import {getAuth,signInWithCredential,GoogleAuthProvider, signOut} from 'firebase/auth';
 import {getDatabase,ref,set,on, onValue, get, update,push, child, query,orderByChild,equalTo, orderByValue,setValue} from 'firebase/database';
 import { nanoid } from 'nanoid';
 import { customAlphabet } from 'nanoid';
@@ -23,6 +23,7 @@ const StudentExamDetailsPage = '/StudentAssessmentDetails.html';
 const StudentSuccessReg =  '/StudentSuccessReg.html';
 const StudentReadyExam = '/StudentReadyExam.html';
 const StudentActiveExam = '/StudentActiveTakingExam.html';
+const StudentDoneExam = '/StudentSubmittedExam.html';
 //Admin Routes
 const AdminDashboard = '/AdminDashboard.html';
 const facultyViewAssessments = '/FacultyManageAssessments.html';
@@ -98,6 +99,29 @@ function monitorSidePanelPath() {
            });
          });
         
+      }else if(path === '/StudentSubmittedExam.html'){
+        //function to call the save to database
+        //get the assessment ID
+        var receivedAssessmentId;
+        chrome.storage.local.get('currentAssessmentId', function(data) {
+          receivedAssessmentId = data.currentAssessmentId;
+          console.log("Data in storage: " + receivedAssessmentId);
+          //get the student ID
+          var receivedUserId;
+          chrome.storage.local.get('currentUserId', function(data) {
+            receivedUserId = data.currentUserId;
+            //view the details of the assessment
+            console.log("Data in storage: " + receivedUserId);
+            var receivedSubmissionTime;
+            chrome.storage.local.get('currentUserSubmitTime',function(data){
+              receivedSubmissionTime = data.currentUserSubmitTime;
+              console.log("Submission Time Data in storage: " + receivedSubmissionTime);
+              saveProctoringReport(receivedAssessmentId, receivedUserId, receivedSubmissionTime);
+            });
+            
+          });
+        });
+
       }
       
     });
@@ -164,8 +188,39 @@ window.addEventListener('DOMContentLoaded', function () {
     if(target.id==='output-student-examName'){
       console.log('Student Clicked Exam Link');
       chrome.sidePanel.setOptions({path:StudentActiveExam});
+    }
+
+    //student clicked to submit the exam
+    if(target.id === 'submitExamBtn'){
+      console.log('Student clicked Submit Exam');
+       //get the current time and pass it
+      //format for 12hr
+      function formatAMPM(date) {
+        // var month = date.getMonth();
+        var month = date.toLocaleString('default', { month: 'long' });
+        var day = date.getDay();
+        var year = date.getFullYear();
+        var hours = date.getHours();
+        var minutes = date.getMinutes();
+        var seconds = date.getSeconds(); 
+        var ampm = hours >= 12 ? 'pm' : 'am';
+        hours = hours % 12;
+        hours = hours ? hours : 12; // the hour '0' should be '12'
+        minutes = minutes < 10 ? '0'+minutes : minutes;
+        var strTime = month + ' ' + day + ' ' + year + ' ' + hours + ':' + minutes + ':' + seconds + ' ' + ampm;
+        return strTime;
+      }
+      
+      var submissionTime = formatAMPM(new Date());
+      chrome.runtime.sendMessage({action: 'submissionTime', value: submissionTime});
+      chrome.sidePanel.setOptions({path:StudentDoneExam});
 
 
+    }
+    //student clicked log out
+    if(target.id === 'LogOutStudentBtn'){
+      console.log('Student Logged Out');
+      studentSignOut();
     }
   });
 });
@@ -763,10 +818,13 @@ function compareAuthRiskScore(assessmentId){
                     //send the message first containing assessment ID
                     chrome.runtime.sendMessage({action: 'currentAssessment', value: assessmentId});
                     chrome.sidePanel.setOptions({path: StudentExamDetailsPage});
+                    //send the risk score
+                    chrome.runtime.sendMessage({action: 'authRiskScore', value: AuthRiskScore});
                     // isBrowserMinimized();
 
                   }else{
                     console.log('FAILED: Auth Risk Score is: ' + AuthRiskScore);
+                    chrome.runtime.sendMessage({action: 'authRiskScore', value: AuthRiskScore});
 
                   }
                 })
@@ -1025,11 +1083,12 @@ function studentIsTakingExam(assessmentId, IDnumber){
                       var year = date.getFullYear();
                       var hours = date.getHours();
                       var minutes = date.getMinutes();
+                      var seconds = date.getSeconds(); 
                       var ampm = hours >= 12 ? 'pm' : 'am';
                       hours = hours % 12;
                       hours = hours ? hours : 12; // the hour '0' should be '12'
                       minutes = minutes < 10 ? '0'+minutes : minutes;
-                      var strTime = month + ' ' + day + ' ' + year + ' ' + hours + ':' + minutes + ' ' + ampm;
+                      var strTime = month + ' ' + day + ' ' + year + ' ' + hours + ':' + minutes + ':' + seconds + ' ' + ampm;
                       return strTime;
                     }
                     
@@ -1082,6 +1141,8 @@ function studentIsTakingExam(assessmentId, IDnumber){
                         <button type="button" class="greenBtn" id="submitExamBtn">SUBMIT EXAM</button>
                     </div`
 
+                    //send and store messages
+                    chrome.runtime.sendMessage({action: 'timeStarted', value: startTime});
                     isBrowserMinimized();
                     getActiveTabs();
                     isThereNewTab();
@@ -1153,4 +1214,128 @@ function didCopy(){
     countedCopyAction = data.copyCounter;
     console.log("Student copied " + countedCopyAction + " times");
   });
+}
+
+//function that saves the proctoring report
+function saveProctoringReport(assessmentId, IDnumber, submissionTime){
+
+  //get the value from local storage
+  var authRiskScore;
+  var timeStarted;
+  chrome.storage.local.get('currentAuthRiskScore', function(data) {
+    authRiskScore = data.currentAuthRiskScore;
+    chrome.storage.local.get('currentTimeStarted', function(data) {
+      timeStarted = data.currentTimeStarted;
+      console.log('Time Started Exam: ' + timeStarted);
+      console.log('Time Ended Exam: ' + submissionTime);
+      console.log('Auth Risk Score: ' + authRiskScore);
+    });
+  });
+
+ 
+  //Details for /proctoringReportStudent
+  //Key: Student Number _ Exam Id
+  //Student Name
+  //Student Number
+  //Exam Details
+  //Time Started
+  //Time Ended
+  //Auth Risk Score
+  //check if there is a logged in user
+  chrome.identity.getAuthToken({ interactive: true }, token =>
+    {
+      if ( chrome.runtime.lastError || ! token ) {
+        alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
+        return
+      }
+
+      //firebase authentication
+      signInWithCredential(auth, GoogleAuthProvider.credential(null, token))
+      .then(res =>{
+          const user = auth.currentUser;
+          //get profile uid
+          if (user !== null) {
+            const db = getDatabase(); 
+            const takingAssessmentRef = ref(db, `/takingAssessments/${assessmentId}/students/${IDnumber}`);
+            get(takingAssessmentRef)
+            .then((snapshot) =>{
+              if(snapshot.exists()){
+                //loop through the information
+                const AssessmentRef = ref(db, `/assessments/${assessmentId}`);
+                get(AssessmentRef)
+                .then((snapshot)=>{
+                  if(snapshot.exists()){
+                    var childData = snapshot.val();
+                    console.log(childData.FacultyInCharge);
+                    var ExamDetailsDiv = document.getElementById('ExamDetailsStudent');
+                    ExamDetailsDiv.innerHTML='';
+      
+                    const assessmentFIC = childData.FacultyInChargeName;
+                    const assessmentName = childData.name;
+                    const assessmentCourseSection = childData.course;
+                    const assessmentLink = childData.link;
+                    const assessmentStartTime = childData.expected_time_start;
+                    const assessmentEndTime = childData.expected_time_end;
+
+                    
+
+                    ExamDetailsDiv.innerHTML += `
+                    
+                      
+                    <p class="output-student-done-exam" id="student-current-examName">Exam: ${assessmentName}</p>
+                    <p class="output-student-done-exam" id="student-current-examSection">Course & Section: ${assessmentCourseSection}</p>
+                    <p class="output-student-done-exam" id="student-current-examFIC">Faculty-in-Charge:${assessmentFIC} </p>                 
+              
+
+                    <p class="output-student-done-time-exam" id="student-current-examTimeStarted">Time Started: ${timeStarted}</p>
+                    <p class="output-student-done-time-exam" id="student-current-examTimeStarted">Time Ended: ${submissionTime}</p>
+                    
+
+                    <p class="output-student-done-exam" id="student-current-examTimeLeft">Flagged Activity: </p>
+
+                    <div class="LogOutDiv">
+                        <button type="button" class="LogOutBtn" id="LogOutStudentBtn">LOG OUT</button>
+                    </div>`
+
+                  }
+                })
+
+              }else{
+                alert("Snapshot does not exist");
+                        
+              }
+            }).catch((err) => {
+              console.log("Error with database: " + err);
+            });//EOF Rendering Exam Details UI
+
+            //Make proctoring report
+                  
+          }//EOF If User
+      }).catch((err) => {
+        alert("SSO ended with an error" + err);
+      });
+  });
+
+  
+}
+
+function studentSignOut(){
+
+  chrome.storage.local.clear(function() {
+    var error = chrome.runtime.lastError;
+    if (error) {
+        console.error("Error: " + error);
+    }
+    //after clearing local storage log out
+    const auth = getAuth();
+    signOut(auth).then(() => {
+    // Sign-out successful.
+    alert('Sign out Success');
+    chrome.sidePanel.setOptions({path:landingPage})
+    }).catch((error) => {
+      // An error happened.
+      alert("Error: " + error);
+    });
+  });
+  
 }

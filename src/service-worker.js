@@ -9,20 +9,6 @@ chrome.sidePanel
   .setPanelBehavior({ openPanelOnActionClick: true })
   .catch((error) => console.error(error));
 
-// // This code listens for changes in the sidePanel path
-// chrome.webNavigation.onHistoryStateUpdated.addListener(function(details) {
-//   chrome.tabs.sendMessage(details.tabId, { type: 'sidePanelPathChanged' });
-// });
-
-// chrome.runtime.onInstalled.addListener
-
-// chrome.tabs.onActivated.addListener(async ({ tabId }) => {
-//   const { path } = await chrome.sidePanel.getOptions({ tabId });
-//   console.log("current path" + path);
-//   // if (path === welcomePage) {
-//   //   chrome.sidePanel.setOptions({ path: mainPage });
-//   // }
-// });
 
 //chrome listener for message passing between panels
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
@@ -56,9 +42,24 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     chrome.storage.local.set({'currentAssessmentId': message.value});
   }
 
-  // if(message.event === "copy") {
-  //   alert("copy detected");
-  // }
+  if(message.action === 'submissionTime'){
+    //chrome storage
+    console.log('Received value:', message.value);
+    chrome.storage.local.set({'currentUserSubmitTime': message.value});
+  }
+
+  if(message.action === 'authRiskScore'){
+    //chrome storage
+    console.log('Received value:', message.value);
+    chrome.storage.local.set({'currentAuthRiskScore': message.value});
+  }
+
+  if(message.action === 'timeStarted'){
+    //chrome storage
+    console.log('Received value:', message.value);
+    chrome.storage.local.set({'currentTimeStarted': message.value});
+  }
+
 });
 
 let copyCounter = 0;

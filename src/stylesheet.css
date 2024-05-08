@@ -351,6 +351,55 @@ p{
     text-align: center;
 }
 
+/**After Exam**/
+.output-student-done-exam{
+    font-size: 12px;
+    text-align: center;
+    background-color: #ffffff;
+    width: 264px;
+    height: 40px;
+    color: #000;
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif; 
+    box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); 
+    line-height: 40px;
+    margin-top: 8px;
+    border-radius: 4px;
+
+}
+
+.output-student-done-time-exam{
+    font-size: 12px;
+    text-align: center;
+    background-color:#ACB4FB;
+    width: 264px;
+    height: 40px;
+    color: #000;
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif; 
+    box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); 
+    line-height: 40px;
+    margin-top: 8px;
+    border-radius: 4px;
+}
+
+
+.LogOutDiv{
+    margin-top: 20px;
+}
+
+.LogOutBtn{
+    background-color: #353C83;
+    width: 264px;
+    height: 40px;
+    color: #fff;
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif; 
+    line-height: 40px;
+    margin-top: 8px;
+    border-radius: 4px;
+}
+
 
 /*** Faculty Dashboard **/
 
@@ -599,6 +648,7 @@ select:focus{
     border-radius: 12px;
     border: none;
 }
+
 
 
 
