@@ -1031,7 +1031,7 @@ function studentIsReadyExam(assessmentId, IDnumber){
 
 //function to flag that student is now taking the exam
 function studentIsTakingExam(assessmentId, IDnumber){
- 
+  
   //render the information
   chrome.identity.getAuthToken({ interactive: true }, token =>
     {
@@ -1164,21 +1164,27 @@ function studentIsTakingExam(assessmentId, IDnumber){
       });
   });
 
-  
 }
 
 
 
-//function to check if browser is minimized
+//function to check if browser is minimized or out of focus
 function isBrowserMinimized(){
+  
+  var timesBrowserOutofFocus = 0;
   chrome.windows.onFocusChanged.addListener(function(windowId) {
-    // Check if the focus change event is due to window being minimized
+    //Check if the focus change, opened other windows or clicked on other windows
     if (windowId === chrome.windows.WINDOW_ID_NONE) {
-        console.log("Browser window is OUT OF FOCUS");
+      console.log("Browser window is OUT OF FOCUS");
+      timesBrowserOutofFocus+=1;
+      console.log("Browser window is OUT OF FOCUS " + timesBrowserOutofFocus + " times!!!!!!!");
+      chrome.runtime.sendMessage({action: 'timesBrowserOutOfFocus', value: timesBrowserOutofFocus});
+
     }else{
       console.log("BROWSER IS IN FOCUS");
     }
   });
+  
 }
 
 //function to check what tabs are open
@@ -1194,6 +1200,7 @@ function getActiveTabs(){
     });
   });
 
+  
 }
 
 //function to check if a new tab was opened
@@ -1202,6 +1209,8 @@ function isThereNewTab(){
     console.log("New tab created:", tab.id);
     chrome.tabs.get(tab.id, function(tabInfo) {
       console.log("URL of the new tab:", tabInfo.url);
+      console.log("New Tab Title:", tabInfo.title);
+      
     });
    
   });
@@ -1222,25 +1231,23 @@ function saveProctoringReport(assessmentId, IDnumber, submissionTime){
   //get the value from local storage
   var authRiskScore;
   var timeStarted;
+  var numOfBrowserOutofFocus;
   chrome.storage.local.get('currentAuthRiskScore', function(data) {
     authRiskScore = data.currentAuthRiskScore;
     chrome.storage.local.get('currentTimeStarted', function(data) {
       timeStarted = data.currentTimeStarted;
-      console.log('Time Started Exam: ' + timeStarted);
-      console.log('Time Ended Exam: ' + submissionTime);
-      console.log('Auth Risk Score: ' + authRiskScore);
+      chrome.storage.local.get('currentBrowserOutOfFocus', function(data){
+        numOfBrowserOutofFocus = data.currentBrowserOutOfFocus;
+        console.log('Time Started Exam: ' + timeStarted);
+        console.log('Time Ended Exam: ' + submissionTime);
+        console.log('Auth Risk Score: ' + authRiskScore);
+        console.log('Student Changed Focus Times: ' + numOfBrowserOutofFocus);
+      });
+     
     });
   });
 
  
-  //Details for /proctoringReportStudent
-  //Key: Student Number _ Exam Id
-  //Student Name
-  //Student Number
-  //Exam Details
-  //Time Started
-  //Time Ended
-  //Auth Risk Score
   //check if there is a logged in user
   chrome.identity.getAuthToken({ interactive: true }, token =>
     {
@@ -1261,21 +1268,27 @@ function saveProctoringReport(assessmentId, IDnumber, submissionTime){
             .then((snapshot) =>{
               if(snapshot.exists()){
                 //loop through the information
+                const studentData = snapshot.val();
+                const Email = studentData.studentEmail;
                 const AssessmentRef = ref(db, `/assessments/${assessmentId}`);
                 get(AssessmentRef)
                 .then((snapshot)=>{
                   if(snapshot.exists()){
                     var childData = snapshot.val();
-                    console.log(childData.FacultyInCharge);
+                    // console.log(childData.FacultyInCharge);
                     var ExamDetailsDiv = document.getElementById('ExamDetailsStudent');
                     ExamDetailsDiv.innerHTML='';
-      
+                    
+                    const assessmentFIC_ID = childData.FacultyInCharge;
                     const assessmentFIC = childData.FacultyInChargeName;
                     const assessmentName = childData.name;
                     const assessmentCourseSection = childData.course;
                     const assessmentLink = childData.link;
+                    const assessmentCode = childData.access_code;
                     const assessmentStartTime = childData.expected_time_start;
                     const assessmentEndTime = childData.expected_time_end;
+                    const assessmentStartDate = childData.date_start;
+                    const assessmentEndDate = childData.date_end;
 
                     
 
@@ -1309,6 +1322,42 @@ function saveProctoringReport(assessmentId, IDnumber, submissionTime){
             });//EOF Rendering Exam Details UI
 
             //Make proctoring report
+            //Details for /proctoringReportStudent
+            //Key: Student Number _ Exam Id
+            //Student Name
+            //Student Number
+            //Exam Details
+            //Time Started
+            //Time Ended
+            //Auth Risk Score
+            var newReportStudent = {
+              studentEmail: Email,
+              studentNumber: IDnumber,
+              assessmentTaken: {
+                FacultyIDNumber: assessmentFIC_ID,
+                FacultyInChargeName: assessmentFIC ,
+                name: assessmentName,
+                courseSection:  assessmentCourseSection,
+                link:assessmentLink,
+                access_code: assessmentCode,
+                expected_time_start:  assessmentStartTime,
+                expected_time_end: assessmentEndTime,
+                date_start: assessmentStartDate,
+                date_end: assessmentEndDate
+              },
+              student_time_started: timeStarted,
+              student_time_submitted: submissionTime,
+              student_auth_risk_score: authRiskScore,
+              // flagged_activities : {
+
+              // }
+
+
+            }
+            const proctoringReportKey = IDnumber + "_" + assessmentId;
+            const reportStudentRef = ref(db,'proctoringReportStudent');
+            const updates = {};
+
                   
           }//EOF If User
       }).catch((err) => {

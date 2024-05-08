@@ -60,6 +60,12 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     chrome.storage.local.set({'currentTimeStarted': message.value});
   }
 
+  if(message.action === 'timesBrowserOutOfFocus'){
+    //chrome storage
+    console.log('Received value timesBrowserOutOfFocus:', message.value);
+    chrome.storage.local.set({'currentBrowserOutOfFocus': message.value});
+  }
+
 });
 
 let copyCounter = 0;
