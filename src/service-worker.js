@@ -82,6 +82,11 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     chrome.storage.local.set({'currentNumTabsSwitched': message.value});
   }
 
+  if(message.action === 'studentIdentity_uponExam'){
+    console.log('Received Student Identity Upon Log in: ', message.value);
+    chrome.storage.local.set({'currentStudentIdentity_uponExam': message.value});
+  }
+
 });
 
 let copyCounter = 0;

@@ -294,7 +294,7 @@ function checkUser(){
       console.log('Student');
       isStudentRegistered(IDinput);
       //route to Student Dashboard
-    }else if(IDinput[0] === '0' && Dropdowninput === 'Admin'){
+    }else if(IDinput === '001802885' && Dropdowninput === 'Admin'){
       //route to Admin Dashboard
       console.log('Admin')
       chrome.sidePanel.setOptions({path: AdminDashboard})
@@ -533,7 +533,9 @@ function isStudentRegistered(IDnumber){
                       //register the student
                       //get the information of the student
                       getStudentDetails(IDnumber);
-                    
+                    }else{
+                      console.log(email + ' Email is not the same');
+                      alert("Please use a valid email");
                     }
                   }else{
                     //student with the id num input has existing UID
@@ -717,6 +719,13 @@ function compareAuthRiskScore(assessmentId){
         }
       })
 
+      var geolocation_lat_matched;
+      var geolocation_long_matched;
+      var ipAddress_matched;
+      var os_matched; var cpu_matched;
+      var display_matched;
+      var browser_matched;
+
       //get IP address, callback function
       getIPAddress(ipAddress => {
         //get the geolocation
@@ -751,14 +760,18 @@ function compareAuthRiskScore(assessmentId){
                     console.log('Matched Geolocation Latitude');
                     if(geolocation.longitude === geolocationlong){
                       console.log('Matched Geolocation Longitude');
+                      geolocation_lat_matched = true;
+                      geolocation_long_matched = true;
                       //Current Total Matched Weight = 6
                       totalMatchedWeight = 6;
                     }else{
                       console.log('Did not match Geolocation Long');
+                      geolocation_long_matched = false;
                       
                     }
                   }else{
                     console.log('Did not match Geolocation Lat');
+                    geolocation_lat_matched = false;
                   }
                   console.log('Saved GeoLat'+ geolocationlat + ' Current Signin GeoLat:'+ geolocation.latitude);
 
@@ -766,8 +779,10 @@ function compareAuthRiskScore(assessmentId){
                   if(ipAddress===ipAddressStudent){
                     alert('IP Matched');
                     totalMatchedWeight = totalMatchedWeight + 5;
+                    ipAddress_matched = true;
                   }else{
                     alert('IP Did not match');
+                    ipAddress_matched = false;
                   }
                   console.log('Saved IP: ' + ipAddressStudent + ' Current IP: '+ ipAddress);
 
@@ -775,35 +790,43 @@ function compareAuthRiskScore(assessmentId){
                   if(studentDisplay===display){
                     alert('Display Matched');
                     totalMatchedWeight = totalMatchedWeight + 4;
+                    display_matched = true;
                   }else{
-                    alert('Did not match');
+                    display_matched = false;
+                    alert('Display did not match');
                   }
                   console.log( 'Saved Display: ' + display + ' Current Display: ' + studentDisplay)
 
                   //compare system CPU
                   if(studentCPU===cpu){
                     alert('CPU Matched');
+                    cpu_matched = true;
                     totalMatchedWeight = totalMatchedWeight + 3;
                   }else{
-                    alert('Did not match');
+                    cpu_matched = false;
+                    alert('CPU Did not match');
                   }
                   console.log('Saved CPU: ' + cpu + ' Current CPU: ' + studentCPU);
 
                   //compare system OS
                   if(studentOS===os){
                     alert('OS Matched');
+                    os_matched = true;
                     totalMatchedWeight = totalMatchedWeight + 2;
                   }else{
-                    alert('Did not match');
+                    os_matched = false;
+                    alert('OS Did not match');
                   }
                   console.log('Saved OS: '+ os + ' Current OS: ' + studentOS);
 
                   //compare system browser
                   if(studentBrowser===browser){
-                    alert('OS Matched');
+                    browser_matched = true;
+                    alert('Browser Matched');
                     totalMatchedWeight = totalMatchedWeight + 1;
                   }else{
-                    alert('Did not match');
+                    alert('Browser Did not match');
+                    browser_matched = false;
                   }
                   console.log('Saved Browser: ' + browser + ' Current Browser: ' + studentBrowser);
 
@@ -812,15 +835,31 @@ function compareAuthRiskScore(assessmentId){
                   var AuthRiskScore = getAuthRiskScore(totalMatchedWeight);
                   console.log('AuthRiskScore is = ' + AuthRiskScore);
 
+                  //create an object to pass the identity that did not match
+                  var studentIdentity_uponExam = {
+                    geolocation_lat: {currentGeolocation_lat: geolocation.latitude , didMatch: geolocation_lat_matched },
+                    geolocation_long: {currentGeolocation_long: geolocation.longitude , didMatch: geolocation_long_matched },
+                    IP_address: {currentIpaddress: ipAddress , didMatch: ipAddress_matched },
+                    display: {currentDisplay: display , didMatch: display_matched },
+                    cpu:{currentCPU: cpu, didMatch: cpu_matched,
+                    os: {currentOS: os , didMatch: os_matched },
+                    browser: {currentBrowser: browser, didMatch: browser_matched}
+                    }
+                  }
+                  //stringify json
+                  var studentIdentityUponExam = JSON.stringify(studentIdentity_uponExam, null, 2);
+                  
                   //if riskscore is 0.90 above go to next page
                   if(AuthRiskScore >= 1){
+                    
                     console.log('SUCCESS: Auth Risk Score is: ' + AuthRiskScore);
                     //send the message first containing assessment ID
                     chrome.runtime.sendMessage({action: 'currentAssessment', value: assessmentId});
                     //send the risk score
                     chrome.runtime.sendMessage({action: 'authRiskScore', value: AuthRiskScore});
-                     chrome.sidePanel.setOptions({path: StudentExamDetailsPage});
-                    // isBrowserMinimized();
+                    chrome.runtime.sendMessage({action: 'studentIdentity_uponExam', value: studentIdentityUponExam});
+                    chrome.sidePanel.setOptions({path: StudentExamDetailsPage});
+                    
 
                   }else{
                     console.log('FAILED: Auth Risk Score is: ' + AuthRiskScore);
@@ -1312,9 +1351,9 @@ function saveProctoringReport(assessmentId, IDnumber, submissionTime){
   chrome.storage.local.get('currentNewtabsData', function(data){
     newTabsData = data.currentNewtabsData;
     //undefined check
-    if(newTabData === undefined){
+    if(newTabsData === undefined){
       console.log('No Changes');
-      newTabData = 0;
+      newTabsData = 0;
     }else{
       numofFlaggedActivity+=1;
       console.log('new tab opened data: ' + newTabsData);
@@ -1359,6 +1398,15 @@ function saveProctoringReport(assessmentId, IDnumber, submissionTime){
     }
     
   });
+
+  var student_identity_UponExam;
+  chrome.storage.local.get('currentStudentIdentity_uponExam', function(data){
+    student_identity_UponExam = data.currentStudentIdentity_uponExam;
+    console.log(student_identity_UponExam);
+  })
+
+  // var json_newTabsData = JSON.parse(newTabsData);
+  // var json_tabsDataList = JSON.parse(tabsDataList);
 
   
   console.log(numOfBrowserOutofFocus + "Value");
@@ -1428,6 +1476,7 @@ function saveProctoringReport(assessmentId, IDnumber, submissionTime){
                     //Details for /proctoringReportStudent
                     //Key: Student Number _ Exam Id
                     var studentPRKey = IDnumber + assessmentId;
+                    
                     //Student Name
                     //Student Number
                     //Exam Details
@@ -1460,7 +1509,8 @@ function saveProctoringReport(assessmentId, IDnumber, submissionTime){
                         student_num_tab_switched: numTabsSwitched,
                         student_num_of_copy_action: countedCopyAction,
                         student_num_of_paste_action: countedPasteAction
-                      }
+                      },
+                      identity_UponExam : student_identity_UponExam
 
 
                     }
