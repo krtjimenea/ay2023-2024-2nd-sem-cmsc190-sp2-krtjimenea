@@ -72,16 +72,27 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
 
   }
 
+  if(message.action === 'newTabData'){
+    console.log('Received value:', message.value);
+    chrome.storage.local.set({'currentNewtabsData': message.value});
+  }
+
+  if(message.action === 'tabSwitched'){
+    console.log('Received value: ', message.value);
+    chrome.storage.local.set({'currentNumTabsSwitched': message.value});
+  }
+
 });
 
 let copyCounter = 0;
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
   if(message.event === "copy") {
     copyCounter+=1;
-    console.log("Copy detected " + copyCounter);
+    console.log("Copy detected ");
     // chrome.storage.local.set({'copyCounter': copyCounter});
   }
-  console.log("TOTAL COPIES" + copyCounter);
+  // console.log("TOTAL COPIES" + copyCounter);
+  chrome.storage.local.set({'copyCounter': copyCounter});
 
 });
 
@@ -89,9 +100,9 @@ let pasteCounter = 0;
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
   if(message.event === "paste") {
     pasteCounter+=1;
-    console.log("Paste detected " + pasteCounter);
+    console.log("Paste detected ");
     // chrome.storage.local.set({'copyCounter': copyCounter});
   }
-  console.log("TOTAL PASTE" + pasteCounter);
+  chrome.storage.local.set({'pasteCounter': pasteCounter});
 
 });

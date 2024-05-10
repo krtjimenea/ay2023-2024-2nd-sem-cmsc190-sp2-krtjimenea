@@ -474,7 +474,7 @@ function isFacultyRegistered(IDnumber){
                   }else{
                     //user already registerd
                     alert("Your Faculty Number is already registered with an Email");
-                    chrome.sidePanel.setOptions({path:FacultySuccessReg});
+                    chrome.sidePanel.setOptions({path:facultyDashboardPage});
                   }
                   
                 }else{
@@ -817,13 +817,14 @@ function compareAuthRiskScore(assessmentId){
                     console.log('SUCCESS: Auth Risk Score is: ' + AuthRiskScore);
                     //send the message first containing assessment ID
                     chrome.runtime.sendMessage({action: 'currentAssessment', value: assessmentId});
-                    chrome.sidePanel.setOptions({path: StudentExamDetailsPage});
                     //send the risk score
                     chrome.runtime.sendMessage({action: 'authRiskScore', value: AuthRiskScore});
+                     chrome.sidePanel.setOptions({path: StudentExamDetailsPage});
                     // isBrowserMinimized();
 
                   }else{
                     console.log('FAILED: Auth Risk Score is: ' + AuthRiskScore);
+                    alert('FAILED, You are not authenticated to take this assessment');
                     chrome.runtime.sendMessage({action: 'authRiskScore', value: AuthRiskScore});
 
                   }
@@ -1146,7 +1147,7 @@ function studentIsTakingExam(assessmentId, IDnumber){
                     isBrowserMinimized();
                     getActiveTabs();
                     isThereNewTab();
-                    didCopy();
+                    // didCopy();
                     didSwitchTabs();
                   }
                 })
@@ -1232,6 +1233,17 @@ function isThereNewTab(){
     if(changeInfo.status === 'complete' && tab.url && tab.title) {
         console.log("URL of the new tab:", tab.url);
         console.log("New Tab Title:", tab.title);
+         //json for every new tab
+         var newTabObject = {
+          "id": tab.id,
+          "url": tab.url,
+          "title": tab.title,
+        }
+        //stringify json
+        var NewtabsJson = JSON.stringify(newTabObject, null, 2);
+        //send as message
+        chrome.runtime.sendMessage({action: 'newTabData', value: NewtabsJson});
+
     }
   });
 
@@ -1239,29 +1251,28 @@ function isThereNewTab(){
 
 //function to monitor tab switching
 function didSwitchTabs(){
+  var tabSwitchCount = 0;
   chrome.tabs.onActivated.addListener(function(activeInfo) {
+    //update tab switch count
+    tabSwitchCount+=1;
     //get active tab
     var tabId = activeInfo.tabId;
     chrome.tabs.get(tabId, function(tab) {
       var tabUrl = tab.url;
       console.log("Tab switched. Tab ID:", tabId, "URL:", tabUrl);
   });
+  console.log(tabSwitchCount);
+  chrome.runtime.sendMessage({ action: "tabSwitched", value: tabSwitchCount });
    
 });
 
 }
 
-function didCopy(){
-  var countedCopyAction;
-  chrome.storage.local.get('copyCounter', function(data) {
-    countedCopyAction = data.copyCounter;
-    console.log("Student copied " + countedCopyAction + " times");
-  });
-}
-
 //function that saves the proctoring report
 function saveProctoringReport(assessmentId, IDnumber, submissionTime){
 
+  //count for total flagged activities
+  var numofFlaggedActivity = 0;
   //get the value from local storage
   var authRiskScore;
   var timeStarted;
@@ -1269,25 +1280,88 @@ function saveProctoringReport(assessmentId, IDnumber, submissionTime){
   chrome.storage.local.get('currentAuthRiskScore', function(data) {
     authRiskScore = data.currentAuthRiskScore;
     chrome.storage.local.get('currentTimeStarted', function(data) {
-      timeStarted = data.currentTimeStarted;
-      chrome.storage.local.get('currentBrowserOutOfFocus', function(data){
-        numOfBrowserOutofFocus = data.currentBrowserOutOfFocus;
-        console.log('Time Started Exam: ' + timeStarted);
-        console.log('Time Ended Exam: ' + submissionTime);
-        console.log('Auth Risk Score: ' + authRiskScore);
-        console.log('Student Changed Focus Times: ' + numOfBrowserOutofFocus);
-      });
-     
+      if(data){
+        timeStarted = data.currentTimeStarted;  
+        chrome.storage.local.get('currentBrowserOutOfFocus', function(data){
+          numOfBrowserOutofFocus = data.currentBrowserOutOfFocus;
+          //undefined check
+          if(numOfBrowserOutofFocus === undefined){
+            console.log('No Changes');
+            numOfBrowserOutofFocus = 0;
+          }else{
+            numofFlaggedActivity+=1;
+          }
+          
+          console.log('Time Started Exam: ' + timeStarted);
+          console.log('Time Ended Exam: ' + submissionTime);
+          console.log('Auth Risk Score: ' + authRiskScore);
+          console.log('Student Changed Focus Times: ' + numOfBrowserOutofFocus);
+        });
+      }
     });
+     
   });
 
   var tabsDataList;
   chrome.storage.local.get('currenttabsListData', function(data){
     tabsDataList = data.currenttabsListData;
-    console.log('tabs data: ' + tabsDataList);
-  })
+    console.log('opened tabs data: ' + tabsDataList);
+  });
+
+  var newTabsData;
+  chrome.storage.local.get('currentNewtabsData', function(data){
+    newTabsData = data.currentNewtabsData;
+    //undefined check
+    if(newTabData === undefined){
+      console.log('No Changes');
+      newTabData = 0;
+    }else{
+      numofFlaggedActivity+=1;
+      console.log('new tab opened data: ' + newTabsData);
+    }
+    
+  });
+
+  var numTabsSwitched;
+  chrome.storage.local.get('currentNumTabsSwitched', function(data){
+    numTabsSwitched = data.currentNumTabsSwitched;
+    //undefined check
+    if(numTabsSwitched === undefined){
+      console.log('No Changes');
+      numTabsSwitched = 0;
+    }else{
+      numofFlaggedActivity+=1;
+      console.log('num of times tab switched: ' + numTabsSwitched);
+    }
+    
+  });
+
+  var countedCopyAction;
+  chrome.storage.local.get('copyCounter', function(data) {
+    countedCopyAction = data.copyCounter;
+    if(countedCopyAction === 0){
+      numofFlaggedActivity = numofFlaggedActivity;
+    }else{
+      numofFlaggedActivity+=1;
+      console.log("Student copied " + countedCopyAction + " times");
+    }
+    
+  });
+
+  var countedPasteAction;
+  chrome.storage.local.get('pasteCounter', function(data) {
+    countedPasteAction = data.pasteCounter;
+    if(countedPasteAction === 0){
+      numofFlaggedActivity = numofFlaggedActivity;
+    }else{
+      numofFlaggedActivity+=1;
+      console.log("Student pasted " + countedPasteAction + " times");
+    }
+    
+  });
 
   
+  console.log(numOfBrowserOutofFocus + "Value");
   //check if there is a logged in user
   chrome.identity.getAuthToken({ interactive: true }, token =>
     {
@@ -1344,14 +1418,67 @@ function saveProctoringReport(assessmentId, IDnumber, submissionTime){
                     <p class="output-student-done-time-exam" id="student-current-examTimeStarted">Time Ended: ${submissionTime}</p>
                     
 
-                    <p class="output-student-done-exam" id="student-current-examTimeLeft">Flagged Activity: </p>
+                    <p class="output-student-done-exam" id="student-current-examTimeLeft">Flagged Activity: ${numofFlaggedActivity} </p>
 
                     <div class="LogOutDiv">
                         <button type="button" class="LogOutBtn" id="LogOutStudentBtn">LOG OUT</button>
                     </div>`
+                    
+                    //Make proctoring report
+                    //Details for /proctoringReportStudent
+                    //Key: Student Number _ Exam Id
+                    var studentPRKey = IDnumber + assessmentId;
+                    //Student Name
+                    //Student Number
+                    //Exam Details
+                    //Time Started
+                    //Time Ended
+                    //Auth Risk Score
+                    var newReportStudent = {
+                      studentEmail: Email,
+                      studentNumber: IDnumber,
+                      assessmentTaken: {
+                        FacultyIDNumber: assessmentFIC_ID,
+                        FacultyInChargeName: assessmentFIC ,
+                        name: assessmentName,
+                        courseSection:  assessmentCourseSection,
+                        link:assessmentLink,
+                        access_code: assessmentCode,
+                        expected_time_start:  assessmentStartTime,
+                        expected_time_end: assessmentEndTime,
+                        date_start: assessmentStartDate,
+                        date_end: assessmentEndDate
+                      },
+                      student_time_started: timeStarted,
+                      student_time_submitted: submissionTime,
+                      student_auth_risk_score: authRiskScore,
+                      flagged_activities : {
+                        student_total_flagged_activity: numofFlaggedActivity,
+                        student_num_changed_windows: numOfBrowserOutofFocus,
+                        student_open_tabs_data: tabsDataList,
+                        student_new_opened_tabs_data: newTabsData,
+                        student_num_tab_switched: numTabsSwitched,
+                        student_num_of_copy_action: countedCopyAction,
+                        student_num_of_paste_action: countedPasteAction
+                      }
 
-                  }
-                })
+
+                    }
+                    const proctoringReportKey = IDnumber + "_" + assessmentId;
+                    const reportStudentRef = ref(db,'proctoringReportStudent');
+                    const updates = {};
+                    updates[`/proctoringReportStudent/${studentPRKey}/`] = newReportStudent;
+                    update(ref(db), updates)
+                      .then(()=>{
+                        console.log('Success in Saving Student PR');
+                        })
+                      .catch((err) => {
+                        console.log("Error with database: " + err);
+                    })
+
+                      }
+                    })
+                    
 
               }else{
                 alert("Snapshot does not exist");
@@ -1361,43 +1488,7 @@ function saveProctoringReport(assessmentId, IDnumber, submissionTime){
               console.log("Error with database: " + err);
             });//EOF Rendering Exam Details UI
 
-            //Make proctoring report
-            //Details for /proctoringReportStudent
-            //Key: Student Number _ Exam Id
-            //Student Name
-            //Student Number
-            //Exam Details
-            //Time Started
-            //Time Ended
-            //Auth Risk Score
-            var newReportStudent = {
-              studentEmail: Email,
-              studentNumber: IDnumber,
-              assessmentTaken: {
-                FacultyIDNumber: assessmentFIC_ID,
-                FacultyInChargeName: assessmentFIC ,
-                name: assessmentName,
-                courseSection:  assessmentCourseSection,
-                link:assessmentLink,
-                access_code: assessmentCode,
-                expected_time_start:  assessmentStartTime,
-                expected_time_end: assessmentEndTime,
-                date_start: assessmentStartDate,
-                date_end: assessmentEndDate
-              },
-              student_time_started: timeStarted,
-              student_time_submitted: submissionTime,
-              student_auth_risk_score: authRiskScore,
-              // flagged_activities : {
-
-              // }
-
-
-            }
-            const proctoringReportKey = IDnumber + "_" + assessmentId;
-            const reportStudentRef = ref(db,'proctoringReportStudent');
-            const updates = {};
-
+           
                   
           }//EOF If User
       }).catch((err) => {
