@@ -1,0 +1,92 @@
+{
+    "faculty-in-charge": {
+      "": {
+        "name": "",
+        "email": "",
+        "employeeNum": "",
+        "classes": {
+          "class1": true,
+          "class2": true
+        }
+      }
+    },
+
+    "students": {
+      "": {
+        "name": "",
+        "email": "",
+        "stundentNum":"",
+        "ipAddress":"",
+        "operatingSystem":"",
+        "systemCPU": "",
+        "systemDisplayResolution":"",
+        "browserUsed":"",
+        "geolocation_latitide":"",
+        "geolocation_longitude":"",
+        "auth_risk_score":"",
+        "assessmentsTaken":"",
+
+        "courses": {
+          "course1": true,
+          "course2": true
+        },
+
+        "proctoringReports":{
+          "proctoringReport1": true
+        },
+
+        "assessments":{
+          "assessment1":true
+        }
+      }
+    },
+    
+    "courses": {
+      "course1": {
+        "courseId": "",
+        "courseTitle": "",
+        "courseCode":"",
+        "students": {
+          "student1": true,
+          "student2": true
+        },
+        "assessment": {
+          "assessment": true
+        }
+      }
+    },
+    
+    "assessments": {
+      "assessment1": {
+        "name": "Midterm Exam",
+        "course": "class1",
+        "link":"",
+        "access_code":"",
+        "expected_time_start":"",
+        "expected_time_end":"",
+        "students":{
+          "student1": true
+        }
+      }
+    },
+  
+    "proctoringReports": {
+      "proctoringReport1": {
+        "student":"",
+        "faculty-in-charge": "",
+        "course":"",
+        "assessment":"",
+        "assessment_type": "",
+        "time_date_start": "",
+        "time_date_end": "",
+        "website_visited":"",
+        "num_tabs_visited":"",
+        "action_openTab":"",
+        "action_minimizeBrowser":"",
+        "action_copyPaste":""
+
+      }
+    }
+
+
+  }

@@ -12,6 +12,8 @@ module.exports = {
   entry: {
     Firebase_Config: './src/sidebar/firebase.js',
     script: './src/sidebar/script.js',
+    faculty_script: './src/sidebar/faculty-script.js',
+    admin: './src/sidebar/admin-script.js'
   },
   module: {
     rules: [
@@ -19,10 +21,20 @@ module.exports = {
         test: /\.css$/,
         use: ['style-loader', 'css-loader'],
       },
-   {
+      {
         test: /\.(woff|woff2|eot|ttf|otf)$/i,
         type: 'asset/resource',
         use: ['file-loader'],
+      },
+      {
+        test: /\.js$/, // Apply this rule to .js files
+        exclude: /node_modules/,
+        use: {
+          loader: 'babel-loader', // Use Babel loader for JavaScript files
+          options: {
+            presets: ['@babel/preset-env'],
+          },
+        },
       },
     ],
   },
@@ -33,6 +45,113 @@ module.exports = {
       filename: "LandingPage.html",
       chunks: ["script"] // This is script from entry point
     }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, "src", "sidebar", "RegistrationPage.html"),
+      filename: "RegistrationPage.html",
+      chunks: ["script"] // This is script from entry point
+    }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, "src", "sidebar", "StudentSuccessReg.html"),
+      filename: "StudentSuccessReg.html",
+      chunks: ["script"] // This is script from entry point
+    }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, "src", "sidebar", "FacultySuccessRegistration.html"),
+      filename: "FacultySuccessRegistration.html",
+      chunks: ["script"] // This is script from entry point
+    }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, "src", "sidebar", "StudentInputPage.html"),
+      filename: "StudentInputPage.html",
+      chunks: ["script"] // This is script from entry point
+    }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, "src", "sidebar", "StudentAssessmentDetails.html"),
+      filename: "StudentAssessmentDetails.html",
+      chunks: ["script"] // This is script from entry point
+    }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, "src", "sidebar", "StudentReadyExam.html"),
+      filename: "StudentReadyExam.html",
+      chunks: ["script"] // This is script from entry point
+    }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, "src", "sidebar", "StudentActiveTakingExam.html"),
+      filename: "StudentActiveTakingExam.html",
+      chunks: ["script"] // This is script from entry point
+    }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, "src", "sidebar", "StudentSubmittedExam.html"),
+      filename: "StudentSubmittedExam.html",
+      chunks: ["script"] // This is script from entry point
+    }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, "src", "sidebar", "FacultyDashboardPage.html"),
+      filename: "FacultyDashboardPage.html",
+      chunks: ["faculty_script"] // This is script from entry point
+    }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, "src", "sidebar", "FacultySchedulePage.html"),
+      filename: "FacultySchedulePage.html",
+      chunks: ["faculty_script"] // This is script from entry point
+    }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, "src", "sidebar", "FacultyManageAssessments.html"),
+      filename: "FacultyManageAssessments.html",
+      chunks: ["faculty_script"] // This is script from entry point
+    }),
+    //Admin Pages
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, "src", "sidebar", "AdminDashboard.html"),
+      filename: "AdminDashboard.html",
+      chunks: ["admin"] // This is script from entry point
+    }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, "src", "sidebar", "AdminManageFaculty.html"),
+      filename: "AdminManageFaculty.html",
+      chunks: ["admin"] // This is script from entry point
+    }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, "src", "sidebar", "AdminManageCourses.html"),
+      filename: "AdminManageCourses.html",
+      chunks: ["admin"] // This is script from entry point
+    }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, "src", "sidebar", "AdminManageAssessments.html"),
+      filename: "AdminManageAssessments.html",
+      chunks: ["admin"] // This is script from entry point
+    }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, "src", "sidebar", "AdminViewFaculty.html"),
+      filename: "AdminViewFaculty.html",
+      chunks: ["admin"] // This is script from entry point
+    }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, "src", "sidebar", "AdminSchedulePage.html"),
+      filename: "AdminSchedulePage.html",
+      chunks: ["admin"] // This is script from entry point
+    }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, "src", "sidebar", "AdminViewAssessments.html"),
+      filename: "AdminViewAssessments.html",
+      chunks: ["admin"] // This is script from entry point
+    }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, "src", "sidebar", "AdminManageStudents.html"),
+      filename: "AdminManageStudents.html",
+      chunks: ["admin"] // This is script from entry point
+    }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, "src", "sidebar", "AdminViewAllCourses.html"),
+      filename: "AdminViewAllCourses.html",
+      chunks: ["admin"] // This is script from entry point
+    }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, "src", "sidebar", "AdminViewCourseOnly.html"),
+      filename: "AdminViewCourseOnly.html",
+      chunks: ["admin"] // This is script from entry point
+    }),
+    
     // Note: you can add as many new HtmlWebpackPlugin objects  
     // filename: being the html filename
     // chunks: being the script src
@@ -42,7 +161,8 @@ module.exports = {
       patterns: [
         { from: './src/manifest.json' },
         { from: './src/service-worker.js' },
-        { from: './src/stylesheet.css' }
+        { from: './src/stylesheet.css' },
+        { from: './src/content-script.js' }
       ],
     }),
   ],

@@ -13,7 +13,28 @@
     },
     "permissions": [
         "sidePanel",
-        "identity"
+        "identity",
+        "tabs",
+        "activeTab",
+        "webNavigation",
+        "webRequest",
+        "storage",
+        "geolocation",
+        "system.display",
+        "system.cpu",
+        "clipboardRead",
+        "clipboardWrite",
+        "history"
+     ],
+     "content_scripts": [
+      {
+        "matches": [
+          "<all_urls>"
+        ],
+        "js": [
+          "content-script.js"
+        ]
+      }
     ],
   "oauth2": {
     "client_id": "205164436846-qg1sfv6uvcfvftqmv98arktleerfbtlf.apps.googleusercontent.com",
