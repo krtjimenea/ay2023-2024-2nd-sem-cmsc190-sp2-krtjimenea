@@ -403,7 +403,7 @@ function saveStudentToDB(studentData){
   });
 
   //split the student data
-  const data = studentData.split(',');
+  const data = studentData.trim().split(/\s*,\s*/);
   console.log(data);
   data.forEach((info,index,array) =>{
     if(index === 0){

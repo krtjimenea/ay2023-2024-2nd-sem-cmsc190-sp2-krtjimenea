@@ -1,5 +1,8 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Raleway:wght@900&family=Urbanist:wght@600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Raleway:wght@900&family=Urbanist:wght@800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Raleway:wght@900&family=Urbanist:wght@700&display=swap');
+
 
 @font-face {
     font-family: "Baloo";
@@ -13,8 +16,7 @@
 }
 
 body{
-    background: rgb(81,86,138);
-    background: linear-gradient(0deg, rgba(81,86,138,1) 0%, rgba(136,116,175,1) 35%, rgba(207,210,241,1) 100%);
+    background: #FFF8E8;
     background-attachment: fixed;
     height: 100%;
 }
@@ -26,6 +28,20 @@ h2{
 
 p{
     margin: 0;
+}
+
+button{
+    border: 2px solid #000;   
+    box-shadow: 0 4px 20px 0 #00000033, 0 6px 20px 0 rgba(0, 0, 0, 0.19);  
+}
+
+button:hover {
+    text-decoration:underline;
+}
+
+button:active {
+  box-shadow: 0 5px #d0cfcf;
+  transform: translateY(4px);
 }
   
 /** Landing Page **/
@@ -39,7 +55,10 @@ p{
 }
 
 #flex-row{
-    width: auto;  
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;  
+    flex-wrap: wrap;
 }
 
 #AppTitle{
@@ -49,13 +68,11 @@ p{
 .AppHeader{
     margin-top: 100px;
     height: 42px;
-    font-family: 'Raleway', sans-serif;
     font-family: 'Urbanist', sans-serif;
     color: #000;
     text-align: center;
     font-size: 48px;
-    font-style: normal;
-    font-weight: 400;
+    font-weight: 800;
     line-height: 50px; /* 104.167% */
 
 }
@@ -65,84 +82,95 @@ p{
 }
 
 #GoogleLoginBtn{
-    background-color: #353C83;
+    background-color: #226f54;
     width: 246px;
     height: 43px;
     color: #fff;
     font-family: 'Raleway', sans-serif;
     font-family: 'Urbanist', sans-serif;
     border-radius: 12px;
-    border: none;
+    border: 2px solid #000;   
+
+    box-shadow: 0 4px 10px 0 #00000033, 0 6px 20px 0 rgba(0, 0, 0, 0.19);     
+
+}
+
+#GoogleLoginBtn:hover {
+    background-color: #538260;
+    text-decoration:underline;
+}
+
+#GoogleLoginBtn:active {
+  background-color: #538260;
+  box-shadow: 0 5px #d0cfcf;
+  transform: translateY(4px);
 }
 
 /** Input for ID Number **/
 
-.AppHeaderInput{
-    margin-top: 100px;
-    height: 42px;
-    font-family: 'Raleway', sans-serif;
-    font-family: 'Urbanist', sans-serif;
-    color: #000;
-    text-align: center;
-    font-size: 48px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: 50px; /* 104.167% */
-
+#AppSubBody{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
 }
-
 #IDInput{
-    margin-top: 50px;
+    margin-top: 30px;
 }
 
 #IDNumInput{
     width: 246px;
-    height: 43px;
+    height: 40px;
     border-radius: 12px;
     border: none;
-    
+    box-shadow: 0 4px 10px 0 #00000033, 0 6px 20px 0 rgba(0, 0, 0, 0.19);     
+    border: 2px solid #000;       
 }
 
 .SubmitIDDiv{
-    margin-top: 20px;
+    margin-top: 50px;
 }
 
 #SubmitIDBtn{
-    background-color: #353C83;
-    width: 246px;
+    background-color: #226f54;
+    width: 253px;
     height: 43px;
     color: #fff;
     font-family: 'Raleway', sans-serif;
     font-family: 'Urbanist', sans-serif;
     border-radius: 12px;
-    border: none;
+    border: 2px solid #000;   
+    box-shadow: 0 4px 20px 0 #00000033, 0 6px 20px 0 rgba(0, 0, 0, 0.19);     
+
 }
 
 /**Student UI**/
 #StudentUI{
-    background: rgb(81,86,138);
-    background: linear-gradient(7deg, rgba(81,86,138,1) 0%, rgba(207,210,241,1) 100%);
+    background: #FFF8E8;
     background-attachment: fixed;
     height: 100%;
 }
 /***Student Input Page***/
 
-.AppHeaderStudent{
-    margin-top: 100px;
-    height: 42px;
+#BackBtn{
+    background-color: #f2e5c7;
+    border: none;
+    box-shadow: none;
+    color: white;
+    display: flex;
+    align-items: center;
+    height: 20px;
     font-family: 'Raleway', sans-serif;
     font-family: 'Urbanist', sans-serif;
-    color: #000;
-    text-align: center;
-    font-size: 48px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: 50px; /* 104.167% */
-
+    color: #fff;
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    border-radius: 6px;
+    margin-bottom: 30px;
 }
 
+
 #StudentInput{
-    margin-top: 100px;
+    margin-top: 10px;
 }
 
 #studentNumInput{
@@ -157,22 +185,20 @@ p{
     width: 246px;
     height: 43px;
     border-radius: 12px;
-    border: none;
 }
 
 .SubmitDiv{
-    margin-top: 20px;
+    margin-top: 30px;
 }
 
 #SubmitBtn{
-    background-color: #353C83;
-    width: 246px;
+    background-color:  #226f54;
+    width: 253px;
     height: 43px;
     color: #fff;
     font-family: 'Raleway', sans-serif;
     font-family: 'Urbanist', sans-serif;
     border-radius: 12px;
-    border: none;
 }
 
 /*** Assessment Details Student ***/
@@ -198,9 +224,20 @@ p{
     box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);     
 }
 
+.greenBtn:hover {
+    background-color: #89f6a8da;
+    text-decoration:underline;
+}
+
+.greenBtn:active {
+  background-color: #5eff8cda;
+  box-shadow: 0 5px #d0cfcf;
+  transform: translateY(4px);
+}
+
 .redBtn{
     margin-top: 10px;
-    background-color: #F98667;
+    background-color: #e43a3c;
     width: 264px;
     height: 43px;
     color: #000;
@@ -211,11 +248,22 @@ p{
     box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);     
 }
 
+.redBtn:hover {
+    background-color: #f87779;
+    text-decoration:underline;
+}
+
+.greenBtn:active {
+  background-color: #e43a3c;
+  box-shadow: 0 5px #d0cfcf;
+  transform: translateY(4px);
+}
+
 /*** Student READY to take exam ***/
 .ExamLinkBtn{
     display: block;
     text-align: justify;
-    background-color: #ACB4FB;
+    background-color: #FFB511;
     width: 264px;
     height: 40px;
     color: #000;
@@ -229,14 +277,23 @@ p{
     text-align: center;
 }
 
+.ExamLinkBtn:hover{
+    background-color: #FFd889;
+    text-decoration: underline;
+}
 
+.ExamLinkBtn:active {
+  box-shadow: 0 5px #d0cfcf;
+  transform: translateY(4px);
+}
 
 .output-student-exam{
     text-align: justify;
-    background-color: #cdd1f6;
+    background-color: #FFd889;
     width: 264px;
     height: 40px;
     color: #000;
+    font-size: 15px;
     font-family: 'Raleway', sans-serif;
     font-family: 'Urbanist', sans-serif; 
     box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); 
@@ -265,34 +322,38 @@ p{
 .AppHeader-Student{
     display: flex; 
     justify-content: space-between;
-    margin-top: 50px;
+    margin-top: 90px;
+    height: 42px;
+    font-family: 'Urbanist', sans-serif;
+    color: #000;
+    text-align: center;
+    font-style: normal;
+    font-weight: 800;
+    line-height: 50px; /* 104.167% */
+    width: 246px;
+    /* flex-wrap: wrap; */
 }
 
 #StudentHelloText{
-    font-weight: 400;
-    height: 42px;
-    font-family: 'Raleway', sans-serif;
+    font-weight: 700;
+    height: 30px;
     font-family: 'Urbanist', sans-serif;
     color: #000000;
     text-align: center;
-    font-size: 45px;
-    font-style: normal;
-    font-weight: 400;
+    font-size: 40px;
     line-height: 50px; /* 104.167% */
 }
 
 #StudentHeader{
-    font-weight: 400;
-    height: 42px;
+    font-weight: 700;
+    height: 30px;
     font-family: 'Raleway', sans-serif;
     font-family: 'Urbanist', sans-serif;
-    color: #353C83;
+    color: #A63a50;
     text-align: center;
-    font-size: 45px;
-    font-style: normal;
-    font-weight: 400;
+    font-size: 40px;
     line-height: 50px; /* 104.167% */
-    padding-left: 10px;
+    padding-left: 8px;
 }
 
 .AppSubHeaderExam{
@@ -307,10 +368,10 @@ p{
 }
 
 .output-student-active-exam{
-    font-size: 12px;
+    font-size: 15px;
     text-align: center;
     background-color: #ffffff;
-    width: 264px;
+    width: 274px;
     height: 40px;
     color: #000;
     font-family: 'Raleway', sans-serif;
@@ -319,68 +380,77 @@ p{
     line-height: 40px;
     margin-top: 8px;
     border-radius: 4px;
+    border: 2px solid #000;   
+    
 
 }
 
 .output-student-active-time-exam{
-    font-size: 12px;
+    font-size: 15px;
     text-align: center;
-    background-color:#ACB4FB;
-    width: 264px;
+    background-color: #FFd889;
+    width: 274px;
     height: 40px;
     color: #000;
-    font-family: 'Raleway', sans-serif;
     font-family: 'Urbanist', sans-serif; 
     box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); 
     line-height: 40px;
     margin-top: 8px;
     border-radius: 4px;
+    border: 2px solid #000;   
+
 }
 
 .output-student-active-exam-record{
     font-size: 18px;
-    background-color:#FE974D;
+    background-color:#FF7733;
     width: 264px;
     height: 50px;
     color: #000;
-    /* font-family: 'Raleway', sans-serif; */
+    font-weight: 800;
     font-family: 'Urbanist', sans-serif; 
     box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); 
     margin-top: 20px;
     border-radius: 4px;
     text-align: center;
+    padding: 5px;
+    border: 2px solid #000;   
 }
+
 
 /**After Exam**/
 .output-student-done-exam{
-    font-size: 12px;
-    text-align: center;
-    background-color: #ffffff;
+    text-align: justify;
+    background-color: #fff;
     width: 264px;
     height: 40px;
     color: #000;
+    font-size: 15px;
     font-family: 'Raleway', sans-serif;
     font-family: 'Urbanist', sans-serif; 
     box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); 
     line-height: 40px;
-    margin-top: 8px;
-    border-radius: 4px;
+    text-align: center;
+    margin-top: 20px;
+    border: 2px solid #000;   
+
 
 }
 
 .output-student-done-time-exam{
-    font-size: 12px;
+    font-size: 15px;
     text-align: center;
-    background-color:#ACB4FB;
+    background-color: #FFd889;
     width: 264px;
     height: 40px;
     color: #000;
-    font-family: 'Raleway', sans-serif;
     font-family: 'Urbanist', sans-serif; 
     box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); 
     line-height: 40px;
     margin-top: 8px;
     border-radius: 4px;
+    border: 2px solid #000;   
+
 }
 
 
@@ -389,11 +459,11 @@ p{
 }
 
 .LogOutBtn{
-    background-color: #353C83;
+    background-color: #7b1113;
     width: 264px;
     height: 40px;
     color: #fff;
-    font-family: 'Raleway', sans-serif;
+    font-weight: 800;
     font-family: 'Urbanist', sans-serif; 
     line-height: 40px;
     margin-top: 8px;
@@ -453,7 +523,6 @@ p{
     font-family: 'Raleway', sans-serif;
     font-family: 'Urbanist', sans-serif;
     border-radius: 12px;
-    border: none;
 }
 
 #ManageBtn{
@@ -465,7 +534,6 @@ p{
     font-family: 'Raleway', sans-serif;
     font-family: 'Urbanist', sans-serif;
     border-radius: 12px;
-    border: none;
 }
 
 /**Faculty Manage Assessments**/
@@ -500,7 +568,7 @@ p{
     text-align: center;
     font-weight: 600;
     border-bottom: 2px solid #000;
-    background-color: #ACB4FB;
+    background-color: #FFB511;
     font-family: 'Raleway', sans-serif;
     font-family: 'Urbanist', sans-serif;
     font-size: 20px;
@@ -534,13 +602,31 @@ p{
 .AppSubHeader{
     width: 246px;
     height: 43px;
-    color: #fff;
-    font-family: 'Raleway', sans-serif;
+    color: #575761;
+    font-size: 20px;
     font-family: 'Urbanist', sans-serif;
     border-radius: 12px;
     border: none;
     text-align: center;
-    margin-top: 50px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    flex-direction: column;
+    flex-wrap: wrap;
+    flex: auto;
+
+}
+
+.AppSubHeader-Long{
+    width: 246px;
+    height: 43px;
+    color: #575761;
+    font-size: 16px;
+    font-family: 'Urbanist', sans-serif;
+    border-radius: 12px;
+    border: none;
+    text-align: center;
+    margin-top: 40px;
+    margin-bottom: 20px;
 
 }
 
@@ -554,12 +640,14 @@ p{
 
 /* Dropdown Button */
 select{
-    border:none;
-    padding: 10px 20px;
-    width: 246px;
+    padding: 10px;
+    width: 253px;
+    height: 43px;
     border-radius: 12px;
     font-family: 'Raleway', sans-serif;
     font-family: 'Urbanist', sans-serif;
+    box-shadow: 0 4px 10px 0 #00000033, 0 6px 20px 0 rgba(0, 0, 0, 0.19);     
+    border: 2px solid #000;     
 }
   
 select:focus{
@@ -621,13 +709,13 @@ select:focus{
 }
 
 
-
 #input-labels {
     text-align: center;
     margin-top: 10px;
-    color: #fff;
-    font-family: 'Raleway', sans-serif;
-    font-family: 'Urbanist', sans-serif
+    color: #000000;
+    font-family: 'Urbanist', sans-serif;
+    font-size: 15px;
+    margin-bottom: 5px;
 }
 
 #assessmentLinkInput{

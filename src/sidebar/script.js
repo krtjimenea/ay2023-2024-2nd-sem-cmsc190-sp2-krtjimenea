@@ -37,6 +37,10 @@ function monitorSidePanelPath() {
     chrome.sidePanel.getOptions({ tabId }, function(options) {
       const path = options.path;
       console.log('path: ' + path);
+      //this the current path, create an array of history in the service worker, pass as message
+      chrome.runtime.sendMessage({action: 'sendCurrentPath', value: path});
+
+
       if(path === '/FacultySchedulePage.html'){
         var receivedUserId;
         chrome.storage.local.get('currentUserId', function(data) {
@@ -133,7 +137,30 @@ function monitorSidePanelPath() {
 monitorSidePanelPath();
 
 
+//to handle route changes
+function navigateBack() {
+  chrome.storage.local.get('historyStack', function(result) {
+    var historyStack = result.historyStack || [];
+    if (historyStack.length > 1) {
+      // Pop the last item from the stack
+      var lastItem = historyStack.pop();
+      //save the updated stack back to chrome storage
+      chrome.storage.local.set({'historyStack': historyStack}, function() {
+        // Use the last item to navigate or perform the relevant action
+        var backToPath = historyStack.slice(-1)[0];
+        console.log("Navigating back to:", backToPath );
+        chrome.sidePanel.setOptions({path:backToPath});
+
+      });
+    } else {
+      console.log("No history to navigate back");
+    }
+  });
+}
+
 window.addEventListener('DOMContentLoaded', function () {
+
+  
   
   const headDiv = document.getElementById('AppBody'); // Replace with the actual ID
 
@@ -221,6 +248,14 @@ window.addEventListener('DOMContentLoaded', function () {
     if(target.id === 'LogOutStudentBtn'){
       console.log('Student Logged Out');
       studentSignOut();
+    }
+
+    //for routing
+    if(target.id ===  'BackBtn' || target.id === 'BackIcon'){
+      console.log('Back Clicked');
+      navigateBack();
+      
+      
     }
   });
 });
@@ -326,16 +361,32 @@ function getStudentDetails(IDnumber){
        
         //get the os of the user
         var studentOS;
-        chrome.runtime.getPlatformInfo(function(info){
-          if(info){
-            studentOS = info.os;
-            console.log(studentOS);
+        const userAgent = window.navigator.userAgent;
+        if(userAgent.includes('Windows NT')){
+          const windowsVersion = userAgent.match(/Windows NT (\d+\.\d+)/);
+          if(windowsVersion) {
+            const get_windowsVersion = windowsVersion[0];
+            studentOS = get_windowsVersion;
           }
-        });
+        }else if(userAgent.includes('Mac OS X')){
+          const macOSVersion = userAgent.match(/Mac OS X (\d+[._]\d+[._]\d+)/);
+          if(macOSVersion){
+            const get_macOSVersion = macOSVersionMatch[0];
+            studentOS = get_macOSVersion;
+          }
 
+        }else if(userAgent.includes("Ubuntu")){
+          const linuxVersionMatch = userAgent.match(/Ubuntu\/(\d+\.\d+)/);
+          if (linuxVersionMatch) {
+            const get_linuxVersion = linuxVersionMatch[0];
+            studentOS = get_linuxVersion;
+          }
+        }else{
+          studentOS = "No OS Detected";
+        }
+        
         //get the browser information
         var studentBrowser;
-        const userAgent = window.navigator.userAgent;
         if (userAgent.includes('Chrome')){
           console.log('Google Chrome');
           studentBrowser = 'Google Chrome';
@@ -1175,7 +1226,7 @@ function studentIsTakingExam(assessmentId, IDnumber){
     
                     <p class="output-student-active-time-exam" id="student-current-examTimeStarted">Time Started: ${startTime}</p>
                     <p class="output-student-active-time-exam" id="student-current-examTimeLeft">Time Left: ${timeRemaining}</p>
-                    <p class="output-student-active-exam-record" id="recorded-message">Your browser activity is being recorded</p>
+                    <p class="output-student-active-exam-record" id="recorded-message">BROWSER ACTIVITY IS RECORDED</p>
             
                     <div class="SubmitDiv">
                         <button type="button" class="greenBtn" id="submitExamBtn">SUBMIT EXAM</button>

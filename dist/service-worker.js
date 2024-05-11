@@ -4,15 +4,66 @@ const GOOGLE_ORIGIN = 'https://www.google.com';
 const landingPage = 'src/sidebar/LandingPage.html';
 const studentInputPage = 'src/sidebar/StudentInputPage.html';
 
+// Listen for the onInstalled event
+chrome.runtime.onInstalled.addListener(function() {
+  // Clear the local storage
+  chrome.storage.local.clear(function() {
+    console.log("Local storage cleared");
+  });
+});
+
+
 // Allows users to open the side panel by clicking on the action toolbar icon
 chrome.sidePanel
   .setPanelBehavior({ openPanelOnActionClick: true })
   .catch((error) => console.error(error));
 
+//array of user's history
+// var historyStack = [];
 
 //chrome listener for message passing between panels
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
-  if (message.action === 'passValue1') {
+  //historyStack
+  if(message.action === 'sendCurrentPath'){
+    console.log('Current Path: ', message.value);
+    //manipulate the stored history in local storage
+    //get the stored list from chrome storage
+    chrome.storage.local.get('historyStack', function(result) {
+      //check if the list exists in storage
+      if (result.historyStack) {
+        //history stack exists
+        var myList = result.historyStack;
+        console.log("Existing History Stack:", myList);
+
+        //add an item to the list
+        if(myList.includes(message.value)){
+          //do not add to the stack anymore
+          chrome.storage.local.set({'historyStack': myList}, function() {
+            console.log("History Stack updated with new item:", myList);
+          });
+        }else{
+          myList.push(message.value);
+          //save the updated list back to chrome storage
+          chrome.storage.local.set({'historyStack': myList}, function() {
+            console.log("History Stack updated with new item:", myList);
+          });
+        }
+        
+
+      
+      } else {
+        // If the list doesn't exist, initialize it
+        var initialList = [message.value];
+
+        // Save the initial list to chrome storage
+        chrome.storage.local.set({'historyStack': initialList}, function() {
+          console.log("Initial history stack saved:", initialList);
+        });
+      }
+    });
+
+  }
+  if(message.action === 'passValue1') {
     console.log('Received value:', message.value);
     //chrome storage
     chrome.storage.local.set({'value1': message.value});
@@ -86,6 +137,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     console.log('Received Student Identity Upon Log in: ', message.value);
     chrome.storage.local.set({'currentStudentIdentity_uponExam': message.value});
   }
+
 
 });
 

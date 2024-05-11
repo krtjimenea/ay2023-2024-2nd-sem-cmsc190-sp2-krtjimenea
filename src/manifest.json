@@ -23,7 +23,8 @@
         "system.display",
         "system.cpu",
         "clipboardRead",
-        "clipboardWrite"
+        "clipboardWrite",
+        "history"
      ],
      "content_scripts": [
       {
