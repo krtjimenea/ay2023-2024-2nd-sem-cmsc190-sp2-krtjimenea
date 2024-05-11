@@ -43,7 +43,104 @@ button:active {
   box-shadow: 0 5px #d0cfcf;
   transform: translateY(4px);
 }
+
+/**Popout Modal Styling for Success**/
+
+.modal-success-Overlay{
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(3px);
+    z-index: 1;
+    display: none;
+}
+
+.Alerts-Success-Modal {
+    display: none;
+    position: absolute;
+    top: 40%;
+    border: 2px solid #000000;
+    z-index: 2;
+    overflow: auto;
+    background-color: #fff;
+    width: 250px;
+    min-height: 200px;
+    border-radius: 15px;
+    box-sizing: border-box; /* Include padding and border in the width */
+  }
   
+.modal-flex {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+    box-sizing: border-box;
+}
+  
+.modal-header-success {
+    padding: 10px;
+    background-color: #4CAF50; /* Success header color */
+    color: white;
+    text-align: center;
+    width: 100%;
+    /* position: absolute; */
+    top: 0;
+    left: 0;
+    box-sizing: border-box;
+   
+}
+
+.ModalTextSuccess{
+    font-family: 'Urbanist', sans-serif;
+    color: #000000;
+    text-align: center;
+    font-size: 20px;
+}
+
+#ModalTextSuccess-labels{
+    font-family: 'Urbanist', sans-serif;
+    color: #000000;
+    text-align: center;
+    font-size: 20px;
+
+}
+.modal-body {
+    padding: 10px;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+}
+  
+.modal-footer-success {
+    padding: 10px;
+    background-color: #45a049; /* Success footer color */
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}
+  
+.ModalCloseBtn {
+    background-color: transparent;
+    border: none;
+    color: white;
+    font-size: 24px;
+    
+}
+  
+.ModalCloseBtn:hover {
+    color: #f44336; /* Red color on hover */
+  }
+
 /** Landing Page **/
 #AppBody{
     width: 260px;
@@ -59,11 +156,13 @@ button:active {
     flex-direction: column;
     justify-content: space-between;  
     flex-wrap: wrap;
+    align-items: center;
 }
 
 #AppTitle{
     width: 225px;
     height: 28px;
+    align-self: flex-start;
 }
 .AppHeader{
     margin-top: 100px;
@@ -151,6 +250,9 @@ button:active {
 }
 /***Student Input Page***/
 
+.BackBtnDiv{
+    align-self: flex-start;
+}
 #BackBtn{
     background-color: #f2e5c7;
     border: none;
@@ -206,6 +308,7 @@ button:active {
 #ExamDetailsStudent{
     display: flex;                
     flex-direction: column;  
+    align-items: center;
     width: 264px; 
 }
 
@@ -334,6 +437,21 @@ button:active {
     /* flex-wrap: wrap; */
 }
 
+.AppHeader-Student-Done{
+    display: flex; 
+    justify-content: space-between;
+    margin-top: 90px;
+    height: 42px;
+    font-family: 'Urbanist', sans-serif;
+    color: #000;
+    text-align: center;
+    font-style: normal;
+    font-weight: 800;
+    line-height: 50px; /* 104.167% */
+    align-self: flex-start;
+}
+
+
 #StudentHelloText{
     font-weight: 700;
     height: 30px;
@@ -343,13 +461,23 @@ button:active {
     font-size: 40px;
     line-height: 50px; /* 104.167% */
 }
-
 #StudentHeader{
     font-weight: 700;
     height: 30px;
     font-family: 'Raleway', sans-serif;
     font-family: 'Urbanist', sans-serif;
-    color: #A63a50;
+    color: #226f54;
+    text-align: center;
+    font-size: 40px;
+    line-height: 50px; /* 104.167% */
+    padding-left: 8px;
+}
+#StudentHeaderText{
+    font-weight: 700;
+    height: 30px;
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    color: #226f54;
     text-align: center;
     font-size: 40px;
     line-height: 50px; /* 104.167% */
@@ -452,6 +580,19 @@ button:active {
     border: 2px solid #000;   
 
 }
+
+.StudentHeader{
+    font-weight: 700;
+    height: 30px;
+    font-family: 'Urbanist', sans-serif;
+    color: #000000;
+    text-align: center;
+    font-size: 40px;
+    line-height: 50px; /* 104.167% */
+    align-self: flex-start;
+    
+}
+
 
 
 .LogOutDiv{

@@ -348,7 +348,6 @@ function checkUser(){
 
 //function once student submitted all information
 function getStudentDetails(IDnumber){
-  console.log("??????");
     //check if there is a logged in user
     chrome.identity.getAuthToken({ interactive: true }, token =>
       {
@@ -452,8 +451,15 @@ function getStudentDetails(IDnumber){
 
                 update(ref(db), updates)
                 .then(()=>{
-                  alert('Success in Registering Student with UID and Info');
-                  chrome.sidePanel.setOptions({path:StudentSuccessReg});
+                  // openModal();
+                  let modal = document.getElementsByClassName("Alerts-Success-Modal")[0];
+                  let overlay = document.getElementsByClassName("modal-success-Overlay")[0];
+                  modal.style.display = "block";
+                  overlay.style.display = "block";
+                  let alertMessage = document.getElementById("ModalTextSuccess-labels");
+                  alertMessage.textContent = 'Success in Registering Student with UID and Info';
+                  // alert('Success in Registering Student with UID and Info');
+                  // chrome.sidePanel.setOptions({path:StudentSuccessReg});
                 })
                 .catch((err) => {
                   console.log("Error with database: " + err);
