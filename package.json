@@ -8,12 +8,20 @@
   "release": "webpack --config webpack.production.js"
  },
  "dependencies": {
+  "@google-cloud/pubsub": "^4.4.0",
+  "crypto-browserify": "^3.12.0",
   "csv": "^6.3.8",
   "file-loader": "^6.2.0",
   "firebase": "^10.6.0",
+  "firebase-admin": "^12.1.0",
   "firebaseui": "^6.1.0",
   "flatpickr": "^4.6.13",
-  "nanoid": "^5.0.7"
+  "google-gax": "^4.3.3",
+  "mailtrap": "^3.3.0",
+  "nanoid": "^5.0.7",
+  "node-polyfill-webpack-plugin": "^3.0.0",
+  "nodemailer": "^6.9.13",
+  "protobufjs": "^7.2.5"
  },
  "devDependencies": {
   "@babel/core": "^7.23.7",

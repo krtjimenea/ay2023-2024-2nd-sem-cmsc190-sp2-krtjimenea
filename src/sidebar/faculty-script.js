@@ -19,6 +19,9 @@ const StudentExamDetailsPage = '/StudentAssessmentDetails.html';
 const AdminDashboard = '/AdminDashboard.html';
 const facultyViewAssessments = '/FacultyManageAssessments.html';
 
+
+
+
 //Function to get SidePanel path
 function monitorSidePanelPath() {
   chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
@@ -318,6 +321,7 @@ function scheduleExam(){
   }) 
 
   alert('Exam Scheduled! The code is: ' + examAccessCode);
+  mailExamCodes();
 
 }
 

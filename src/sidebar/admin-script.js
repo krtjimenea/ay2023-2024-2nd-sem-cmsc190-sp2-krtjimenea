@@ -28,9 +28,8 @@ const AdminViewCourseOnly = '/AdminViewCourseOnly.html';
 
 //display the faculty data
 function displayFacultyList(){
-  console.log('Hello!');
+ 
   //get a reference
-
   //check if there is a logged in user
   chrome.identity.getAuthToken({ interactive: true }, token =>
     {
@@ -50,7 +49,7 @@ function displayFacultyList(){
             get(facultyRef)
               .then((snapshot) => {
                 if (snapshot.exists()) {
-                  alert("Success Firebase Access!");
+                  //alert("Success Firebase Access!");
                   // console.log(snapshot.val()); //checking for snapshot return
                   const facultyData = snapshot.val();
                   var cardListDiv = document.getElementById('cardList');
@@ -68,7 +67,7 @@ function displayFacultyList(){
                     //html for every faculty
                     
                       cardListDiv.innerHTML += `<div class="cards">
-                            <p class="cardHeader" id="FacultyName">${FacultyIDNumber} ${facultyName}</p>
+                            <p class="cardHeader" id="FacultyName">${facultyName}</p>
                               <div class="cardDivText">
                                   <div class="cardSubDiv">
                                       <p id="card-labels">ID Number:</p>
@@ -205,6 +204,26 @@ window.addEventListener('DOMContentLoaded', function () {
         let overlay = document.getElementsByClassName("modal-faculty-Overlay")[0];
         modal.style.display = "block";
         overlay.style.display = "block";
+      }
+
+      //CSV Upload Faculty
+      if(target.id==='Add-New-CSV-Faculty'){
+        // openModal();
+        let modal = document.getElementsByClassName("Add-Faculty-CSV-Modal")[0];
+        let overlay = document.getElementsByClassName("modal-faculty-Overlay")[0];
+        modal.style.display = "block";
+        overlay.style.display = "block";
+
+      }
+
+      if (target.className === 'ModalCloseBtnCSV'){
+        console.log('Clicked Close Modal');
+        //closeModal();
+        let modal = document.getElementsByClassName("Add-Faculty-CSV-Modal")[0];
+        let overlay = document.getElementsByClassName("modal-faculty-Overlay")[0];
+        modal.style.display = "none";
+        overlay.style.display = "none";
+
       }
 
       if (target.className === 'ModalCloseBtn'){
@@ -729,7 +748,7 @@ function createNewFaculty(){
                 update(ref(db), updates)
                   .then(()=>{
                     console.log('Success in Adding new Faculty with key: ' + facultyID);
-                    alert('Success in Adding new Faculty');
+                    // alert('Success in Adding new Faculty');
                   })
                   .catch((err) => {
                     console.log("Error with database: " + err);
@@ -742,14 +761,30 @@ function createNewFaculty(){
                 update(ref(db), updatesRelation)
                 .then(()=>{
                   console.log('Success in Adding new Faculty to teaching Classes');
-                  alert('Success in Adding new Faculty to teaching Classes');
+                  //alert('Success in Adding new Faculty to teaching Classes');
                   //automatic close modal
                   let modal = document.getElementsByClassName("Add-Faculty-Modal")[0];
                   let overlay = document.getElementsByClassName("modal-faculty-Overlay")[0];
                   modal.style.display = "none";
                   overlay.style.display = "none";
-                  //load the new database
-                  monitorSidePanelPath();
+                  
+                  //success alert
+                  modal = document.getElementsByClassName("Alerts-Success-Modal")[0];
+                  overlay = document.getElementsByClassName("modal-success-Overlay")[0];
+                  modal.style.display = "block";
+                  overlay.style.display = "block";
+                  let alertMessage = document.getElementById("ModalTextSuccess-labels");
+                  alertMessage.textContent = 'Success Adding New Faculty with ID: ' + facultyID;
+                  let closeBtn = document.getElementsByClassName("ModalSuccessCloseBtn")[0];
+                  closeBtn.addEventListener("click", function(){
+  
+                    modal.style.display = "none";
+                    overlay.style.display = "none";
+                    
+                    //load the new database
+                    monitorSidePanelPath();
+                  })
+                  
                 })
                 .catch((err) => {
                   console.log("Error with database: " + err);

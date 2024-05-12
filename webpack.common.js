@@ -162,6 +162,7 @@ module.exports = {
         { from: './src/manifest.json' },
         { from: './src/service-worker.js' },
         { from: './src/stylesheet.css' },
+        { from: './src/admin-stylesheet.css' },
         { from: './src/content-script.js' }
       ],
     }),
