@@ -225,7 +225,7 @@ window.addEventListener('DOMContentLoaded', function () {
       function formatAMPM(date) {
         // var month = date.getMonth();
         var month = date.toLocaleString('default', { month: 'long' });
-        var day = date.getDay();
+        var day = date.getDate();
         var year = date.getFullYear();
         var hours = date.getHours();
         var minutes = date.getMinutes();
@@ -254,9 +254,32 @@ window.addEventListener('DOMContentLoaded', function () {
     if(target.id ===  'BackBtn' || target.id === 'BackIcon'){
       console.log('Back Clicked');
       navigateBack();
-      
+    }
+
+    if (target.className === 'ModalFailureCloseBtn'){
+      console.log('Clicked Close Modal');
+      //closeModal();
+      let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
+      let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
+      modal.style.display = "none";
+      overlay.style.display = "none";
+    }
+
+    //exam details were wrong
+    if(target.id === 'wrongExamLinkBtn'){
+      let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
+      let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
+      modal.style.display = "block";
+      overlay.style.display = "block";
+      let alertMessage = document.getElementById("ModalTextFailure-labels");
+      alertMessage.textContent = "Sign In and Enter your Exam Code AGAIN";
+      let closeBtn = document.getElementsByClassName("ModalFailureCloseBtn")[0];
+      closeBtn.addEventListener("click", function(){
+        chrome.sidePanel.setOptions({path:landingPage})
+      })
       
     }
+
   });
 });
 
@@ -334,12 +357,26 @@ function checkUser(){
       console.log('Admin')
       chrome.sidePanel.setOptions({path: AdminDashboard})
     }else{
-      alert('Wrong Format');
+      //alert('Wrong Format');
+      // openFailedModal();
+      let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
+      let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
+      modal.style.display = "block";
+      overlay.style.display = "block";
+      let alertMessage = document.getElementById("ModalTextFailure-labels");
+      alertMessage.textContent = "Wrong Format";
 
     }
 
   }else{
-    alert('Wrong Format');
+    //alert('Wrong Format');
+    // openFailedModal();
+    let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
+    let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
+    modal.style.display = "block";
+    overlay.style.display = "block";
+    let alertMessage = document.getElementById("ModalTextFailure-labels");
+    alertMessage.textContent = "Wrong Format";
   }
   
 
@@ -452,24 +489,43 @@ function getStudentDetails(IDnumber){
                 update(ref(db), updates)
                 .then(()=>{
                   // openModal();
+                  // alert('Success in Registering Student with UID and Info');
                   let modal = document.getElementsByClassName("Alerts-Success-Modal")[0];
                   let overlay = document.getElementsByClassName("modal-success-Overlay")[0];
                   modal.style.display = "block";
                   overlay.style.display = "block";
                   let alertMessage = document.getElementById("ModalTextSuccess-labels");
-                  alertMessage.textContent = 'Success in Registering Student with UID and Info';
-                  // alert('Success in Registering Student with UID and Info');
-                  // chrome.sidePanel.setOptions({path:StudentSuccessReg});
+                  alertMessage.textContent = 'You are now Registered!';
+                  let closeBtn = document.getElementsByClassName("ModalSuccessCloseBtn")[0];
+                  closeBtn.addEventListener("click", function(){
+                    chrome.sidePanel.setOptions({path:StudentSuccessReg});
+                  })
+                  
                 })
                 .catch((err) => {
-                  console.log("Error with database: " + err);
+                  // openFailedModal();
+                  let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
+                  let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
+                  modal.style.display = "block";
+                  overlay.style.display = "block";
+                  let alertMessage = document.getElementById("ModalTextFailure-labels");
+                  alertMessage.textContent = "Error with database: " + err;
+                  // console.log("Error with database: " + err);
                 })
 
               }
             }) //EOF signInWithCredential
             .catch(err =>
             {
-              alert("SSO ended with an error" + err);
+              // openFailedModal();
+              let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
+              let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
+              modal.style.display = "block";
+              overlay.style.display = "block";
+              let alertMessage = document.getElementById("ModalTextFailure-labels");
+              alertMessage.textContent = "SSO ended with an error" + err;
+              // console.log("Error with database: " + err);
+              // alert("SSO ended with an error" + err);
             })
           }) //EOF geolocation
       })//EOF ipCallback
@@ -578,7 +634,7 @@ function isStudentRegistered(IDnumber){
               get(studentRef)
               .then((snapshot) => {
                 if (snapshot.exists()) {
-                  alert("Success Firebase Access!");
+                  console.log("Success Firebase Access!");
                   //check the UID
                   const studentData = snapshot.val();
                   if(studentData.authProviderUID===""){
@@ -591,8 +647,15 @@ function isStudentRegistered(IDnumber){
                       //get the information of the student
                       getStudentDetails(IDnumber);
                     }else{
-                      console.log(email + ' Email is not the same');
-                      alert("Please use a valid email");
+                      //console.log(email + ' Email is not the same');
+                      //alert("Please use a valid email");
+                      // openFailedModal();
+                      let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
+                      let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
+                      modal.style.display = "block";
+                      overlay.style.display = "block";
+                      let alertMessage = document.getElementById("ModalTextFailure-labels");
+                      alertMessage.textContent = "Please use a valid email";
                     }
                   }else{
                     //student with the id num input has existing UID
@@ -602,23 +665,50 @@ function isStudentRegistered(IDnumber){
                       chrome.sidePanel.setOptions({path:studentInputPage});
                     }else{
                       //email used is not registered
-                      alert("Please use a valid email");
+                      // openFailedModal();
+                      let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
+                      let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
+                      modal.style.display = "block";
+                      overlay.style.display = "block";
+                      let alertMessage = document.getElementById("ModalTextFailure-labels");
+                      alertMessage.textContent = "Please use a valid email";
                     }
                   }
                   
                 } else {
-                  alert("ID does not exist, Student is NOT VALID");
-                  //Register Process, Add to database, Add them to the course
+                  // alert("ID does not exist, Student is NOT VALID");
+                  // openFailedModal();
+                  let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
+                  let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
+                  modal.style.display = "block";
+                  overlay.style.display = "block";
+                  let alertMessage = document.getElementById("ModalTextFailure-labels");
+                  alertMessage.textContent = "ID does not exist, Contact your Admin";
                 }
               })
               .catch((err) => {
                 console.log("Error with database: " + err);
+                // openFailedModal();
+                let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
+                let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
+                modal.style.display = "block";
+                overlay.style.display = "block";
+                let alertMessage = document.getElementById("ModalTextFailure-labels");
+                alertMessage.textContent = "Error with database: " + err;
               });
           });
         }
       })
       .catch((err) => {
-        alert("SSO ended with an error" + err);
+        //alert("SSO ended with an error" + err);
+        // openFailedModal();
+        let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
+        let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
+        modal.style.display = "block";
+        overlay.style.display = "block";
+        let alertMessage = document.getElementById("ModalTextFailure-labels");
+        alertMessage.textContent = "SSO ended with an error: " + err;
+        
       });
   });
 }
@@ -668,30 +758,57 @@ function checkExamCode(){
                     .then((snapshot) =>{
                       if(snapshot.exists()){
                         //console.log(snapshot.val());
-                        alert("Valid, Student is SET TO TAKE THIS ASSESSMENT");
+                        //alert("Valid, Student is SET TO TAKE THIS ASSESSMENT");
                         //calculate first the risk score
-                        compareAuthRiskScore(assessmentId);
-                        // chrome.sidePanel.setOptions({path:StudentExamDetailsPage})
-
+                        let modal = document.getElementsByClassName("Alerts-Success-Modal")[0];
+                        let overlay = document.getElementsByClassName("modal-success-Overlay")[0];
+                        modal.style.display = "block";
+                        overlay.style.display = "block";
+                        let alertMessage = document.getElementById("ModalTextSuccess-labels");
+                        alertMessage.textContent = 'Valid, You are set to take this exam!';
+                        let closeBtn = document.getElementsByClassName("ModalSuccessCloseBtn")[0];
+                        closeBtn.addEventListener("click", function(){
+                          compareAuthRiskScore(assessmentId);
+                        })
+                        
                       }else{
-                        alert("You are not valid to take this assessment");
-                        chrome.sidePanel.setOptions({path:landingPage})
+                        //alert("You are not valid to take this assessment");
+                        //openFailedModal();
+                        let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
+                        let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
+                        modal.style.display = "block";
+                        overlay.style.display = "block";
+                        let alertMessage = document.getElementById("ModalTextFailure-labels");
+                        alertMessage.textContent = "You are not valid to take this exam";
+                        let closeBtn = document.getElementsByClassName("ModalFailureCloseBtn")[0];
+                        closeBtn.addEventListener("click", function(){
+                          chrome.sidePanel.setOptions({path:landingPage})
+                        })
+                        
                       }
                     })
                     .catch((err) => {
                       console.log("Error with database: " + err);
                     });
+                  }else{
+                    // openFailedModal();
+                    let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
+                    let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
+                    modal.style.display = "block";
+                    overlay.style.display = "block";
+                    let alertMessage = document.getElementById("ModalTextFailure-labels");
+                    alertMessage.textContent = "ERROR: Check your Exam Code";
+                    let closeBtn = document.getElementsByClassName("ModalFailureCloseBtn")[0];
+                    closeBtn.addEventListener("click", function(){
+                      chrome.sidePanel.setOptions({path:landingPage})
+                    })
                   }
                 }
                  
-                  
-                  
-                  
-          
               }
             })
             .catch((err) => {
-              console.log("Error with database: " + err);
+              alert("Error with database: " + err);
             });
           
         }
@@ -700,14 +817,6 @@ function checkExamCode(){
         alert("SSO ended with an error" + err);
       });
   });
-  // // examCodeInput.match('GHB456');
-  // if(examCodeInput === 'GHB456'){
-  //   //compute AuthRiskScore
-  //   //move to next panel
-  //   compareAuthRiskScore();
-  // }else{
-  //   alert('Wrong Exam Code Input');
-  // }
       
 }
 
@@ -834,18 +943,18 @@ function compareAuthRiskScore(assessmentId){
 
                   //compare IP address
                   if(ipAddress===ipAddressStudent){
-                    alert('IP Matched');
+                    console.log('IP Matched');
                     totalMatchedWeight = totalMatchedWeight + 5;
                     ipAddress_matched = true;
                   }else{
-                    alert('IP Did not match');
+                    console.log('IP Did not match');
                     ipAddress_matched = false;
                   }
                   console.log('Saved IP: ' + ipAddressStudent + ' Current IP: '+ ipAddress);
 
                   //compare system Display
                   if(studentDisplay===display){
-                    alert('Display Matched');
+                    console.log('Display Matched');
                     totalMatchedWeight = totalMatchedWeight + 4;
                     display_matched = true;
                   }else{
@@ -856,33 +965,33 @@ function compareAuthRiskScore(assessmentId){
 
                   //compare system CPU
                   if(studentCPU===cpu){
-                    alert('CPU Matched');
+                    console.log('CPU Matched');
                     cpu_matched = true;
                     totalMatchedWeight = totalMatchedWeight + 3;
                   }else{
                     cpu_matched = false;
-                    alert('CPU Did not match');
+                    console.log('CPU Did not match');
                   }
                   console.log('Saved CPU: ' + cpu + ' Current CPU: ' + studentCPU);
 
                   //compare system OS
                   if(studentOS===os){
-                    alert('OS Matched');
+                    console.log('OS Matched');
                     os_matched = true;
                     totalMatchedWeight = totalMatchedWeight + 2;
                   }else{
                     os_matched = false;
-                    alert('OS Did not match');
+                    console.log('OS Did not match');
                   }
                   console.log('Saved OS: '+ os + ' Current OS: ' + studentOS);
 
                   //compare system browser
                   if(studentBrowser===browser){
                     browser_matched = true;
-                    alert('Browser Matched');
+                    console.log('Browser Matched');
                     totalMatchedWeight = totalMatchedWeight + 1;
                   }else{
-                    alert('Browser Did not match');
+                    console.log('Browser Did not match');
                     browser_matched = false;
                   }
                   console.log('Saved Browser: ' + browser + ' Current Browser: ' + studentBrowser);
@@ -920,13 +1029,21 @@ function compareAuthRiskScore(assessmentId){
 
                   }else{
                     console.log('FAILED: Auth Risk Score is: ' + AuthRiskScore);
-                    alert('FAILED, You are not authenticated to take this assessment');
+                    let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
+                    let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
+                    modal.style.display = "block";
+                    overlay.style.display = "block";
+                    let alertMessage = document.getElementById("ModalTextFailure-labels");
+                    alertMessage.textContent = "You are not authenticated to take this exam";
+                    let closeBtn = document.getElementsByClassName("ModalFailureCloseBtn")[0];
+                    closeBtn.addEventListener("click", function(){
+                      chrome.sidePanel.setOptions({path:landingPage})
+                    })
                     chrome.runtime.sendMessage({action: 'authRiskScore', value: AuthRiskScore});
-
                   }
                 })
                 .catch((err) => {
-                  console.log(("error with database" + err));
+                  alert(("error with database" + err));
                 })
               });
 
@@ -1099,10 +1216,14 @@ function studentIsReadyExam(assessmentId, IDnumber){
                     </div>
                       
                     <div class="studentDivText">
-                      <p class="output-student-exam">Course: ${assessmentCourseSection}</p>
-                      <p class="output-student-exam">Course: ${assessmentFIC}</p>
-                      <p class="output-student-exam">Start Time and Date: ${assessmentStartTime}</p>
-                      <p class="output-student-exam">End Time and Date: ${assessmentEndTime}</p>
+                      <p id="output-labels-student">Course and Section</p>
+                      <p class="output-student-exam">${assessmentCourseSection}</p>
+                      <p id="output-labels-student">Faculty-in-Charge</p>
+                      <p class="output-student-exam">${assessmentFIC}</p>
+                      <p id="output-labels-student">Start Time and Date</p>
+                      <p class="output-student-exam">${assessmentStartTime}</p>
+                      <p id="output-labels-student">End Time and Date</p>
+                      <p class="output-student-exam">${assessmentEndTime}</p>
                     </div>`
 
                   }
@@ -1176,7 +1297,7 @@ function studentIsTakingExam(assessmentId, IDnumber){
                     function formatAMPM(date) {
                       // var month = date.getMonth();
                       var month = date.toLocaleString('default', { month: 'long' });
-                      var day = date.getDay();
+                      var day = date.getDate();
                       var year = date.getFullYear();
                       var hours = date.getHours();
                       var minutes = date.getMinutes();
@@ -1190,6 +1311,7 @@ function studentIsTakingExam(assessmentId, IDnumber){
                     }
                     
                     var startTime = formatAMPM(new Date());
+                    console.log("Hi! " + startTime);
                     // document.getElementById("student-current-examTimeStarted").innerHTML = "Time Started: " +  startTime;
 
                     
@@ -1225,13 +1347,17 @@ function studentIsTakingExam(assessmentId, IDnumber){
                     },1000);
 
                     ExamDetailsDiv.innerHTML += `
-                    <p class="output-student-active-exam" id="student-current-examName">Exam: ${assessmentName}</p>
-                    <p class="output-student-active-exam" id="student-current-examSection">Course & Section: ${assessmentCourseSection}</p>
-                    <p class="output-student-active-exam" id="student-current-examFIC">Faculty-in-Charge: ${assessmentFIC}</p>                 
+                    <p id="output-labels-student">Exam Name</p>
+                    <p class="output-student-active-exam" id="student-current-examName">${assessmentName}</p>
+                    <p id="output-labels-student">Course and Section</p>
+                    <p class="output-student-active-exam" id="student-current-examSection">${assessmentCourseSection}</p>
+                    <p id="output-labels-student">Faculty-in-Charge</p>
+                    <p class="output-student-active-exam" id="student-current-examFIC">${assessmentFIC}</p>                 
                   
-    
-                    <p class="output-student-active-time-exam" id="student-current-examTimeStarted">Time Started: ${startTime}</p>
-                    <p class="output-student-active-time-exam" id="student-current-examTimeLeft">Time Left: ${timeRemaining}</p>
+                    <p id="output-labels-student">Time and Date Started</p>
+                    <p class="output-student-active-time-exam" id="student-current-examTimeStarted">${startTime}</p>
+                    <p id="output-labels-student">Time Countdown:</p>
+                    <p class="output-student-active-time-exam" id="student-current-examTimeLeft">${timeRemaining}</p>
                     <p class="output-student-active-exam-record" id="recorded-message">BROWSER ACTIVITY IS RECORDED</p>
             
                     <div class="SubmitDiv">
@@ -1512,18 +1638,20 @@ function saveProctoringReport(assessmentId, IDnumber, submissionTime){
                     
 
                     ExamDetailsDiv.innerHTML += `
+                    <p id="output-labels-student">Exam Name</p>
+                    <p class="output-student-done-exam" id="student-current-examName">${assessmentName}</p>
+                    <p id="output-labels-student">Course and Section</p>
+                    <p class="output-student-done-exam" id="student-current-examSection">${assessmentCourseSection}</p>
+                    <p id="output-labels-student">Faculty-in-Charge</p>
+                    <p class="output-student-done-exam" id="student-current-examFIC">${assessmentFIC} </p>                 
                     
-                      
-                    <p class="output-student-done-exam" id="student-current-examName">Exam: ${assessmentName}</p>
-                    <p class="output-student-done-exam" id="student-current-examSection">Course & Section: ${assessmentCourseSection}</p>
-                    <p class="output-student-done-exam" id="student-current-examFIC">Faculty-in-Charge:${assessmentFIC} </p>                 
-              
-
-                    <p class="output-student-done-time-exam" id="student-current-examTimeStarted">Time Started: ${timeStarted}</p>
-                    <p class="output-student-done-time-exam" id="student-current-examTimeStarted">Time Ended: ${submissionTime}</p>
+                    <p id="output-labels-student">Time Started</p>
+                    <p class="output-student-done-time-exam" id="student-current-examTimeStarted">${timeStarted}</p>
+                    <p id="output-labels-student">Time Ended</p>
+                    <p class="output-student-done-time-exam" id="student-current-examTimeStarted">${submissionTime}</p>
                     
-
-                    <p class="output-student-done-exam" id="student-current-examTimeLeft">Flagged Activity: ${numofFlaggedActivity} </p>
+                    <p id="output-labels-student">FLAGGED ACTIVITY</p>
+                    <p class="output-student-done-exam" id="student-current-examTimeLeft">${numofFlaggedActivity} </p>
 
                     <div class="LogOutDiv">
                         <button type="button" class="LogOutBtn" id="LogOutStudentBtn">LOG OUT</button>

@@ -120,7 +120,7 @@ button:active {
   
 .modal-footer-success {
     padding: 10px;
-    background-color: #45a049; /* Success footer color */
+    background-color: #45a049;
     text-align: center;
     width: 100%;
     box-sizing: border-box;
@@ -129,17 +129,125 @@ button:active {
     left: 0;
 }
   
-.ModalCloseBtn {
-    background-color: transparent;
+.ModalSuccessCloseBtn {
+    background-color:transparent;
+    font-family: 'Urbanist', sans-serif;
+    color: #000000;
+    text-align: center;
+    font-size: 15px;
     border: none;
+    box-shadow: none;
     color: white;
-    font-size: 24px;
-    
 }
   
 .ModalCloseBtn:hover {
-    color: #f44336; /* Red color on hover */
-  }
+    color: #ffffff; 
+    text-decoration:underline;
+}
+
+.ModalCloseBtn:active {
+  box-shadow: 0 5px #d0cfcf;
+  transform: translateY(4px);
+}
+
+/** Failed Modal **/
+.modal-failure-Overlay{
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(3px);
+    z-index: 1;
+    display: none;
+}
+
+.Alerts-Failure-Modal {
+    display: none;
+    position: absolute;
+    top: 40%;
+    border: 2px solid #000000;
+    z-index: 2;
+    overflow: auto;
+    background-color: #fff;
+    width: 250px;
+    min-height: 200px;
+    border-radius: 15px;
+    box-sizing: border-box; /* Include padding and border in the width */
+}
+  
+
+  
+.modal-header-failure{
+    padding: 10px;
+    background-color: #e43a3c;
+    color: white;
+    text-align: center;
+    width: 100%;
+    /* position: absolute; */
+    top: 0;
+    left: 0;
+    box-sizing: border-box;
+   
+}
+
+.ModalTextFailure{
+    font-family: 'Urbanist', sans-serif;
+    color: #000000;
+    text-align: center;
+    font-size: 20px;
+}
+
+#ModalTextFailure-labels{
+    font-family: 'Urbanist', sans-serif;
+    color: #000000;
+    text-align: center;
+    font-size: 20px;
+
+}
+.modal-body {
+    padding: 10px;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+}
+  
+.modal-footer-failure {
+    padding: 10px;
+    background-color: #e43a3c;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}
+  
+.ModalFailureCloseBtn {
+    background-color:transparent;
+    font-family: 'Urbanist', sans-serif;
+    color: #000000;
+    text-align: center;
+    font-size: 15px;
+    border: none;
+    box-shadow: none;
+    color: white;
+}
+  
+.ModalCloseBtn:hover {
+    color: #ffffff; 
+    text-decoration:underline;
+}
+
+.ModalFailureCloseBtn:active {
+  box-shadow: 0 3px #d0cfcf;
+  transform: translateY(2px);
+}
+
+
 
 /** Landing Page **/
 #AppBody{
@@ -204,6 +312,29 @@ button:active {
   box-shadow: 0 5px #d0cfcf;
   transform: translateY(4px);
 }
+
+#SignInAgain{
+   background-color: #226f54;
+    width: 246px;
+    height: 43px;
+    color: #fff;
+    font-family: 'Urbanist', sans-serif;
+    border-radius: 12px;
+    border: 2px solid #000;   
+    box-shadow: 0 4px 10px 0 #00000033, 0 6px 20px 0 rgba(0, 0, 0, 0.19);     
+}
+
+#SignInAgain:hover {
+    background-color: #538260;
+    text-decoration:underline;
+}
+    
+#SignInAgain:active {
+    background-color: #538260;
+    box-shadow: 0 5px #d0cfcf;
+    transform: translateY(4px);
+}
+    
 
 /** Input for ID Number **/
 
@@ -363,6 +494,19 @@ button:active {
 }
 
 /*** Student READY to take exam ***/
+
+.AppSubHeader-Long-Exam-Details{
+    width: 246px;
+    height: 43px;
+    color: #575761;
+    font-size: 16px;
+    font-family: 'Urbanist', sans-serif;
+    border-radius: 12px;
+    border: none;
+    text-align: center;
+    margin-top: 40px;
+}
+
 .ExamLinkBtn{
     display: block;
     text-align: justify;
@@ -402,7 +546,7 @@ button:active {
     box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); 
     line-height: 40px;
     text-align: center;
-    margin-top: 20px;
+    margin-top: 10px;
 
 }
 
@@ -425,7 +569,7 @@ button:active {
 .AppHeader-Student{
     display: flex; 
     justify-content: space-between;
-    margin-top: 90px;
+    margin-top: 60px;
     height: 42px;
     font-family: 'Urbanist', sans-serif;
     color: #000;
@@ -559,7 +703,7 @@ button:active {
     box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); 
     line-height: 40px;
     text-align: center;
-    margin-top: 20px;
+    margin-top: 10px;
     border: 2px solid #000;   
 
 
@@ -857,6 +1001,14 @@ select:focus{
     font-family: 'Urbanist', sans-serif;
     font-size: 15px;
     margin-bottom: 5px;
+}
+
+#output-labels-student {
+    text-align: center;
+    margin-top: 15px;
+    color: #000000;
+    font-family: 'Urbanist', sans-serif;
+    font-size: 15px;
 }
 
 #assessmentLinkInput{
