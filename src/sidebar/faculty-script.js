@@ -18,6 +18,7 @@ const StudentExamDetailsPage = '/StudentAssessmentDetails.html';
 //Admin Routes
 const AdminDashboard = '/AdminDashboard.html';
 const facultyViewAssessments = '/FacultyManageAssessments.html';
+const facultyViewScheduledExam = '/FacultyAssessmentDetails.html';
 
 
 
@@ -310,6 +311,7 @@ function scheduleExam(){
                 date_end:endDateSelected
               }).then(()=> {
                 alert("Saved to database!");
+                chrome.sidePanel.setOptions({path:facultyViewScheduledExam});
               }).catch((err) => {
                 console.log(("error with database" + err));
               })

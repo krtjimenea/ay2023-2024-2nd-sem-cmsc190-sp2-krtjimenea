@@ -44,6 +44,10 @@ button:active {
   transform: translateY(4px);
 }
 
+input{
+    border: 2px solid #000;     
+}
+
 /**Popout Modal Styling for Success**/
 
 .modal-success-Overlay{
@@ -351,13 +355,12 @@ button:active {
     width: 246px;
     height: 40px;
     border-radius: 12px;
-    border: none;
     box-shadow: 0 4px 10px 0 #00000033, 0 6px 20px 0 rgba(0, 0, 0, 0.19);     
     border: 2px solid #000;       
 }
 
 .SubmitIDDiv{
-    margin-top: 50px;
+    margin-top: 30px;
 }
 
 #SubmitIDBtn{
@@ -410,7 +413,6 @@ button:active {
     width: 246px;
     height: 43px;
     border-radius: 12px;
-    border: none;
 }
 
 #assessmentCodeInput{
@@ -758,42 +760,35 @@ button:active {
 
 /*** Faculty Dashboard **/
 
-#FacultyUI{
-    background: rgb(133,140,207);
-    background: linear-gradient(0deg, rgba(133,140,207,1) 0%, rgba(29,37,116,1) 100%);
-    background-attachment: fixed;
-}
+
 
 .AppHeaderFaculty{
     display: flex; 
     justify-content: space-between;
-    margin-top: 100px;
+    margin-top: 60px;
 }
 
 #FacultyHelloText{
-    height: 42px;
-    font-family: 'Raleway', sans-serif;
+    font-weight: 700;
+    height: 30px;
     font-family: 'Urbanist', sans-serif;
-    color: #fff;
+    color: #000000;
     text-align: center;
-    font-size: 45px;
-    font-style: normal;
-    font-weight: 400;
+    font-size: 40px;
     line-height: 50px; /* 104.167% */
 }
 
 
 #FacultyHeader{
-    height: 42px;
+    font-weight: 700;
+    height: 30px;
     font-family: 'Raleway', sans-serif;
     font-family: 'Urbanist', sans-serif;
-    color: #D7C4F6;
+    color: #226f54;
     text-align: center;
-    font-size: 45px;
-    font-style: normal;
-    font-weight: 400;
+    font-size: 40px;
     line-height: 50px; /* 104.167% */
-    padding-left: 10px;
+    padding-left: 8px;
 }
 
 .FacultyDiv{
@@ -801,10 +796,10 @@ button:active {
 }
 
 #ScheduleBtn{
-    background-color: #CFD2F1;
+    background-color: #5a8f7d;;
     width: 246px;
     height: 43px;
-    color: #000;
+    color: #fff;
     font-family: 'Raleway', sans-serif;
     font-family: 'Urbanist', sans-serif;
     border-radius: 12px;
@@ -812,10 +807,10 @@ button:active {
 
 #ManageBtn{
     margin-top: 20px;
-    background-color: #CFD2F1;
+    background-color: #5a8f7d;;
     width: 246px;
     height: 43px;
-    color: #000;
+    color: #fff;
     font-family: 'Raleway', sans-serif;
     font-family: 'Urbanist', sans-serif;
     border-radius: 12px;
@@ -893,8 +888,8 @@ button:active {
     border-radius: 12px;
     border: none;
     text-align: center;
-    margin-top: 20px;
-    margin-bottom: 20px;
+    margin-top: 40px;
+    /* margin-bottom: 20px; */
     flex-direction: column;
     flex-wrap: wrap;
     flex: auto;
@@ -919,8 +914,7 @@ button:active {
     width: 246px;
     height: 43px;
     border-radius: 12px;
-    border: none;
-
+ 
 }
 
 /* Dropdown Button */
@@ -961,7 +955,7 @@ select:focus{
 
 #start-date{
     font-family: 'Urbanist', sans-serif;
-    border:none;
+  
     padding: 5px 10px;
     margin-right: 5px;
     width: 150px;
@@ -970,7 +964,7 @@ select:focus{
 
 #start-time{
     font-family: 'Urbanist', sans-serif;
-    border:none;
+   
     padding: 5px 10px;
     width: 130px;
     border-radius: 12px;
@@ -978,7 +972,7 @@ select:focus{
 
 #end-date{
     font-family: 'Urbanist', sans-serif;
-    border:none;
+    
     padding: 5px 10px;
     margin-right: 5px;
     width: 150px;
@@ -987,7 +981,7 @@ select:focus{
 
 #end-time{
     font-family: 'Urbanist', sans-serif;
-    border:none;
+  
     padding: 5px 10px;
     width: 130px;
     border-radius: 12px;
@@ -1014,9 +1008,7 @@ select:focus{
 #assessmentLinkInput{
     width: 246px;
     height: 43px;
-    border-radius: 12px;
-    border: none;
-        
+    border-radius: 12px;        
 }
 
 #SubmitExamSchedBtn{
@@ -1027,7 +1019,7 @@ select:focus{
     font-family: 'Raleway', sans-serif;
     font-family: 'Urbanist', sans-serif;
     border-radius: 12px;
-    border: none;
+    border: 2px solid #000;     
 }
 
 

@@ -100,6 +100,11 @@ module.exports = {
       filename: "FacultyManageAssessments.html",
       chunks: ["faculty_script"] // This is script from entry point
     }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, "src", "sidebar", "FacultyAssessmentDetails.html"),
+      filename: "FacultyAssessmentDetails.html",
+      chunks: ["faculty_script"] // This is script from entry point
+    }),
     //Admin Pages
     new HtmlWebpackPlugin({
       template: path.join(__dirname, "src", "sidebar", "AdminDashboard.html"),

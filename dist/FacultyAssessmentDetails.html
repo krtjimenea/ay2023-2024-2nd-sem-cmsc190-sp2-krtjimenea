@@ -48,38 +48,17 @@
                 <p id="FacultyHelloText">Hello,</p>
                 <p id="FacultyHeader">Faculty</p>
             </div>
-            <div class="AppSubHeader">Enter Exam Details:</div>
+            <div class="AppSubHeader">You scheduled this exam:</div>
 
             
-            <div id="FacultySchedInput">
-                <p id="input-labels">Exam Name</p>
-                <input type="text" id ="assessmentName" placeholder="Exam Name"/>
-                <p id="input-labels">Course and Section</p>
-                <div class="dropdown">
-                    <select name="courselist" id="courselist">
-                    </select>
-                </div>
-           
-                <p id="input-labels">Date and Time Start</p>
-                <div class="datetime-div">
-                    <input type="date" id="start-date" min="2024-05-01" max="2024-12-31" />
-                    <input type="time" id="start-time"/>
-                </div>
-                
-
-                <p id="input-labels">Date and Time End</p>
-                <div class="datetime-div">
-                    <input type="date" id="end-date" min="2024-05-01" max="2024-12-31" />
-                    <input type="time" id="end-time"/>
-                </div>
-                
-                
+            <div id="FacultySchedOutput">
+                <p id="output-labels">Exam Name</p>
+                <p id="output-labels">Course</p>
+                <p id="output-labels">Start Date & Time</p>
+                <p id="output-labels">End Date & Time</p>
+                <p id="output-labels">Assessment Link</p>
+                <p id="output-labels">Assessment Code 123ABC</p>
             </div>
-
-            <div class="SubmitIDDiv">
-                <button type="button" id="SubmitExamSchedBtn">Get Assessment Code</button>
-            </div>
-
             
         </div> 
     </div>
@@ -88,4 +67,3 @@
    
     
 </body>
-</html>
