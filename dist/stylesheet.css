@@ -1245,3 +1245,9 @@ select:focus{
     border-radius: 12px;
     border: none;
 }
+
+#assessmentTimeDuration{
+    width: 246px;
+    height: 43px;
+    border-radius: 12px;     
+}

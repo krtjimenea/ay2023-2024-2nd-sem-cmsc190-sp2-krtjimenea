@@ -44,6 +44,10 @@ button:active {
   transform: translateY(4px);
 }
 
+input{
+    border: 2px solid #000;     
+}
+
 /**Popout Modal Styling for Success**/
 
 .modal-success-Overlay{
@@ -362,7 +366,7 @@ button:active {
 }
 
 .SubmitIDDiv{
-    margin-top: 50px;
+    margin-top: 20px;
 }
 
 #SubmitIDBtn{
@@ -467,7 +471,6 @@ select:focus{
 
 #start-date{
     font-family: 'Urbanist', sans-serif;
-    border:none;
     padding: 5px 10px;
     margin-right: 5px;
     width: 150px;
@@ -476,7 +479,6 @@ select:focus{
 
 #start-time{
     font-family: 'Urbanist', sans-serif;
-    border:none;
     padding: 5px 10px;
     width: 130px;
     border-radius: 12px;
@@ -484,7 +486,6 @@ select:focus{
 
 #end-date{
     font-family: 'Urbanist', sans-serif;
-    border:none;
     padding: 5px 10px;
     margin-right: 5px;
     width: 150px;
@@ -493,7 +494,6 @@ select:focus{
 
 #end-time{
     font-family: 'Urbanist', sans-serif;
-    border:none;
     padding: 5px 10px;
     width: 130px;
     border-radius: 12px;
@@ -520,10 +520,15 @@ select:focus{
 #assessmentLinkInput{
     width: 246px;
     height: 43px;
-    border-radius: 12px;
-    border: none;
-        
+    border-radius: 12px;     
 }
+
+#assessmentTimeDuration{
+    width: 246px;
+    height: 43px;
+    border-radius: 12px;     
+}
+
 
 #SubmitExamSchedBtn{
     background-color: #b7db90;
@@ -536,6 +541,51 @@ select:focus{
     border: none;
 }
 
+#assessmentName{
+    width: 246px;
+    height: 43px;
+    border-radius: 12px;
+ 
+}
+
+.datetime-div{
+    display: flex; 
+    margin-top: 10px;
+    width: 246px;
+}
+
+#start-date{
+    font-family: 'Urbanist', sans-serif;
+  
+    padding: 5px 10px;
+    margin-right: 5px;
+    width: 150px;
+    border-radius: 12px;
+}
+
+#start-time{
+    font-family: 'Urbanist', sans-serif;
+   
+    padding: 5px 10px;
+    width: 130px;
+    border-radius: 12px;
+}
+
+#end-date{
+    font-family: 'Urbanist', sans-serif;
+    
+    padding: 5px 10px;
+    margin-right: 5px;
+    width: 150px;
+    border-radius: 12px;
+}
+
+#end-time{
+    font-family: 'Urbanist', sans-serif;
+    padding: 5px 10px;
+    width: 130px;
+    border-radius: 12px;
+}
 
 .AppSubHeader{
     width: 246px;
@@ -574,7 +624,7 @@ select:focus{
 
 .AppHeader-Admin{
     display: flex; 
-    margin-top: 60px;
+    margin-top: 30px;
 }
 
 #AdminHelloText{
@@ -608,6 +658,12 @@ select:focus{
 
 .AppDiv-Admin{
     margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;  
+    flex-wrap: wrap;
+    align-items: center;
+    
 }
 
 .AppDiv-AdminManage{
@@ -627,7 +683,6 @@ select:focus{
     font-family: 'Raleway', sans-serif;
     font-family: 'Urbanist', sans-serif;
     border-radius: 12px;
-    border: none;
     margin-top: 20px;
 }
 
@@ -917,5 +972,4 @@ select:focus{
     font-family: 'Raleway', sans-serif;
     font-family: 'Urbanist', sans-serif;
     border-radius: 12px;
-    border: none;
 }
