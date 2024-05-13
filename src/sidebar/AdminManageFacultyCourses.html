@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <link rel="stylesheet" href="../admin-stylesheet.css" />
     <title>title</title>
-    <!-- <script src="script.js" type="module"></script> -->
+    <!-- <script src="admin-script.js" type="module"></script> -->
 </head>
 <body id="Admin-UI">
     <div id="AppBody">
@@ -43,24 +43,68 @@
                     </defs>
                     </svg>
             </div>
+
             <div class="AppHeader-Admin">
                 <!-- <p id="AdminHelloText">Manage Faculty Courses</p> -->
-                <div class="AppSubHeader">Manage Course</div>
+                <div class="AppSubHeader">Manage Faculty Courses</div>
             </div>
-
-            <div class="AppSubHeader"></div>
-
-            <!-- Current Course Details-->
-            <div id="cardList">
-                
-            </div>
-            <!--Class List -->
-
-
-
+            
+            <!-- <div class="AppSubHeader">Manage Faculty Courses</div> -->
 
             <div class="AppDiv-AdminManage">
-                 <!--Modal for Alerts-->
+                
+                <!-- Button to Add Faculty -->
+                <!-- <div class="AdminAddButton">
+                    <button type="button" class="Add-Buttons-Admin" id="Add-New-Faculty">Add New Faculty</button>
+                </div>
+
+                <div class="AdminAddButton">
+                    <button type="button" class="Add-Buttons-Admin" id="Add-New-CSV-Faculty">Upload Faculty CSV</button>
+                </div> -->
+                <!--List of Faculty Cards-->
+                <div id="cardList">
+                    <!-- <p class="cardHeader" id="FacultyName">Juan Dela Cruz Santos</p>
+                        <div class="cardDivText">
+                            <div class="cardSubDiv">
+                                <p id="card-labels">ID Number:</p>
+                                <p class="cardText" id="FacultyNumber">201201123</p>
+                            </div>
+                            <div class="cardSubDiv">
+                                <p id="card-labels">Num of Courses:</p>
+                                <p class="cardText" id="FacultyNumCourses">10</p>
+                            </div>
+                        </div> -->
+                </div>
+                <!-- <button type="button"  class="Buttons-Admin" id="ViewFacultyBtn">View Faculty</button>           -->
+            </div>
+
+                <!--Modal for Adding New Course-->
+                <!-- <section class="Add-Course-Modal">
+
+                    <div class="modal-flex">
+                        <p class="ModalPrompts">Please input Course Details</p>
+                        <button class="CourseModalCloseBtn">⨉</button>
+                    </div>
+                        <p id="input-labels">Course Code</p>
+                        <input type="text" class="AdminTextInput" id ="CourseCodeInput"  placeholder="CMSC 100"/>
+                        <p id="input-labels">Course Section</p>
+                        <input type="text" class="AdminTextInput" id ="CourseSectionInput" placeholder="WX-1L"/>
+                        <p id="input-labels">Course Title</p>
+                        <input type="text" class="AdminTextInput" id ="CourseTitleInput" placeholder="Introduction to "/>
+                        <p id="input-labels">Course Semester</p>
+                        <input type="text" class="AdminTextInput" id ="CourseSemInput" placeholder="1st Semester "/>
+                        <p id="input-labels">Course No. of Units</p>
+                        <input type="text" class="AdminTextInput" id ="CourseUnitsInput" placeholder="3 "/> -->
+
+                    
+                    <!--Button to Add Course to Database-->
+                    <!-- <div class="Modal-AddBtnDiv">
+                        <button type="button" class="ModalAddBtn" id="Add-Course-DB">Add New Course</button>
+                    </div>
+                </section>
+                <div class="modal-course-Overlay"></div> -->
+                
+             <!--Modal for Alerts-->
              <section class="Alerts-Success-Modal">
                 <div class="modal-flex">
                     <div class="modal-header-success">
@@ -103,7 +147,7 @@
             </section>
             <div class="modal-failure-Overlay"></div>
 
-              
+
             
         </div> 
     </div>

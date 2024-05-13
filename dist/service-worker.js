@@ -79,7 +79,22 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     //chrome storage
     console.log('Received value:', message.value);
     chrome.storage.local.set({'value3': message.value});
- }
+  }
+
+ if(message.action === 'facultyKeyValue'){
+    //chrome storage
+    console.log('Received facultyKeyValue:', message.value);
+    chrome.storage.local.set({'currentfacultyKeyValue': message.value});
+  } 
+
+  
+ if(message.action === 'facultyIDValue'){
+  //chrome storage
+  console.log('Received facultyIDValue:', message.value);
+  chrome.storage.local.set({'currentfacultyIDValue': message.value});
+  } 
+
+
 
   if(message.action === 'currentUser'){
     //chrome storage

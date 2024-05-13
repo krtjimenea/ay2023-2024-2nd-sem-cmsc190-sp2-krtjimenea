@@ -17,6 +17,7 @@ const database = getDatabase(FirebaseApp);
 //Variables for HTML
 const AdminManageFaculty = '/AdminManageFaculty.html';
 const AdminManageCourse = '/AdminManageCourses.html';
+const AdminManageFacultyCourses = '/AdminManageFacultyCourses.html';
 const AdminViewFaculty = '/AdminViewFaculty.html';
 const AdminManageAssessments = '/AdminManageAssessments.html';
 const AdminSchedulePage = '/AdminSchedulePage.html';
@@ -24,6 +25,8 @@ const AdminViewAssessments = '/AdminViewAssessments.html';
 const AdminManageStudents = '/AdminManageStudents.html';
 const AdminViewAllCourses = '/AdminViewAllCourses.html';
 const AdminViewCourseOnly = '/AdminViewCourseOnly.html';
+const AdminManageStudentsInCourse = '/AdminManageStudentsInCourse.html';
+const AdminManageExamsInCourse = '/AdminManageExamsInCourse.html';
 
 
 //display the faculty data
@@ -120,8 +123,8 @@ function monitorSidePanelPath() {
           //course
           var currentCourse = data.value1;
           //faculty
-          chrome.storage.local.get('value2', function(data) {
-            var currentFaculty = data.value2;
+          chrome.storage.local.get('currentfacultyIDValue', function(data) {
+            var currentFaculty = data.currentfacultyIDValue;
             if(currentCourse){
               // console.log('Current FIC and Course Selection: ', currentFaculty + currentCourse);
               viewCoursePanel(currentFaculty, currentCourse);
@@ -144,9 +147,30 @@ function monitorSidePanelPath() {
       }else if(path === '/AdminViewCourseOnly.html'){
        //access chrome storage for any passed value
        chrome.storage.local.get('value1', function(data) {
-        var currentCourse = data.value1;
-        viewOneCourseOnly(currentCourse);
+        if(currentCourse){
+          var currentCourse = data.value1;
+          viewOneCourseOnly(currentCourse);
+        }
+      
        });
+
+      }else if(path === '/AdminManageFacultyCourses.html'){
+          //call the function and pass the name value
+          chrome.storage.local.get('currentfacultyKeyValue', function(data) {
+            var currentFaculty = data.currentfacultyKeyValue;
+            viewDetailsFaculty(currentFaculty);
+          });
+
+      }else if(path === '/AdminManageStudentsInCourse.html'){
+        chrome.storage.local.get('value1', function(data) {
+          var currentCourse = data.value1;
+          if(currentCourse){
+            viewClasslistOfCourse(currentCourse);
+          }
+        });
+
+      }else if(path === '/AdminManageExamsInCourse.html'){
+
       }
     });
   });
@@ -270,13 +294,13 @@ window.addEventListener('DOMContentLoaded', function () {
       if(target.id==='FacultyName'){
         console.log('Clicked Faculty Card');
         //get the clicked FacultyName or ID
-        var facultyString = target.textContent.split(" ");
+        var facultyKeyValue = target.textContent;
         // var facultyStringValue = facultyString.split(" ");
-        facultyKeyValue = facultyString[0];
-        facultyNameValue = facultyString[1];
-        // console.log(facultyKeyValue);
-        //call the function and pass the name value
-        viewDetailsFaculty(facultyKeyValue);
+        // facultyKeyValue = facultyString[0];
+        // facultyNameValue = facultyString[1];
+        chrome.runtime.sendMessage({action: 'facultyKeyValue', value: facultyKeyValue});
+        chrome.sidePanel.setOptions({path:AdminManageFacultyCourses})
+        
 
       }
 
@@ -284,7 +308,6 @@ window.addEventListener('DOMContentLoaded', function () {
       if(target.id === 'CourseCode'){
         courseCodeValue = target.innerText;
         chrome.runtime.sendMessage({action: 'passValue1', value: courseCodeValue});
-        chrome.runtime.sendMessage({action: 'passValue2', value: facultyKeyValue});
         chrome.sidePanel.setOptions({path:AdminManageCourse});
       }
 
@@ -332,12 +355,87 @@ window.addEventListener('DOMContentLoaded', function () {
       
       }
 
+      //for viewing students enrolled in that course
+      if(target.id=== 'View-New-Classlist'){
+        chrome.sidePanel.setOptions({path:AdminManageStudentsInCourse});
+      }
+
+      //for viewing exams under that course
+      if(target.id==='View-Exam-Course'){
+        chrome.sidePanel.setOptions({path:AdminManageExamsInCourse});
+      }
+
       
 
 
     });
 });
 
+
+//function to view classlist of course selected
+function viewClasslistOfCourse(currentCourse){
+  //check if there is a logged in user
+  chrome.identity.getAuthToken({ interactive: true }, token =>
+    {
+        if ( chrome.runtime.lastError || ! token ) {
+          alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
+          return
+        }
+  
+        //firebase authentication
+        signInWithCredential(auth, GoogleAuthProvider.credential(null, token))
+        .then(res =>{
+            const user = auth.currentUser;
+            //get profile uid
+            if (user !== null) {
+              const db = getDatabase(); 
+              const studentRef = ref(db,`/takingClasses/${currentCourse}`);
+              get(studentRef)
+                .then((snapshot) => {
+                  if (snapshot.exists()) {
+                    alert("Success Firebase Access!");
+                    //checking for snapshot return
+                    const childData = snapshot.val();
+                    var cardListDiv = document.getElementById('cardList');
+                    let headerCourseCode = document.getElementById('AdminHeaderDetails-CourseCode');
+                    headerCourseCode.textContent = currentCourse;
+                    cardListDiv.innerHTML='';
+                    //loop through the snapshot
+                    for(const studentId in childData){
+                      const student = childData[studentId];
+                      const studentEmail= student.Email;
+                      const studentNumber = student.StudentNumber;
+                      
+  
+                      cardListDiv.innerHTML += `<div class="cards">
+                                  <p class="cardHeader" id="StudentFullName">${studentEmail}</p>
+                                    <div class="cardDivText">
+                                        <div class="cardSubDiv">
+                                            <p id="card-labels">Studenr Number:</p>
+                                            <p class="cardText" id="CourseTitle">${studentNumber}</p>
+                                        </div>
+                                       
+                                    </div>
+                                </div>`;
+  
+                    }
+                 
+                  } else {
+                    alert("ERROR: Firebase Access!");
+                  }
+                })
+                .catch((err) => {
+                    console.log("Error with database: " + err);
+                });
+            }
+        })
+        .catch((err) => {
+          alert("SSO ended with an error" + err);
+        });
+    });
+
+  
+}
 //function to update the path /takingAssessments/assessmentKey/Student
 function updateTakingAssessmentsStudent(courseGivenAssessment, assessmentKey){
 
@@ -528,12 +626,25 @@ function uploadClasslistCSV(contents){
         //item is now each sudent data
         saveStudentToDB(item);
       });
-    } 
+    }
+    let modal = document.getElementsByClassName("Alerts-Success-Modal")[0];
+    let overlay = document.getElementsByClassName("modal-success-Overlay")[0];
+    modal.style.display = "block";
+    overlay.style.display = "block";
+    let alertMessage = document.getElementById("ModalTextSuccess-labels");
+    alertMessage.textContent = 'Successfully Added Classlist!';
+    let closeBtn = document.getElementsByClassName("ModalSuccessCloseBtn")[0];
+    closeBtn.addEventListener("click", function(){
+      modal.style.display = "none";
+      overlay.style.display = "none";
+      chrome.sidePanel.setOptions({path:AdminManageFacultyCourses})
+    
+    })
 }
 //function to view courses panel
 function viewCoursePanel(currentFacultyKey,currentCourseKey){
 
-  console.log('Current FIC and Course Selection: ', currentFacultyKey + " " + currentCourseKey);
+  // console.log('Current FIC and Course Selection: ', currentFacultyKey + " " + currentCourseKey);
   chrome.identity.getAuthToken({ interactive: true }, token =>
     {
       if ( chrome.runtime.lastError || ! token ) {
@@ -586,9 +697,11 @@ function viewCoursePanel(currentFacultyKey,currentCourseKey){
                         </div>
                       </div>
                       <!-- Button to Add Classlist CSV -->
+                      <div class="AdminInnerTextLabel">Upload Classlist CSV below:</div>
                       <div class="AdminAddButton">
                           <input id="csvFileInput" type="file"/>
                           <button type="button" class="Add-Buttons-Admin" id="Add-New-Classlist">Upload</button>
+                          <button type="button" class="Add-Buttons-Admin" id="View-New-Classlist">View Classlist</button>
                       </div>`;
         
              
@@ -610,8 +723,53 @@ function viewCoursePanel(currentFacultyKey,currentCourseKey){
 
 //function to view the faculty details panel
 function viewDetailsFaculty(facultyKeyValue){
-  console.log('Clicked Faculty Card');
-  console.log(facultyKeyValue);
+ 
+  //we need to have the name and key of the faculty
+  var FacultyIDNumber;
+  chrome.identity.getAuthToken({ interactive: true }, token =>
+    {
+      if ( chrome.runtime.lastError || ! token ) {
+        alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
+        return
+      }
+
+      //firebase authentication
+      signInWithCredential(auth, GoogleAuthProvider.credential(null, token))
+      .then(res =>{
+          const user = auth.currentUser;
+          //get profile uid
+          if (user !== null) {
+            const db = getDatabase(); 
+            const facultyRef = ref(db,'faculty-in-charge/');
+            get(facultyRef)
+              .then((snapshot) => {
+                if (snapshot.exists()) {
+                  snapshot.forEach(function(childSnapshot) {
+                    //accessing data within the child node
+                    var childData = childSnapshot.val();
+                    //checking if the child node exists
+                    if (childData.name === facultyKeyValue) {
+                        FacultyIDNumber = childData.employeeNum;
+                        console.log('Found a matching child:', childData.name + FacultyIDNumber);
+                        chrome.runtime.sendMessage({action: 'facultyIDValue', value: FacultyIDNumber});
+                        viewDetailsCourse(facultyKeyValue, FacultyIDNumber);
+
+                     }
+                  });
+
+                } else {
+                  alert("Success Firebase Access!");
+                }
+              })
+              .catch((err) => {
+                  console.log("Error with database: " + err);
+              });
+          }
+      })
+      .catch((err) => {
+        alert("SSO ended with an error" + err);
+      });
+  });
 
   //manipulate the DOM
   // var currentHTML = document.getElementsByClassName("AppDiv-AdminManage");
@@ -620,19 +778,19 @@ function viewDetailsFaculty(facultyKeyValue){
   
   //change the button
   // document.getElementsByClassName("AdminAddButton").innerHTML = '';
-  document.getElementsByClassName("AppDiv-AdminManage")[0].innerHTML = `<div class="AdminHeaderDetails">${facultyKeyValue}</div><div class="AdminAddButton"> <button type="button" class="Add-Buttons-Admin" id="Add-New-Course">Add New Course</button> </div> <div id="cardList"></div>`;
+  document.getElementsByClassName("AppDiv-AdminManage")[0].innerHTML = `<div class="AdminHeaderDetails">${facultyKeyValue}</div><div class="FacultySubHeader">Faculty Name</div><div class="AdminAddButton"> <button type="button" class="Add-Buttons-Admin" id="Add-New-Course">Add New Course</button> </div> <div id="cardList"></div>`;
 
-  viewDetailsCourse(facultyKeyValue);
-
+  
   
 
 }
 
 //function to view the classes 
-function viewDetailsCourse(facultyKeyValue){
+function viewDetailsCourse(facultyKeyValue, FacultyIDNumber){
   //manipulate AdminManageFaculty html panel
   //manipulate the DOM
   //check if there is a logged in user
+  console.log(facultyKeyValue);
    chrome.identity.getAuthToken({ interactive: true }, token =>
     {
       if ( chrome.runtime.lastError || ! token ) {
@@ -647,18 +805,13 @@ function viewDetailsCourse(facultyKeyValue){
           //get profile uid
           if (user !== null) {
             const db = getDatabase(); 
-            const facultyRef = ref(db,`teachingClasses/${facultyKeyValue}`);
+            const facultyRef = ref(db,`teachingClasses/${FacultyIDNumber}`);
             get(facultyRef)
               .then((snapshot) => {
                 if (snapshot.exists() && snapshot.hasChildren()) {
                   alert("Success Firebase Access!");
-                  
                   // console.log(snapshot.val()); //checking for snapshot return
                   const childData = snapshot.val();
-
-                 
-
-  
                   var cardListDiv = document.getElementById('cardList');
                   cardListDiv.innerHTML='';
                   //loop through the snapshot
@@ -688,6 +841,7 @@ function viewDetailsCourse(facultyKeyValue){
                 } else {
                   alert("Snapshot does not exist! No courses to show");
                 }
+            
               })
               .catch((err) => {
                   console.log("Error with database: " + err);
@@ -868,7 +1022,8 @@ function createNewCourse(facultyKeyValue){
                 //update the FIC and Course relationship
                 // var newRelationshipFaculty = { `${courseKey}`: newCourse};
                 const updatesRelationFaculty = {};
-                updatesRelationFaculty[`/teachingClasses/${facultyKeyValue}/${courseKey}`] = newCourse
+                updatesRelationFaculty[`/teachingClasses/${facultyKeyValue}/${courseKey}`] = newCourse;
+  
                 update(ref(db), updatesRelationFaculty)
                 .then(()=>{
                   console.log('Success in Adding new course to teaching Classes');

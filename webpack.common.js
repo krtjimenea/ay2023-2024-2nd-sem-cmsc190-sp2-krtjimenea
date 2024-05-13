@@ -122,8 +122,23 @@ module.exports = {
       chunks: ["admin"] // This is script from entry point
     }),
     new HtmlWebpackPlugin({
+      template: path.join(__dirname, "src", "sidebar", "AdminManageFacultyCourses.html"),
+      filename: "AdminManageFacultyCourses.html",
+      chunks: ["admin"] // This is script from entry point
+    }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, "src", "sidebar", "AdminManageStudentsinCourse.html"),
+      filename: "AdminManageStudentsinCourse.html",
+      chunks: ["admin"] // This is script from entry point
+    }),
+    new HtmlWebpackPlugin({
       template: path.join(__dirname, "src", "sidebar", "AdminManageAssessments.html"),
       filename: "AdminManageAssessments.html",
+      chunks: ["admin"] // This is script from entry point
+    }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, "src", "sidebar", "AdminManageExamsInCourse.html"),
+      filename: "AdminManageExamsInCourse.html",
       chunks: ["admin"] // This is script from entry point
     }),
     new HtmlWebpackPlugin({
