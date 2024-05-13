@@ -18,6 +18,10 @@ const StudentExamDetailsPage = '/StudentAssessmentDetails.html';
 //Admin Routes
 const AdminDashboard = '/AdminDashboard.html';
 const facultyViewAssessments = '/FacultyManageAssessments.html';
+const facultyViewScheduledExam = '/FacultyAssessmentDetails.html';
+
+
+
 
 //Function to get SidePanel path
 function monitorSidePanelPath() {
@@ -307,6 +311,7 @@ function scheduleExam(){
                 date_end:endDateSelected
               }).then(()=> {
                 alert("Saved to database!");
+                chrome.sidePanel.setOptions({path:facultyViewScheduledExam});
               }).catch((err) => {
                 console.log(("error with database" + err));
               })
@@ -318,6 +323,7 @@ function scheduleExam(){
   }) 
 
   alert('Exam Scheduled! The code is: ' + examAccessCode);
+  mailExamCodes();
 
 }
 

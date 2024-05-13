@@ -1,3 +1,4 @@
 #ignore firebase information
 src/sidebar/firebase.js
 dist/Firebase_Config.js
+node_modules

@@ -100,6 +100,11 @@ module.exports = {
       filename: "FacultyManageAssessments.html",
       chunks: ["faculty_script"] // This is script from entry point
     }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, "src", "sidebar", "FacultyAssessmentDetails.html"),
+      filename: "FacultyAssessmentDetails.html",
+      chunks: ["faculty_script"] // This is script from entry point
+    }),
     //Admin Pages
     new HtmlWebpackPlugin({
       template: path.join(__dirname, "src", "sidebar", "AdminDashboard.html"),
@@ -117,8 +122,23 @@ module.exports = {
       chunks: ["admin"] // This is script from entry point
     }),
     new HtmlWebpackPlugin({
+      template: path.join(__dirname, "src", "sidebar", "AdminManageFacultyCourses.html"),
+      filename: "AdminManageFacultyCourses.html",
+      chunks: ["admin"] // This is script from entry point
+    }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, "src", "sidebar", "AdminManageStudentsinCourse.html"),
+      filename: "AdminManageStudentsinCourse.html",
+      chunks: ["admin"] // This is script from entry point
+    }),
+    new HtmlWebpackPlugin({
       template: path.join(__dirname, "src", "sidebar", "AdminManageAssessments.html"),
       filename: "AdminManageAssessments.html",
+      chunks: ["admin"] // This is script from entry point
+    }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, "src", "sidebar", "AdminManageExamsInCourse.html"),
+      filename: "AdminManageExamsInCourse.html",
       chunks: ["admin"] // This is script from entry point
     }),
     new HtmlWebpackPlugin({
@@ -162,6 +182,7 @@ module.exports = {
         { from: './src/manifest.json' },
         { from: './src/service-worker.js' },
         { from: './src/stylesheet.css' },
+        { from: './src/admin-stylesheet.css' },
         { from: './src/content-script.js' }
       ],
     }),
