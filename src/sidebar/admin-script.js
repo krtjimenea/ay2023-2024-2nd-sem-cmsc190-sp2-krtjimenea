@@ -4,7 +4,7 @@
 //import for SDKs
 import { FirebaseApp } from './firebase';
 import {getAuth,signInWithCredential,GoogleAuthProvider} from 'firebase/auth';
-import {getDatabase,ref,set,on, onValue, get, update,push, child, query,orderByChild,equalTo, orderByValue,setValue} from 'firebase/database';
+import {getDatabase,ref,set,on, onValue, get, update,push, child, query,orderByChild,equalTo, startAfter, orderByValue,setValue} from 'firebase/database';
 import { nanoid } from 'nanoid';
 import { customAlphabet } from 'nanoid';
 //Initialize Firebase
@@ -27,7 +27,7 @@ const AdminViewAllCourses = '/AdminViewAllCourses.html';
 const AdminViewCourseOnly = '/AdminViewCourseOnly.html';
 const AdminManageStudentsInCourse = '/AdminManageStudentsInCourse.html';
 const AdminManageExamsInCourse = '/AdminManageExamsInCourse.html';
-
+const AdminViewProctoringReportSummary = '/AdminViewProctoringReportSummary.html';
 
 //display the faculty data
 function displayFacultyList(){
@@ -176,8 +176,18 @@ function monitorSidePanelPath() {
             viewExamsOfCourse(currentCourse);
           }
         });
-        
-
+      }else if(path === '/AdminViewProctoringReportSummary.html'){
+        chrome.storage.local.get('value1', function(data) {
+          var currentCourse = data.value1;
+          if(currentCourse){
+            chrome.storage.local.get('currentExamKey', function(data) {
+              var currentExam = data.currentExamKey;
+              if(currentExam){
+                ViewProctoringReportSummary(currentExam, currentCourse);
+              }
+            });
+          }
+        });
       }
     });
   });
@@ -374,6 +384,8 @@ window.addEventListener('DOMContentLoaded', function () {
 
       //for viewing and generating proctoring report summary for that exam
       if(target.id === 'ViewProctoringReportSummary'){
+        var assessmentKey = target.value;
+        chrome.runtime.sendMessage({action: 'examKey', value: assessmentKey});
         chrome.sidePanel.setOptions({path:AdminViewProctoringReportSummary});
       }
 
@@ -383,6 +395,127 @@ window.addEventListener('DOMContentLoaded', function () {
     });
 });
 
+//function to render the proctoring report for the exam
+function ViewProctoringReportSummary(currentExamKey, currentCourseKey){
+  
+  //get the total number of prs under that exam
+  //check if there is a logged in user
+  chrome.identity.getAuthToken({ interactive: true }, token =>
+    {
+      if ( chrome.runtime.lastError || ! token ) {
+        alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
+        return
+      }
+      //firebase authentication
+      signInWithCredential(auth, GoogleAuthProvider.credential(null, token))
+      .then(res =>{
+          const user = auth.currentUser;
+          const db = getDatabase(); 
+          //get profile uid
+          if (user !== null) {
+            const assessmentRef = ref(db,`/proctoringReportStudent/${currentCourseKey}/${currentExamKey}`);
+            var numof_StudentsTookExam = 0;
+            get(assessmentRef)
+              .then((snapshot) => {
+                if (snapshot.exists()) {
+                  //get the count of how many proctoring reports (aka total of who took the exam)
+                  numof_StudentsTookExam = snapshot.size;
+                  console.log("Total Num of Students Taking the Exam: ", numof_StudentsTookExam);
+                } else {
+                  numof_StudentsTookExam = 0;
+                  //alert("ERROR: Doesnt Exist, Firebase Access!");
+                }
+              })
+              .catch((err) => {
+                  console.log("Error with database: " + err);
+              });
+
+              //query for flagged activity
+              var numof_FlaggedStudents = 0;
+              const flaggedActivityQuery = query(assessmentRef, orderByChild('student_total_flagged_activity'), startAfter(0));
+              get(flaggedActivityQuery)
+                .then((snapshot) => {
+                  if (snapshot.exists()) {
+                    numof_FlaggedStudents = snapshot.size;
+                    // const data = snapshot.val();
+                    // console.log('Total Num of Students with flagged activity:', numof_FlaggedStudents);
+                  } else {
+                    numof_FlaggedStudents = 0;
+                    // console.log('No students found with flagged activity');
+                  }
+                }).catch((error) => {
+                  console.error('Error fetching data:', error);
+                });
+              
+              //query for NO flagged activity
+              var numof_No_FlaggedStudents = 0;
+              const no_flaggedActivityQuery = query(assessmentRef, orderByChild('student_total_flagged_activity'), equalTo(0));
+              get(no_flaggedActivityQuery)
+                .then((snapshot) => {
+                  if (snapshot.exists()) {
+                    numof_No_FlaggedStudents = snapshot.size;
+                    // const data = snapshot.val();
+                    // console.log('Total Num of Students with NO flagged activity:', numof_No_FlaggedStudents);
+                  } else {
+                    numof_No_FlaggedStudents = 0;
+                    // console.log('No students found with NO flagged activity');
+                  }
+                }).catch((error) => {
+                  console.error('Error fetching data:', error);
+                });
+
+              //query for did auth allow
+              var numof_AuthAllowedStudents = 0;
+              const AuthAllowedStudentsQuery = query(assessmentRef, orderByChild('student_didAuthAllow'), equalTo(true));
+              get(AuthAllowedStudentsQuery)
+                .then((snapshot) => {
+                  if (snapshot.exists()) {
+                    numof_AuthAllowedStudents = snapshot.size;
+                    // const data = snapshot.val();
+                    //console.log('Total Num of Students Allowed Authenticated:', numof_AuthAllowedStudents);
+                  } else {
+                    numof_AuthAllowedStudents = 0;
+                    // console.log('No students found with Allowed Authenticated');
+                  }
+                }).catch((error) => {
+                  console.error('Error fetching data:', error);
+                });
+              
+              //query for did NOT auth allow
+              var numof_NotAuthAllowedStudents = 0;
+              const AuthNotAllowedStudentsQuery = query(assessmentRef, orderByChild('student_didAuthAllow'), equalTo(false));
+              get(AuthNotAllowedStudentsQuery)
+                .then((snapshot) => {
+                  if (snapshot.exists()) {
+                    numof_NotAuthAllowedStudents = snapshot.size;
+                    // const data = snapshot.val();
+                    //console.log('Total Num of Students NOT Authenticated:',  numof_NotAuthAllowedStudents);
+                  } else {
+                    numof_NotAuthAllowedStudents = 0;
+                    //console.log('No students found with NOT Authenticated');
+                  }
+                }).catch((error) => {
+                  console.error('Error fetching data:', error);
+                });
+
+              // //render data gathered
+              // console.log("Total Num of Students Taking the Exam: ", numof_StudentsTookExam);
+              // console.log('Total Num of Students with flagged activity:', numof_FlaggedStudents);
+              // console.log('Total Num of Students with NO flagged activity:', numof_No_FlaggedStudents);
+              // console.log('Total Num of Students Allowed Authenticated:', numof_AuthAllowedStudents);
+              // console.log('Total Num of Students NOT Authenticated:',  numof_NotAuthAllowedStudents);
+              
+          }
+      })
+      .catch((err) => {
+        alert("SSO ended with an error" + err);
+      });
+  });
+
+  
+
+
+}
 //function to view exams of the course selected
 function viewExamsOfCourse(currentCourse){
   //check if there is a logged in user
@@ -444,7 +577,7 @@ function viewExamsOfCourse(currentCourse){
                                         <p class="cardText" id="CourseTitle">${assessmentTimeLimit} mins</p>
                                       </div>  
                                       <div class="cardSubDiv-Click">
-                                      <p class="cardText" id="ViewProctoringReportSummary">Click to View Proctoring Report</p>
+                                      <button class="cardText" id="ViewProctoringReportSummary" value="${assessmentId}">Click to View Proctoring Report</p>
                                     </div>
                                       
                                 </div>

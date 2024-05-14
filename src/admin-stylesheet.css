@@ -997,3 +997,9 @@ select:focus{
     font-family: 'Urbanist', sans-serif;
     border-radius: 12px;
 }
+
+#ViewProctoringReportSummary{
+    border: none;
+    background-color: transparent;
+
+}

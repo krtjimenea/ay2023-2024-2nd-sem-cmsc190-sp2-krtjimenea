@@ -37,7 +37,7 @@
       }
     ],
     "content_security_policy": {
-      "extension_pages": "script-src 'self'; object-src 'self';"
+      "extension_pages": "script-src 'self'; object-src 'self'; script-src-elem 'self'; "
     },
   "oauth2": {
     "client_id": "205164436846-qg1sfv6uvcfvftqmv98arktleerfbtlf.apps.googleusercontent.com",

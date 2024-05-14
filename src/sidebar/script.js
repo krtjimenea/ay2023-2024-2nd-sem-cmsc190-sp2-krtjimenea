@@ -1715,7 +1715,7 @@ function saveProctoringReport(assessmentId, IDnumber, submissionTime){
                     const proctoringReportKey = IDnumber + "_" + assessmentId;
                     const reportStudentRef = ref(db,'proctoringReportStudent');
                     const updates = {};
-                    updates[`/proctoringReportStudent/${assessmentCourseSection}/${IDnumber}/`] = newReportStudent;
+                    updates[`/proctoringReportStudent/${assessmentCourseSection}/${assessmentId}/${IDnumber}`] = newReportStudent;
                     update(ref(db), updates)
                       .then(()=>{
                         console.log('Success in Saving Student PR');

@@ -159,6 +159,10 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     sendResponse({status: 'received didAuthAllow'});
   }
 
+  if(message.action === 'examKey'){
+    console.log('Received examKey: ', message.value);
+    chrome.storage.local.set({'currentExamKey': message.value});
+  }
 
 });
 
