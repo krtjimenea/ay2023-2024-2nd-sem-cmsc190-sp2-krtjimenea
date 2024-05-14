@@ -372,6 +372,11 @@ window.addEventListener('DOMContentLoaded', function () {
         chrome.sidePanel.setOptions({path:AdminManageExamsInCourse});
       }
 
+      //for viewing and generating proctoring report summary for that exam
+      if(target.id === 'ViewProctoringReportSummary'){
+        chrome.sidePanel.setOptions({path:AdminViewProctoringReportSummary});
+      }
+
       
 
 
@@ -422,21 +427,10 @@ function viewExamsOfCourse(currentCourse){
                                 <p class="cardHeader" id="ExamName">${assessmentName}</p>
                                   <div class="cardDivText">
                                       <div class="cardSubDiv">
-                                          <p id="card-labels">Assigned Course and Section:</p>
-                                          <p class="cardText" id="CourseTitle">${assessmentCourseSection}</p>
-                                      </div>
-                                      <div class="cardSubDiv">
                                           <p id="card-labels">Faculty-in-Charge:</p>
                                           <p class="cardText" id="CourseTitle">${assessmentFIC}</p>
                                       </div>  
-                                      <div class="cardSubDiv">
-                                          <p id="card-labels">Link:</p>
-                                          <p class="cardText" id="CourseTitle">${assessmentLink}</p>
-                                      </div>  
-                                      <div class="cardSubDiv">
-                                          <p id="card-labels">Access Code:</p>
-                                          <p class="cardText" id="CourseTitle">${assessmentCode}</p>
-                                      </div>  
+                                    
                                       <div class="cardSubDiv">
                                           <p id="card-labels">Start Time and Date:</p>
                                           <p class="cardText" id="CourseTitle">${assessmentStartTime}</p>
@@ -446,9 +440,13 @@ function viewExamsOfCourse(currentCourse){
                                           <p class="cardText" id="CourseTitle">${assessmentEndTime}</p>
                                       </div>  
                                       <div class="cardSubDiv">
-                                      <p id="card-labels">Time Duration:</p>
-                                      <p class="cardText" id="CourseTitle">${assessmentTimeLimit}</p>
-                                  </div>  
+                                        <p id="card-labels">Time Duration:</p>
+                                        <p class="cardText" id="CourseTitle">${assessmentTimeLimit} mins</p>
+                                      </div>  
+                                      <div class="cardSubDiv-Click">
+                                      <p class="cardText" id="ViewProctoringReportSummary">Click to View Proctoring Report</p>
+                                    </div>
+                                      
                                 </div>
                               </div>`;
 

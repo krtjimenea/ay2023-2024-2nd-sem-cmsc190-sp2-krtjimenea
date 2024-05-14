@@ -1025,9 +1025,16 @@ function compareAuthRiskScore(assessmentId){
                     //send the risk score
                     chrome.runtime.sendMessage({action: 'authRiskScore', value: AuthRiskScore});
                     chrome.runtime.sendMessage({action: 'studentIdentity_uponExam', value: studentIdentityUponExam});
-                    chrome.runtime.sendMessage({action: 'didAuthAllow', value: true});
-                    // chrome.sidePanel.setOptions({path: StudentExamDetailsPage});
-                    
+                    // chrome.runtime.sendMessage({action: 'didAuthAllow', value: true});
+                    // // chrome.sidePanel.setOptions({path: StudentExamDetailsPage});
+                    chrome.runtime.sendMessage({action: 'didAuthAllow', value: true}, function(response) {
+                      if (chrome.runtime.lastError) {
+                          console.error('Error sending didAuthAllow message:', chrome.runtime.lastError);
+                          return;
+                      }
+                        chrome.sidePanel.setOptions({path: StudentExamDetailsPage});
+                  
+                    });
 
                   }else{
                     console.log('FAILED: Auth Risk Score is: ' + AuthRiskScore);

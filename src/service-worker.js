@@ -156,6 +156,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
   if(message.action === 'didAuthAllow'){
     console.log('Received didAuth: ', message.value);
     chrome.storage.local.set({'currentdidAuthAllow': message.value});
+    sendResponse({status: 'received didAuthAllow'});
   }
 
 

@@ -774,6 +774,30 @@ select:focus{
     border-radius: 4px; 
 }
 
+.cardSubDiv-Click{
+    padding: 5px;
+    align-content: center;
+    text-align: center;
+    margin: 10px;
+    color: #fff;
+    border: 2px solid #000;   
+    border-radius: 4px; 
+    background-color: #2c7c60;
+
+}
+
+.cardSubDiv-Click:hover {
+    background-color: #51c973da;
+    text-decoration:underline;
+}
+
+.cardSubDiv-Click:active {
+  background-color: #5eff8cda;
+  box-shadow: 0 5px #d0cfcf;
+  transform: translateY(4px);
+}
+
+
 #card-labels{
     font-family: 'Raleway', sans-serif;
     font-family: 'Urbanist', sans-serif;
