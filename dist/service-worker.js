@@ -149,8 +149,13 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
   }
 
   if(message.action === 'studentIdentity_uponExam'){
-    console.log('Received Student Identity Upon Log in: ', message.value);
+    // console.log('Received Student Identity Upon Log in: ', message.value);
     chrome.storage.local.set({'currentStudentIdentity_uponExam': message.value});
+  }
+
+  if(message.action === 'didAuthAllow'){
+    console.log('Received didAuth: ', message.value);
+    chrome.storage.local.set({'currentdidAuthAllow': message.value});
   }
 
 

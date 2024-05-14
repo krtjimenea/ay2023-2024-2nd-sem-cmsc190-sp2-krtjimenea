@@ -768,6 +768,7 @@ function checkExamCode(){
                         alertMessage.textContent = 'Valid, You are set to take this exam!';
                         let closeBtn = document.getElementsByClassName("ModalSuccessCloseBtn")[0];
                         closeBtn.addEventListener("click", function(){
+                          console.log("/./.??");
                           compareAuthRiskScore(assessmentId);
                         })
                         
@@ -1024,11 +1025,13 @@ function compareAuthRiskScore(assessmentId){
                     //send the risk score
                     chrome.runtime.sendMessage({action: 'authRiskScore', value: AuthRiskScore});
                     chrome.runtime.sendMessage({action: 'studentIdentity_uponExam', value: studentIdentityUponExam});
-                    chrome.sidePanel.setOptions({path: StudentExamDetailsPage});
+                    chrome.runtime.sendMessage({action: 'didAuthAllow', value: true});
+                    // chrome.sidePanel.setOptions({path: StudentExamDetailsPage});
                     
 
                   }else{
                     console.log('FAILED: Auth Risk Score is: ' + AuthRiskScore);
+                    chrome.runtime.sendMessage({action: 'didAuthAllow', value: false});
                     let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
                     let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
                     modal.style.display = "block";
@@ -1585,11 +1588,17 @@ function saveProctoringReport(assessmentId, IDnumber, submissionTime){
   var student_identity_UponExam;
   chrome.storage.local.get('currentStudentIdentity_uponExam', function(data){
     student_identity_UponExam = data.currentStudentIdentity_uponExam;
-    console.log(student_identity_UponExam);
+    // console.log(student_identity_UponExam);
   })
 
   // var json_newTabsData = JSON.parse(newTabsData);
   // var json_tabsDataList = JSON.parse(tabsDataList);
+
+  var didAuthAllowValue;
+  chrome.storage.local.get('currentdidAuthAllow', function(data){
+    didAuthAllowValue = data.currentdidAuthAllow;
+    // console.log(student_identity_UponExam);
+  })
 
   
   console.log(numOfBrowserOutofFocus + "Value");
@@ -1634,8 +1643,7 @@ function saveProctoringReport(assessmentId, IDnumber, submissionTime){
                     const assessmentEndTime = childData.expected_time_end;
                     const assessmentStartDate = childData.date_start;
                     const assessmentEndDate = childData.date_end;
-
-                    
+                    // const assessmentTimeLimit =  childData.time_limit;
 
                     ExamDetailsDiv.innerHTML += `
                     <p id="output-labels-student">Exam Name</p>
@@ -1659,9 +1667,6 @@ function saveProctoringReport(assessmentId, IDnumber, submissionTime){
                     
                     //Make proctoring report
                     //Details for /proctoringReportStudent
-                    //Key: Student Number _ Exam Id
-                    var studentPRKey = IDnumber + assessmentId;
-                    
                     //Student Name
                     //Student Number
                     //Exam Details
@@ -1686,8 +1691,9 @@ function saveProctoringReport(assessmentId, IDnumber, submissionTime){
                       student_time_started: timeStarted,
                       student_time_submitted: submissionTime,
                       student_auth_risk_score: authRiskScore,
+                      student_didAuthAllow: didAuthAllowValue,
+                      student_total_flagged_activity: numofFlaggedActivity,
                       flagged_activities : {
-                        student_total_flagged_activity: numofFlaggedActivity,
                         student_num_changed_windows: numOfBrowserOutofFocus,
                         student_open_tabs_data: tabsDataList,
                         student_new_opened_tabs_data: newTabsData,
@@ -1702,7 +1708,7 @@ function saveProctoringReport(assessmentId, IDnumber, submissionTime){
                     const proctoringReportKey = IDnumber + "_" + assessmentId;
                     const reportStudentRef = ref(db,'proctoringReportStudent');
                     const updates = {};
-                    updates[`/proctoringReportStudent/${studentPRKey}/`] = newReportStudent;
+                    updates[`/proctoringReportStudent/${assessmentCourseSection}/${IDnumber}/`] = newReportStudent;
                     update(ref(db), updates)
                       .then(()=>{
                         console.log('Success in Saving Student PR');
