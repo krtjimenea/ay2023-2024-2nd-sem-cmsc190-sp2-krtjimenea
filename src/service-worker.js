@@ -81,13 +81,14 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     chrome.storage.local.set({'value3': message.value});
   }
 
+//THIS IS FACULTY NAME
  if(message.action === 'facultyKeyValue'){
     //chrome storage
     console.log('Received facultyKeyValue:', message.value);
     chrome.storage.local.set({'currentfacultyKeyValue': message.value});
   } 
 
-  
+  //THIS IS FACULTY ID
  if(message.action === 'facultyIDValue'){
   //chrome storage
   console.log('Received facultyIDValue:', message.value);
@@ -149,10 +150,26 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
   }
 
   if(message.action === 'studentIdentity_uponExam'){
-    console.log('Received Student Identity Upon Log in: ', message.value);
+    // console.log('Received Student Identity Upon Log in: ', message.value);
     chrome.storage.local.set({'currentStudentIdentity_uponExam': message.value});
   }
 
+  if(message.action === 'didAuthAllow'){
+    console.log('Received didAuth: ', message.value);
+    chrome.storage.local.set({'currentdidAuthAllow': message.value});
+    sendResponse({status: 'received didAuthAllow'});
+  }
+
+  if(message.action === 'examKey'){
+    console.log('Received examKey: ', message.value);
+    chrome.storage.local.set({'currentExamKey': message.value});
+  }
+
+  if(message.action === 'studentKey'){
+    console.log('Received studentKey: ', message.value);
+    chrome.storage.local.set({'currentstudentKey': message.value});
+
+  }
 
 });
 

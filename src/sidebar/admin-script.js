@@ -3,8 +3,9 @@
 
 //import for SDKs
 import { FirebaseApp } from './firebase';
+import { getFirestore, doc, setDoc, addDoc,collection } from "firebase/firestore";
 import {getAuth,signInWithCredential,GoogleAuthProvider} from 'firebase/auth';
-import {getDatabase,ref,set,on, onValue, get, update,push, child, query,orderByChild,equalTo, orderByValue,setValue} from 'firebase/database';
+import {getDatabase,ref,set,on, onValue, get, update,push, child, query,orderByChild,equalTo, startAfter, orderByValue,setValue} from 'firebase/database';
 import { nanoid } from 'nanoid';
 import { customAlphabet } from 'nanoid';
 //Initialize Firebase
@@ -27,7 +28,8 @@ const AdminViewAllCourses = '/AdminViewAllCourses.html';
 const AdminViewCourseOnly = '/AdminViewCourseOnly.html';
 const AdminManageStudentsInCourse = '/AdminManageStudentsInCourse.html';
 const AdminManageExamsInCourse = '/AdminManageExamsInCourse.html';
-
+const AdminViewProctoringReportSummary = '/AdminViewProctoringReportSummary.html';
+const AdminViewStudentExams =  '/AdminViewStudentExams.html'
 
 //display the faculty data
 function displayFacultyList(){
@@ -89,16 +91,17 @@ function displayFacultyList(){
                   }
 
                 } else {
-                  alert("Success Firebase Access!");
+                  var cardListDiv = document.getElementById('cardList');
+                  cardListDiv.innerHTML=`<p class="DBisEmptyMssg">Collection is empty, Nothing to show</p>`;
                 }
               })
-              .catch((err) => {
-                  console.log("Error with database: " + err);
+              .catch((error) => {
+                  console.log("Error with database: " + error);
               });
           }
       })
-      .catch((err) => {
-        alert("SSO ended with an error" + err);
+      .catch((error) => {
+        alert("SSO ended with an error" + error);
       });
   });
 }
@@ -114,6 +117,8 @@ function monitorSidePanelPath() {
     chrome.sidePanel.getOptions({ tabId }, function(options) {
       const path = options.path;
       console.log('path: ' + path);
+      //this the current path, create an array of history in the service worker, pass as message
+      chrome.runtime.sendMessage({action: 'sendCurrentPath', value: path});
       if(path === '/AdminManageFaculty.html'){
         displayFacultyList();
 
@@ -144,11 +149,12 @@ function monitorSidePanelPath() {
         viewStudentsList();
       }else if(path === '/AdminViewAllCourses.html'){
         viewCoursesList();
+
       }else if(path === '/AdminViewCourseOnly.html'){
        //access chrome storage for any passed value
        chrome.storage.local.get('value1', function(data) {
+        var currentCourse = data.value1;
         if(currentCourse){
-          var currentCourse = data.value1;
           viewOneCourseOnly(currentCourse);
         }
       
@@ -176,8 +182,26 @@ function monitorSidePanelPath() {
             viewExamsOfCourse(currentCourse);
           }
         });
-        
-
+      }else if(path === '/AdminViewProctoringReportSummary.html'){
+        chrome.storage.local.get('value1', function(data) {
+          var currentCourse = data.value1;
+          if(currentCourse){
+            chrome.storage.local.get('currentExamKey', function(data) {
+              var currentExam = data.currentExamKey;
+              if(currentExam){
+                ViewProctoringReportSummary(currentExam, currentCourse);
+              }
+            });
+          }
+        });
+      }else if(path === '/AdminViewStudentExams.html'){
+        chrome.storage.local.get('currentstudentKey', function(data) {
+          var currentStudent = data.currentstudentKey;
+          if(currentStudent){
+            viewStudentAssessmentsList(currentStudent);
+            
+          }
+        });
       }
     });
   });
@@ -200,6 +224,11 @@ window.addEventListener('DOMContentLoaded', function () {
   
       const target = event.target;
 
+      //for routing
+      if(target.id ===  'BackBtn' || target.id === 'BackIcon'){
+        console.log('Back Clicked');
+        navigateBack();
+      }
       //For Admin Dashboard Events
       if (target.id === 'ManageFacultyBtn'){
         console.log('Clicked on Manage Faculty')
@@ -260,7 +289,7 @@ window.addEventListener('DOMContentLoaded', function () {
       if (target.className === 'ModalCloseBtn'){
         console.log('Clicked Close Modal');
         //closeModal();
-        let modal = document.getElementsByClassName("Add-Faculty-Modal")[0];
+        let modal = document.getElementsByTagName("Add-Faculty-Modal")[0];
         let overlay = document.getElementsByClassName("modal-faculty-Overlay")[0];
         modal.style.display = "none";
         overlay.style.display = "none";
@@ -294,7 +323,10 @@ window.addEventListener('DOMContentLoaded', function () {
       //for adding a new course
       if(target.id==='Add-Course-DB'){
         console.log('Clicked Add New Course');
-        createNewCourse(facultyKeyValue);
+        chrome.storage.local.get('currentfacultyIDValue', function(data) {
+          var currentFaculty = data.currentfacultyIDValue;
+          createNewCourse(currentFaculty);
+        });
       }
 
       //for clicking the faculty card
@@ -321,8 +353,8 @@ window.addEventListener('DOMContentLoaded', function () {
       //for clicking the course card via courses only
       if(target.id === 'CourseCodeOnly'){
         courseCodeValue = target.innerText;
-        // chrome.runtime.sendMessage({action: 'passValue1', value: courseCodeValue});
-        // chrome.sidePanel.setOptions({path:AdminViewCourseOnly});
+        chrome.runtime.sendMessage({action: 'passValue1', value: courseCodeValue});
+        chrome.sidePanel.setOptions({path:AdminViewCourseOnly});
 
       }
 
@@ -330,13 +362,47 @@ window.addEventListener('DOMContentLoaded', function () {
       //add classlist csv modal and function
       if(target.id === 'Add-New-Classlist'){
         console.log("Clicked Add New Classlist CSV");
-        var reader = new FileReader();
-        reader.addEventListener('load', function() {
-          // console.log(this.result);
-          uploadClasslistCSV(this.result);
-        });
-        reader.readAsText(document.querySelector('input').files[0]);
+        var fileInput = document.querySelector('input[type="file"]');
+        var file = fileInput.files[0];
+        if(file){
+          var reader = new FileReader();
+          reader.addEventListener('error', function(event) {
+            // Display error modal
+            let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
+            let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
+            modal.style.display = "block";
+            overlay.style.display = "block";
+            let alertMessage = document.getElementById("ModalTextFailure-labels");
+            alertMessage.textContent = "No File Attached!!!";
+          });
+
+          reader.addEventListener('load', function() {
+            if (this.result !== null) {
+              // File was successfully loaded, proceed with processing
+              uploadClasslistCSV(this.result);
+            } else {
+              // Display error modal
+              let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
+              let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
+              modal.style.display = "block";
+              overlay.style.display = "block";
+              let alertMessage = document.getElementById("ModalTextFailure-labels");
+              alertMessage.textContent = "No File Attached!!!";
+            }
+          });
+
+            reader.readAsText(file);
+        }else{
+          // Display error modal
+          let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
+          let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
+          modal.style.display = "block";
+          overlay.style.display = "block";
+          let alertMessage = document.getElementById("ModalTextFailure-labels");
+          alertMessage.textContent = "No File Attached!!!";
+        }
       }
+
 
       //for managing assessments
       if(target.id==='Admin-Sched-Assessment'){
@@ -372,12 +438,291 @@ window.addEventListener('DOMContentLoaded', function () {
         chrome.sidePanel.setOptions({path:AdminManageExamsInCourse});
       }
 
-      
+      //for viewing and generating proctoring report summary for that exam
+      if(target.id === 'ViewProctoringReportSummary'){
+        var assessmentKey = target.value;
+        chrome.runtime.sendMessage({action: 'examKey', value: assessmentKey});
+        chrome.sidePanel.setOptions({path:AdminViewProctoringReportSummary});
+      }
+
+      //for viewing student dashboard pass the student
+      if(target.id === 'ViewStudentAssignedExam'){
+        //find and get the key first
+        var selectedStudentKey = target.value;
+        chrome.runtime.sendMessage({action: 'studentKey', value: selectedStudentKey});
+        chrome.sidePanel.setOptions({path: AdminViewStudentExams});
+
+
+      }
+
+      if (target.className === 'ModalFailureCloseBtn'){
+        console.log('Clicked Close Modal');
+        //closeModal();
+        let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
+        let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
+        modal.style.display = "none";
+        overlay.style.display = "none";
+      }
 
 
     });
 });
 
+//to handle route changes
+function navigateBack() {
+  chrome.storage.local.get('historyStack', function(result) {
+    var historyStack = result.historyStack || [];
+    if (historyStack.length > 1) {
+      // Pop the last item from the stack
+      var lastItem = historyStack.pop();
+      //save the updated stack back to chrome storage
+      chrome.storage.local.set({'historyStack': historyStack}, function() {
+        // Use the last item to navigate or perform the relevant action
+        var backToPath = historyStack.slice(-1)[0];
+        console.log("Navigating back to:", backToPath );
+        chrome.sidePanel.setOptions({path:backToPath});
+
+      });
+    } else {
+      console.log("No history to navigate back");
+    }
+  });
+}
+
+//function to render the exams of the student
+function viewStudentAssessmentsList(currentStudentKey){
+  //check if there is a logged in user
+  chrome.identity.getAuthToken({ interactive: true }, token =>
+    {
+      if ( chrome.runtime.lastError || ! token ) {
+        alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
+        return
+      }
+
+      //firebase authentication
+      signInWithCredential(auth, GoogleAuthProvider.credential(null, token))
+      .then(res =>{
+          const user = auth.currentUser;
+          //get profile uid
+          if (user !== null) {
+            const db = getDatabase(); 
+            const assessmentRef = ref(db,`/assignedAssessments/${currentStudentKey}`);
+            
+            get(assessmentRef)
+              .then((snapshot) => {
+                if (snapshot.exists()) {
+                  //alert("Success Firebase Access!");
+                  //checking for snapshot return
+                  const childData = snapshot.val();
+                 
+                  for(const assessmentId in childData){
+                    
+                    const assessmentSpecificRef = ref(db,`/assessments/${assessmentId}`);
+                    get(assessmentSpecificRef)
+                      .then((snapshotAssessment) => {
+                        if(snapshotAssessment.exists()){
+                          var cardListDiv = document.getElementById('cardList');
+                          const examData = snapshotAssessment.val();
+                          const assessmentFIC = examData.FacultyInChargeName;
+                          const assessmentName = examData.name;
+                          
+                          const assessmentCourseSection = examData.course;
+                          const assessmentLink = examData.link;
+                          const assessmentCode = examData.access_code;
+                          const assessmentStartTime = examData.expected_time_start;
+                          const assessmentEndTime = examData.expected_time_end;
+                          cardListDiv.innerHTML += `<div class="cards">
+                                  <p class="cardHeader" id="ExamName">${assessmentName}</p>
+                                    <div class="cardDivText">
+                                        <div class="cardSubDiv">
+                                            <p id="card-labels">Assigned Course and Section:</p>
+                                            <p class="cardText" id="CourseTitle">${assessmentCourseSection}</p>
+                                        </div>
+                                        <div class="cardSubDiv">
+                                            <p id="card-labels">Faculty-in-Charge:</p>
+                                            <p class="cardText" id="CourseTitle">${assessmentFIC}</p>
+                                        </div>  
+                                        <div class="cardSubDiv">
+                                            <p id="card-labels">Link:</p>
+                                            <p class="cardText" id="CourseTitle">${assessmentLink}</p>
+                                        </div>  
+                                        <div class="cardSubDiv">
+                                            <p id="card-labels">Access Code:</p>
+                                            <p class="cardText" id="CourseTitle">${assessmentCode}</p>
+                                        </div>  
+                                        <div class="cardSubDiv">
+                                            <p id="card-labels">Start Time and Date:</p>
+                                            <p class="cardText" id="CourseTitle">${assessmentStartTime}</p>
+                                        </div>  
+                                        <div class="cardSubDiv">
+                                            <p id="card-labels">End Time and Date:</p>
+                                            <p class="cardText" id="CourseTitle">${assessmentEndTime}</p>
+                                        </div>  
+                                  </div>
+                                </div>`;
+
+                        }else{
+                          var cardListDiv = document.getElementById('cardList');
+                          cardListDiv.innerHTML=`<p class="DBisEmptyMssg">Collection is empty, Nothing to show</p>`;
+                        }
+                       
+
+
+                      }).catch((error) =>{
+                        console.log("Error with database: " + error);
+                      })
+                  }
+               
+                } else {
+                  var cardListDiv = document.getElementById('cardList');
+                  cardListDiv.innerHTML=`<p class="DBisEmptyMssg">Collection is empty, Nothing to show</p>`;
+                }
+              })
+              .catch((error) => {
+                  console.log("erroror with database: " + error);
+              });
+          }
+      })
+      .catch((error) => {
+        alert("SSO ended with an erroror" + error);
+      });
+  });
+  
+}
+//function to render the proctoring report for the exam
+function ViewProctoringReportSummary(currentExamKey, currentCourseKey){
+  
+  //get the total number of prs under that exam
+  //check if there is a logged in user
+  chrome.identity.getAuthToken({ interactive: true }, token =>
+    {
+      if ( chrome.runtime.lasterroror || ! token ) {
+        alert(`SSO ended with an erroror: ${JSON.stringify(chrome.runtime.lasterroror)}`)
+        return
+      }
+      //firebase authentication
+      signInWithCredential(auth, GoogleAuthProvider.credential(null, token))
+      .then(res =>{
+          const user = auth.currentUser;
+          const db = getDatabase(); 
+          //get profile uid
+          if (user !== null) {
+            const assessmentRef = ref(db,`/proctoringReportStudent/${currentCourseKey}/${currentExamKey}`);
+            var numof_StudentsTookExam = 0;
+            get(assessmentRef)
+              .then((snapshot) => {
+                if (snapshot.exists()) {
+                  //get the count of how many proctoring reports (aka total of who took the exam)
+                  numof_StudentsTookExam = snapshot.size;
+                  let studentsTotal = document.getElementById('TotalStudents');
+                  studentsTotal.textContent = numof_StudentsTookExam;
+                  // console.log("Total Num of Students Taking the Exam: ", numof_StudentsTookExam);
+                } else {
+                  numof_StudentsTookExam = 0;
+                  let studentsTotal = document.getElementById('TotalStudents');
+                  studentsTotal.textContent = numof_StudentsTookExam;
+                  //alert("errorOR: Doesnt Exist, Firebase Access!");
+                }
+              })
+              .catch((error) => {
+                  console.log("erroror with database: " + error);
+              });
+
+              //query for flagged activity
+              var numof_FlaggedStudents = 0;
+              const flaggedActivityQuery = query(assessmentRef, orderByChild('student_total_flagged_activity'), startAfter(0));
+              get(flaggedActivityQuery)
+                .then((snapshot) => {
+                  if (snapshot.exists()) {
+                    numof_FlaggedStudents = snapshot.size;
+                    let studentsFlagged = document.getElementById('TotalFlagged');
+                    studentsFlagged.textContent = numof_FlaggedStudents;
+                    // const data = snapshot.val();
+                    // console.log('Total Num of Students with flagged activity:', numof_FlaggedStudents);
+                  } else {
+                    numof_FlaggedStudents = 0;
+                    let studentsFlagged = document.getElementById('TotalFlagged');
+                    studentsFlagged.textContent = numof_FlaggedStudents;
+                    // console.log('No students found with flagged activity');
+                  }
+                }).catch((erroror) => {
+                  console.erroror('erroror fetching data:', erroror);
+                });
+              
+              //query for NO flagged activity
+              var numof_No_FlaggedStudents = 0;
+              const no_flaggedActivityQuery = query(assessmentRef, orderByChild('student_total_flagged_activity'), equalTo(0));
+              get(no_flaggedActivityQuery)
+                .then((snapshot) => {
+                  if (snapshot.exists()) {
+                    numof_No_FlaggedStudents = snapshot.size;
+                    let studentsNOTflagged = document.getElementById('TotalNoFlagged');
+                    studentsNOTflagged.textContent = numof_No_FlaggedStudents;
+                    // const data = snapshot.val();
+                    // console.log('Total Num of Students with NO flagged activity:', numof_No_FlaggedStudents);
+                  } else {
+                    numof_No_FlaggedStudents = 0;
+                    let studentsNOTflagged = document.getElementById('TotalNoFlagged');
+                    studentsNOTflagged.textContent = numof_No_FlaggedStudents;
+                    // console.log('No students found with NO flagged activity');
+                  }
+                }).catch((error) => {
+                  console.error('Error fetching data:', error);
+                });
+
+              //query for did auth allow
+              var numof_AuthAllowedStudents = 0;
+              const AuthAllowedStudentsQuery = query(assessmentRef, orderByChild('student_didAuthAllow'), equalTo(true));
+              get(AuthAllowedStudentsQuery)
+                .then((snapshot) => {
+                  if (snapshot.exists()) {
+                    numof_AuthAllowedStudents = snapshot.size;
+                    let studentTotalAuthenticated = document.getElementById('TotalAuthenticated');
+                    studentTotalAuthenticated.textContent =numof_AuthAllowedStudents;
+                    // const data = snapshot.val();
+                    //console.log('Total Num of Students Allowed Authenticated:', numof_AuthAllowedStudents);
+                  } else {
+                    numof_AuthAllowedStudents = 0;
+                    let studentTotalAuthenticated = document.getElementById('TotalAuthenticated');
+                    studentTotalAuthenticated.textContent =numof_AuthAllowedStudents;
+                    // console.log('No students found with Allowed Authenticated');
+                  }
+                }).catch((error) => {
+                  console.error('Error fetching data:', error);
+                });
+              
+              //query for did NOT auth allow
+              var numof_NotAuthAllowedStudents = 0;
+              const AuthNotAllowedStudentsQuery = query(assessmentRef, orderByChild('student_didAuthAllow'), equalTo(false));
+              get(AuthNotAllowedStudentsQuery)
+                .then((snapshot) => {
+                  if (snapshot.exists()) {
+                    numof_NotAuthAllowedStudents = snapshot.size;
+                    let studentTotalNotAuthenticated = document.getElementById('TotalNotAuthenticated');
+                    studentTotaNotlAuthenticated.textContent = numof_NotAuthAllowedStudents;
+                    // const data = snapshot.val();
+                    //console.log('Total Num of Students NOT Authenticated:',  numof_NotAuthAllowedStudents);
+                  } else {
+                    numof_NotAuthAllowedStudents = 0;
+                    let studentTotalNotAuthenticated = document.getElementById('TotalNotAuthenticated');
+                    studentTotalNotAuthenticated.textContent = numof_NotAuthAllowedStudents;
+                    //console.log('No students found with NOT Authenticated');
+                  }
+                }).catch((error) => {
+                  console.error('Error fetching data:', error);
+                });
+              
+          }
+      })
+      .catch((error) => {
+        alert("SSO ended with an error" + error);
+      });
+  });
+
+  
+
+
+}
 //function to view exams of the course selected
 function viewExamsOfCourse(currentCourse){
   //check if there is a logged in user
@@ -399,7 +744,7 @@ function viewExamsOfCourse(currentCourse){
             get(assessmentRef)
               .then((snapshot) => {
                 if (snapshot.exists()) {
-                  alert("Success Firebase Access!");
+                  //alert("Success Firebase Access!");
                   //checking for snapshot return
                   const childData = snapshot.val();
                   let headerCourseCode = document.getElementById('AdminHeaderDetails-CourseCode');
@@ -422,21 +767,10 @@ function viewExamsOfCourse(currentCourse){
                                 <p class="cardHeader" id="ExamName">${assessmentName}</p>
                                   <div class="cardDivText">
                                       <div class="cardSubDiv">
-                                          <p id="card-labels">Assigned Course and Section:</p>
-                                          <p class="cardText" id="CourseTitle">${assessmentCourseSection}</p>
-                                      </div>
-                                      <div class="cardSubDiv">
                                           <p id="card-labels">Faculty-in-Charge:</p>
                                           <p class="cardText" id="CourseTitle">${assessmentFIC}</p>
                                       </div>  
-                                      <div class="cardSubDiv">
-                                          <p id="card-labels">Link:</p>
-                                          <p class="cardText" id="CourseTitle">${assessmentLink}</p>
-                                      </div>  
-                                      <div class="cardSubDiv">
-                                          <p id="card-labels">Access Code:</p>
-                                          <p class="cardText" id="CourseTitle">${assessmentCode}</p>
-                                      </div>  
+                                    
                                       <div class="cardSubDiv">
                                           <p id="card-labels">Start Time and Date:</p>
                                           <p class="cardText" id="CourseTitle">${assessmentStartTime}</p>
@@ -446,25 +780,30 @@ function viewExamsOfCourse(currentCourse){
                                           <p class="cardText" id="CourseTitle">${assessmentEndTime}</p>
                                       </div>  
                                       <div class="cardSubDiv">
-                                      <p id="card-labels">Time Duration:</p>
-                                      <p class="cardText" id="CourseTitle">${assessmentTimeLimit}</p>
-                                  </div>  
+                                        <p id="card-labels">Time Duration:</p>
+                                        <p class="cardText" id="CourseTitle">${assessmentTimeLimit} mins</p>
+                                      </div>  
+                                      <div class="cardSubDiv-Click">
+                                      <button class="cardText" id="ViewProctoringReportSummary" value="${assessmentId}">Click to View Proctoring Report</p>
+                                    </div>
+                                      
                                 </div>
                               </div>`;
 
                   }
                
                 } else {
-                  alert("ERROR: Firebase Access!");
+                  var cardListDiv = document.getElementById('cardList');
+                  cardListDiv.innerHTML=`<p class="DBisEmptyMssg">Collection is empty, Nothing to show</p>`;
                 }
               })
-              .catch((err) => {
-                  console.log("Error with database: " + err);
+              .catch((error) => {
+                  console.log("Error with database: " + error);
               });
           }
       })
-      .catch((err) => {
-        alert("SSO ended with an error" + err);
+      .catch((error) => {
+        alert("SSO ended with an error" + error);
       });
   });
 
@@ -491,7 +830,7 @@ function viewClasslistOfCourse(currentCourse){
               get(studentRef)
                 .then((snapshot) => {
                   if (snapshot.exists()) {
-                    alert("Success Firebase Access!");
+                    //alert("Success Firebase Access!");
                     //checking for snapshot return
                     const childData = snapshot.val();
                     var cardListDiv = document.getElementById('cardList');
@@ -509,7 +848,7 @@ function viewClasslistOfCourse(currentCourse){
                                   <p class="cardHeader" id="StudentFullName">${studentEmail}</p>
                                     <div class="cardDivText">
                                         <div class="cardSubDiv">
-                                            <p id="card-labels">Studenr Number:</p>
+                                            <p id="card-labels">Student Number:</p>
                                             <p class="cardText" id="CourseTitle">${studentNumber}</p>
                                         </div>
                                        
@@ -519,16 +858,17 @@ function viewClasslistOfCourse(currentCourse){
                     }
                  
                   } else {
-                    alert("ERROR: Firebase Access!");
+                    var cardListDiv = document.getElementById('cardList');
+                    cardListDiv.innerHTML=`<p class="DBisEmptyMssg">Collection is empty, Nothing to show</p>`;
                   }
                 })
-                .catch((err) => {
-                    console.log("Error with database: " + err);
+                .catch((error) => {
+                    console.log("Error with database: " + error);
                 });
             }
         })
-        .catch((err) => {
-          alert("SSO ended with an error" + err);
+        .catch((error) => {
+          alert("SSO ended with an error" + error);
         });
     });
 
@@ -537,8 +877,8 @@ function viewClasslistOfCourse(currentCourse){
 //function to update the path /takingAssessments/assessmentKey/Student
 function updateTakingAssessmentsStudent(courseGivenAssessment, assessmentKey){
 
-  //console.log("ADMIN - Update the path !!!");
-  //console.log(courseGivenAssessment);
+  console.log("ADMIN - Update the path !!!");
+  console.log(courseGivenAssessment);
   //save to database
   //check if there is a logged in user
   chrome.identity.getAuthToken({ interactive: true }, token =>
@@ -576,22 +916,32 @@ function updateTakingAssessmentsStudent(courseGivenAssessment, assessmentKey){
                     update(ref(db),updateTakingAssessments)
                     .then(()=> {
                       console.log("Saved Exam to database!");
-                    }).catch((err) => {
-                      console.log(("error with database" + err));
+                    }).catch((error) => {
+                      console.log(("error with database" + error));
+                    })
+
+                    //update path /assignedAssessment/studentkey/assessmentKey = true;
+                    const updateAssignedAssessment = {}
+                    updateAssignedAssessment[`/assignedAssessments/${studentId}/${assessmentKey}`] = true;
+                    update(ref(db), updateAssignedAssessment)
+                    .then(()=> {
+                      console.log("Saved Assigned Exam to Student!");
+                    }).catch((error) => {
+                      console.log(("error with database" + error));
                     })
                     
                   }
                 
                 } else {
-                  alert("Success Firebase Access!");
+                  alert("Data does not exist!");
                 }
               })
-              .catch((err) => {
-                  console.log("Error with database: " + err);
+              .catch((error) => {
+                  console.log("Error with database: " + error);
               });
           }
        })//EOF signInWithCredential
-      .catch(err =>{alert("SSO ended with an error" + err);})
+      .catch(error =>{alert("SSO ended with an error" + error);})
   }) 
 
 
@@ -674,11 +1024,11 @@ function saveStudentToDB(studentData){
                 console.log('Success in Adding new Student with key: ' + newStudentKey);
                 // alert('Success in Adding new Student with key: ' + newStudentKey);
               })
-              .catch((err) => {
-                console.log("Error with database: " + err);
+              .catch((error) => {
+                console.log("Error with database: " + error);
               })
 
-              //update the Student and Course relationship
+              //update the Course and Student relationship
               var studentInfo = {
                 Email: studentEmail,
                 StudentNumber: studentNumber
@@ -689,13 +1039,24 @@ function saveStudentToDB(studentData){
               .then(()=>{
                 console.log('Success in Adding new student to taking Classes');
               })
-              .catch((err) => {
-                console.log("Error with database: " + err);
+              .catch((error) => {
+                console.log("Error with database: " + error);
+              })
+
+              //update Student and Course
+              var updateCoursesofStudent = {};
+              updateCoursesofStudent[`enrolledClasses/${newStudentKey}/${currentCourse}`] = true;
+              update(ref(db), updateCoursesofStudent)
+              .then(()=>{
+                // console.log('Success in Adding new student to taking Classes');
+              })
+              .catch((error) => {
+                console.log("Error with database: " + error);
               })
               
           }
          })//EOF signInWithCredential
-        .catch(err =>{alert("SSO ended with an error" + err);})
+        .catch(error =>{alert("SSO ended with an error" + error);})
       }) 
 
     }
@@ -760,7 +1121,7 @@ function viewCoursePanel(currentFacultyKey,currentCourseKey){
           get(facultyRef)
             .then((snapshot) => {
               if (snapshot.exists()) {
-                alert("Success Firebase Access!");
+                //alert("Success Firebase Access!");
                 const course = snapshot.val();
                 // console.log("Data: " + course.code); //checking for snapshot return
 
@@ -807,13 +1168,13 @@ function viewCoursePanel(currentFacultyKey,currentCourseKey){
                 alert("Snapshot does not exist!");
               }
             })
-            .catch((err) => {
-                console.log("Error with database: " + err);
+            .catch((error) => {
+                console.log("Error with database: " + error);
             });
         }
          
-      }).catch((err) => {
-        alert("SSO ended with an error" + err);
+      }).catch((error) => {
+        alert("SSO ended with an error" + error);
       });
   });
   
@@ -856,16 +1217,16 @@ function viewDetailsFaculty(facultyKeyValue){
                   });
 
                 } else {
-                  alert("Success Firebase Access!");
+                  alert("Data does not exist!");
                 }
               })
-              .catch((err) => {
-                  console.log("Error with database: " + err);
+              .catch((error) => {
+                  console.log("Error with database: " + error);
               });
           }
       })
-      .catch((err) => {
-        alert("SSO ended with an error" + err);
+      .catch((error) => {
+        alert("SSO ended with an error" + error);
       });
   });
 
@@ -884,11 +1245,12 @@ function viewDetailsFaculty(facultyKeyValue){
 }
 
 //function to view the classes 
-function viewDetailsCourse(facultyKeyValue, FacultyIDNumber){
+function viewDetailsCourse(facultyName, FacultyIDNumber){
   //manipulate AdminManageFaculty html panel
   //manipulate the DOM
   //check if there is a logged in user
-  console.log(facultyKeyValue);
+  console.log(facultyName);
+  console.log(FacultyIDNumber);
    chrome.identity.getAuthToken({ interactive: true }, token =>
     {
       if ( chrome.runtime.lastError || ! token ) {
@@ -907,7 +1269,7 @@ function viewDetailsCourse(facultyKeyValue, FacultyIDNumber){
             get(facultyRef)
               .then((snapshot) => {
                 if (snapshot.exists() && snapshot.hasChildren()) {
-                  alert("Success Firebase Access!");
+                  //alert("Success Firebase Access!");
                   // console.log(snapshot.val()); //checking for snapshot return
                   const childData = snapshot.val();
                   var cardListDiv = document.getElementById('cardList');
@@ -937,17 +1299,19 @@ function viewDetailsCourse(facultyKeyValue, FacultyIDNumber){
                
                 
                 } else {
-                  alert("Snapshot does not exist! No courses to show");
+                  //alert("Snapshot does not exist! No courses to show");
+                  var cardListDiv = document.getElementById('cardList');
+                  cardListDiv.innerHTML=`<p class="DBisEmptyMssg">Collection is empty, Nothing to show</p>`;
                 }
             
               })
-              .catch((err) => {
-                  console.log("Error with database: " + err);
+              .catch((error) => {
+                  console.log("Error with database: " + error);
               });
           }
       })
-      .catch((err) => {
-        alert("SSO ended with an error" + err);
+      .catch((error) => {
+        alert("SSO ended with an error" + error);
       });
   });
 }
@@ -1002,8 +1366,8 @@ function createNewFaculty(){
                     console.log('Success in Adding new Faculty with key: ' + facultyID);
                     // alert('Success in Adding new Faculty');
                   })
-                  .catch((err) => {
-                    console.log("Error with database: " + err);
+                  .catch((error) => {
+                    console.log("Error with database: " + error);
                   })
 
                 //update teaching classes collection
@@ -1038,14 +1402,14 @@ function createNewFaculty(){
                   })
                   
                 })
-                .catch((err) => {
-                  console.log("Error with database: " + err);
+                .catch((error) => {
+                  console.log("Error with database: " + error);
                 })
 
                 
               }
            })//EOF signInWithCredential
-          .catch(err =>{alert("SSO ended with an error" + err);})
+          .catch(error =>{alert("SSO ended with an error" + error);})
       }) 
 }
 
@@ -1058,7 +1422,7 @@ function createNewCourse(facultyKeyValue){
    var courseSemester = document.getElementById('CourseSemInput').value;
    var courseUnits = document.getElementById('CourseUnitsInput').value;
 
-   console.log(facultyKeyValue);
+   console.log("here: " + facultyKeyValue);
 
    //check if there is a logged in user
    chrome.identity.getAuthToken({ interactive: true }, token =>
@@ -1099,22 +1463,22 @@ function createNewCourse(facultyKeyValue){
                 update(ref(db), updateCourse)
                   .then(()=>{
                     console.log('Success in Adding new course');
-                    alert('Success in Adding new course');  
-                  }).catch((err) => {
-                      console.log("Error with database: " + err);
+                    //alert('Success in Adding new course');  
+                  }).catch((error) => {
+                      console.log("Error with database: " + error);
                   })
                 
                 
                 //update the Student and Course relationship
-                var newRelationship = {studentId:''}
+                var newRelationship = {}
                 const updatesRelation = {};
                 updatesRelation['/takingClasses/' + courseKey] = newRelationship;
                 update(ref(db), updatesRelation)
                 .then(()=>{
-                  console.log('Success in Adding new course to taking Classes');
+                  //console.log('Success in Adding new course to taking Classes');
                 })
-                .catch((err) => {
-                  console.log("Error with database: " + err);
+                .catch((error) => {
+                  console.log("Error with database: " + error);
                 })
 
                 //update the FIC and Course relationship
@@ -1130,17 +1494,26 @@ function createNewCourse(facultyKeyValue){
                    let overlay = document.getElementsByClassName("modal-course-Overlay")[0];
                    modal.style.display = "none";
                    overlay.style.display = "none";
-                   //load the new database
-                   location.reload();
-
+                   let modalSuccess = document.getElementsByClassName("Alerts-Success-Modal")[0];
+                   let overlaySuccess = document.getElementsByClassName("modal-success-Overlay")[0];
+                   modalSuccess.style.display = "block";
+                   overlaySuccess.style.display = "block";
+                   let alertMessage = document.getElementById("ModalTextSuccess-labels");
+                   alertMessage.textContent = 'Success in adding new course!';
+                   let closeBtn = document.getElementsByClassName("ModalSuccessCloseBtn")[0];
+                   closeBtn.addEventListener("click", function(){
+                      //load the new database
+                      location.reload();
+                    })
+                  
                 })
-                .catch((err) => {
-                  console.log("Error with database: " + err);
+                .catch((error) => {
+                  console.log("Error with database: " + error);
                 })
                
             }
         
-            }).catch(err =>{alert("SSO ended with an error" + err);})
+            }).catch(error =>{alert("SSO ended with an error" + error);})
           })
 }
 
@@ -1165,7 +1538,7 @@ function viewFacultyCourses(facultyKeyValue){
             get(facultyRef)
               .then((snapshot) => {
                 if (snapshot.exists()) {
-                  alert("Success Firebase Access!");
+                  //alert("Success Firebase Access!");
                   // console.log(snapshot.val()); //checking for snapshot return
                   const childData = snapshot.val();
                   var courseDropdownDiv = document.getElementById('courselist');
@@ -1186,16 +1559,16 @@ function viewFacultyCourses(facultyKeyValue){
                
                 
                 } else {
-                  alert("Success Firebase Access!");
+                  alert("Data does not exist!");
                 }
               })
-              .catch((err) => {
-                  console.log("Error with database: " + err);
+              .catch((error) => {
+                  console.log("Error with database: " + error);
               });
           }
       })
-      .catch((err) => {
-        alert("SSO ended with an error" + err);
+      .catch((error) => {
+        alert("SSO ended with an error" + error);
       });
   });
 }
@@ -1223,11 +1596,9 @@ function displayFacultyDropdown(){
             get(facultyRef)
               .then((snapshot) => {
                 if (snapshot.exists()) {
-                  alert("Success Firebase Access!");
+                  //alert("Success Firebase Access!");
                   // console.log(snapshot.val()); //checking for snapshot return
                   const childData = snapshot.val();
-                 
-
   
                   var facultyDropdownDiv = document.getElementById('facultylist');
                   // cardListDiv.innerHTML='';
@@ -1245,11 +1616,11 @@ function displayFacultyDropdown(){
                
                 
                 } else {
-                  alert("Success Firebase Access!");
+                  alert("Data does not exist!");
                 }
               })
-              .catch((err) => {
-                  console.log("Error with database: " + err);
+              .catch((error) => {
+                  console.log("Error with database: " + error);
               });
             
             //get the input faculty of the user
@@ -1272,8 +1643,8 @@ function displayFacultyDropdown(){
            
           }
       })
-      .catch((err) => {
-        alert("SSO ended with an error" + err);
+      .catch((error) => {
+        alert("SSO ended with an error" + error);
       });
   });
   
@@ -1301,6 +1672,16 @@ function createNewAssessment(currentFacultyName){
   var endTimeSelected = document.getElementById('end-time').value;
   var assessmentTimeDuration = document.getElementById('assessmentTimeDuration').value;
   var examLink = document.getElementById('assessmentLinkInput').value;
+  if(!examLink.trim()) {
+    // examLink is empty or  whitespace
+    let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
+    let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
+    modal.style.display = "block";
+    overlay.style.display = "block";
+    let alertMessage = document.getElementById("ModalTextFailure-labels");
+    alertMessage.textContent = "Enter a Valid Exam Link!";
+    return; 
+  }
   //generate 6 character code
   var examAccessCode = generateExamCode();
   var assessmentKeyGenerator = examName+courseSelected+examAccessCode;
@@ -1340,8 +1721,8 @@ function createNewAssessment(currentFacultyName){
                   
             }).then(()=> {
               console.log("Saved to database!");
-            }).catch((err) => {
-              console.log(("error with database" + err));
+            }).catch((error) => {
+              console.log(("error with database" + error));
             })
 
             //update taking assessments
@@ -1360,9 +1741,9 @@ function createNewAssessment(currentFacultyName){
               students: {}
                   
             }).then(()=> {
-              console("Saved to database!");
-            }).catch((err) => {
-              console.log(("error with database" + err));
+              //console.log("Saved to database!");
+            }).catch((error) => {
+              console.log(("error with database" + error));
             })
            
             //call function that will update which students will take the assessment
@@ -1381,9 +1762,9 @@ function createNewAssessment(currentFacultyName){
               date_end:endDateSelected,
               time_limit: assessmentTimeDuration
             }).then(()=> {
-              console.log("Saved to database!");
-            }).catch((err) => {
-              console.log(("error with database" + err));
+              //console.log("Saved to database!");
+            }).catch((error) => {
+              console.log(("error with database" + error));
             })
 
             //update course assessments
@@ -1399,7 +1780,7 @@ function createNewAssessment(currentFacultyName){
               date_end:endDateSelected,
               time_limit: assessmentTimeDuration
             }).then(()=> {
-              console.log("Saved to database!");
+              //console.log("Saved to database!");
               let modal = document.getElementsByClassName("Alerts-Success-Modal")[0];
               let overlay = document.getElementsByClassName("modal-success-Overlay")[0];
               modal.style.display = "block";
@@ -1407,23 +1788,152 @@ function createNewAssessment(currentFacultyName){
               let alertMessage = document.getElementById("ModalTextSuccess-labels");
               alertMessage.textContent = `Exam Code is: ${examAccessCode}`;
               let closeBtn = document.getElementsByClassName("ModalSuccessCloseBtn")[0];
+              closeBtn.innerText = "Send Exam Code to Students";
               closeBtn.addEventListener("click", function(){
                 modal.style.display = "none";
                 overlay.style.display = "none";
                 //Send Email
-                sendExamAccessCodeMailer();
+                sendExamAccessCodeMailer(courseSelected, assessmentKey);
               })
-            }).catch((err) => {
-              console.log(("error with database" + err));
+            }).catch((error) => {
+              console.log(("error with database" + error));
             })
           }
        })//EOF signInWithCredential
-      .catch(err =>{alert("SSO ended with an error" + err);})
+      .catch(error =>{alert("SSO ended with an error" + error);})
   }) 
 
-  alert('Exam Scheduled! The code is: ' + examAccessCode);
+  //alert('Exam Scheduled! The code is: ' + examAccessCode);
 
 }
+
+//function to send the exam code to the students taking the exam
+function sendExamAccessCodeMailer(courseSelected, assessmentKey){
+  console.log("??");
+
+  //before sending the email, we need to check if the student is already registered via auth
+  //check if there is a logged in user
+  chrome.identity.getAuthToken({ interactive: true }, token =>
+    {
+      if ( chrome.runtime.lastError || ! token ) {
+        alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
+        return
+      }
+      //firebase authentication
+      signInWithCredential(auth, GoogleAuthProvider.credential(null, token))
+      .then(res =>{
+          const user = auth.currentUser;
+          if (user !== null) {
+            //look for which students are taking the exam
+            const db = getDatabase(); 
+            const firestoreDB = getFirestore();
+            const takingAssessmentsRef = ref(db,`/takingAssessments/${assessmentKey}/students/`);
+            const detailsAssessmentsRef = ref(db,`/takingAssessments/${assessmentKey}/`);
+            const studentsRef = ref(db, '/students');       
+            
+            get(detailsAssessmentsRef)
+              .then((examSnapshot) => {
+                const examData = examSnapshot.val();
+                const assessmentFIC = examData.FacultyInChargeName;
+                const assessmentName = examData.name;
+                const assessmentCourseSection = examData.course;
+                const assessmentCode = examData.access_code;
+                const assessmentStartTime = examData.expected_time_start;
+                const assessmentEndTime = examData.expected_time_end;
+                const assessmentStartDate= examData.date_start;
+                const assessmentEndDate= examData.date_end;
+                const assessmentTimeDuration = examData.time_limit;
+              
+                get(takingAssessmentsRef)
+                  .then((snapshot) => {
+                    if (snapshot.exists()) {
+                      const takingAssessmentsData = snapshot.val();
+                      get(studentsRef)
+                        .then((studentsSnapshot) => {
+                          if (studentsSnapshot.exists()) {
+                            const studentsData = studentsSnapshot.val();
+                            const matches = [];
+                            for(const studentId in takingAssessmentsData) {
+                              //get assessment data
+                              if(studentsData[studentId]) {
+                                //check if that match has authProviderUID (registered)
+                                if(studentsData[studentId].authProviderUID !== ""){
+                                  matches.push(studentsData[studentId]);
+                                  //Construct Email;
+                                  const emailData = {
+                                    to: [studentsData[studentId].Email],
+                                    message: {
+                                      subject: `Your Exam Code for ${assessmentName}`,
+                                      html:`<p>Dear ${studentsData[studentId].FirstName} ${studentsData[studentId].LastName},</p>
+                                      <p>As part of ${assessmentCourseSection}, you are required to take the following exam:</p>
+                                      <ul>
+                                          <li>Exam Name: ${assessmentName}</li>
+                                          <li>Exam Faculty-in-Charge: ${assessmentFIC}</li>
+                                          <li>Exam Start Date (yyyy-mm-dd): ${assessmentStartDate}</li>
+                                          <li>Exam Start Time: ${assessmentStartTime}</li>
+                                          <li>Exam End Date (yyyy-mm-dd): ${assessmentEndDate}</li>
+                                          <li>Exam End Time: ${assessmentEndTime}</li>
+                                          <li>Exam Duration: ${assessmentTimeDuration} minutes</li>
+                                      </ul>
+                                      <h3>Your unique exam code is: ${assessmentCode}</h3>
+                                      <p>Please ensure you have the necessary equipment and a stable internet connection before the exam begins.</p>
+                                      <p>If you have any questions or concerns, feel free to reach out to us.</p>
+                                      <p>Good luck with your exam!</p>`
+                                    }
+                                  };
+                                  addDoc(collection(firestoreDB, 'mail'), emailData);
+                                  let modal = document.getElementsByClassName("Alerts-Success-Modal")[0];
+                                  let overlay = document.getElementsByClassName("modal-success-Overlay")[0];
+                                  modal.style.display = "block";
+                                  overlay.style.display = "block";
+                                  let alertMessage = document.getElementById("ModalTextSuccess-labels");
+                                  alertMessage.textContent = 'Exam Code sent to students';
+                                  let closeBtn = document.getElementsByClassName("ModalSuccessCloseBtn")[0];
+                                  closeBtn.innerText = "Continue";
+                                  closeBtn.addEventListener("click", function(){
+                                    chrome.sidePanel.setOptions({path:AdminManageAssessments});
+                                  })
+                                  //After Emailing Students Go Back to Cour
+                                }//EOF Checking if Registered
+
+                              }//EOF Match
+                                if(matches.length === 0){
+                                  let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
+                                  let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
+                                  modal.style.display = "block";
+                                  overlay.style.display = "block";
+                                  let alertMessage = document.getElementById("ModalTextFailure-labels");
+                                  alertMessage.textContent = "Ask Students to register first before scheduling exam";
+                                }
+
+                            }//EOF Forloop
+        
+                          }else{
+                            console.log('No student data available.');
+                          }
+                        })
+                        .catch((error) => {
+                          console.log('Error fetching students data:', error);
+                        });
+
+                    }else{
+                      alert('No student data available.');
+                    }
+                  })
+                  .catch((error) => {
+                    console.log("Error with database: " + error);
+                  });
+              }).catch((error) => {
+                console.log("Error with database: " + error);
+              });
+            }
+       })//EOF signInWithCredential
+      .catch(error =>{alert("SSO ended with an error" + error);})
+  }) 
+
+
+}
+
 
 //function to view the list of all assessments
 function viewAssessmentsList(){
@@ -1446,7 +1956,7 @@ function viewAssessmentsList(){
             get(assessmentRef)
               .then((snapshot) => {
                 if (snapshot.exists()) {
-                  alert("Success Firebase Access!");
+                  //alert("Success Firebase Access!");
                   //checking for snapshot return
                   const childData = snapshot.val();
                   var cardListDiv = document.getElementById('cardList');
@@ -1495,16 +2005,17 @@ function viewAssessmentsList(){
                   }
                
                 } else {
-                  alert("ERROR: Firebase Access!");
+                  var cardListDiv = document.getElementById('cardList');
+                  cardListDiv.innerHTML=`<p class="DBisEmptyMssg">Collection is empty, Nothing to show</p>`;
                 }
               })
-              .catch((err) => {
-                  console.log("Error with database: " + err);
+              .catch((error) => {
+                  console.log("Error with database: " + error);
               });
           }
       })
-      .catch((err) => {
-        alert("SSO ended with an error" + err);
+      .catch((error) => {
+        alert("SSO ended with an error" + error);
       });
   });
 }
@@ -1530,7 +2041,7 @@ function viewStudentsList(){
             get(studentRef)
               .then((snapshot) => {
                 if (snapshot.exists()) {
-                  alert("Success Firebase Access!");
+                  //alert("Success Firebase Access!");
                   //checking for snapshot return
                   const childData = snapshot.val();
                   var cardListDiv = document.getElementById('cardList');
@@ -1547,9 +2058,16 @@ function viewStudentsList(){
                                 <p class="cardHeader" id="StudentFullName">${studentFirstName}  ${studentLastName}</p>
                                   <div class="cardDivText">
                                       <div class="cardSubDiv">
-                                          <p id="card-labels">Studenr Number:</p>
+                                          <p id="card-labels">Student Number:</p>
                                           <p class="cardText" id="CourseTitle">${studentNumber}</p>
                                       </div>
+
+                                      <div class="cardSubDiv-Click">
+                                      <button class="cardText" id="ViewStudentAssignedExam" value="${studentNumber}">View Assigned Exams</p>
+                                    </div>
+                                    <div class="cardSubDiv-Click">
+                                      <button class="cardText" id="ViewStudentEnrolledCourses" value="${studentNumber}">View Enrolled Courses</p>
+                                    </div>
                                      
                                   </div>
                               </div>`;
@@ -1560,13 +2078,13 @@ function viewStudentsList(){
                   alert("ERROR: Firebase Access!");
                 }
               })
-              .catch((err) => {
-                  console.log("Error with database: " + err);
+              .catch((error) => {
+                  console.log("Error with database: " + error);
               });
           }
       })
-      .catch((err) => {
-        alert("SSO ended with an error" + err);
+      .catch((error) => {
+        alert("SSO ended with an error" + error);
       });
   });
 }
@@ -1592,7 +2110,7 @@ function viewCoursesList(){
               get(studentRef)
                 .then((snapshot) => {
                   if (snapshot.exists()) {
-                    alert("Success Firebase Access!");
+                    //alert("Success Firebase Access!");
                     //checking for snapshot return
                     const childData = snapshot.val();
                     var cardListDiv = document.getElementById('cardList');
@@ -1616,14 +2134,6 @@ function viewCoursesList(){
                               <p id="card-labels">Course Title:</p>
                               <p class="cardText" id="CourseTitle">${courseTitle}</p>
                             </div>   
-                            <div class="cardSubDiv">
-                            <p id="card-labels">Course Semester:</p>
-                            <p class="cardText" id="CourseTitle">${courseSemester}</p>
-                        </div>
-                        <div class="cardSubDiv">
-                            <p id="card-labels">Course Units:</p>
-                            <p class="cardText" id="CourseTitle">${courseUnits}</p>
-                        </div>   
                             </div>
                         </div>`;
   
@@ -1633,13 +2143,13 @@ function viewCoursesList(){
                     alert("ERROR: Firebase Access!");
                   }
                 })
-                .catch((err) => {
-                    console.log("Error with database: " + err);
+                .catch((error) => {
+                    console.log("Error with database: " + error);
                 });
             }
         })
-        .catch((err) => {
-          alert("SSO ended with an error" + err);
+        .catch((error) => {
+          alert("SSO ended with an error" + error);
         });
     });
 }
@@ -1647,7 +2157,7 @@ function viewCoursesList(){
 //function to view one course/class only from viewCoursesList
 function viewOneCourseOnly(currentCourseKey){
 
-
+  console.log("hhhh");
   chrome.identity.getAuthToken({ interactive: true }, token =>
     {
       if ( chrome.runtime.lastError || ! token ) {
@@ -1665,7 +2175,7 @@ function viewOneCourseOnly(currentCourseKey){
           get(courseRef)
             .then((snapshot) => {
               if (snapshot.exists()) {
-                alert("Success Firebase Access!");
+                //alert("Success Firebase Access!");
                 const course = snapshot.val();
                 // console.log("Data: " + course.code); //checking for snapshot return
 
@@ -1705,13 +2215,13 @@ function viewOneCourseOnly(currentCourseKey){
                 alert("Snapshot does not exist!");
               }
             })
-            .catch((err) => {
-                console.log("Error with database: " + err);
+            .catch((error) => {
+                console.log("Error with database: " + error);
             });
         }
          
-      }).catch((err) => {
-        alert("SSO ended with an error" + err);
+      }).catch((error) => {
+        alert("SSO ended with an error" + error);
       });
   });
 

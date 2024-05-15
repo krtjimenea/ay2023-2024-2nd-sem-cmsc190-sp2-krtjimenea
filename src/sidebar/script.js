@@ -1,6 +1,7 @@
 //contains listeners and functions
 // Import the functions you need from the SDKs you need
 import { FirebaseApp } from './firebase';
+import { getFirestore, doc, setDoc } from "firebase/firestore";
 import {getAuth,signInWithCredential,GoogleAuthProvider, signOut} from 'firebase/auth';
 import {getDatabase,ref,set,on, onValue, get, update,push, child, query,orderByChild,equalTo, orderByValue,setValue} from 'firebase/database';
 import { nanoid } from 'nanoid';
@@ -126,6 +127,8 @@ function monitorSidePanelPath() {
           });
         });
 
+      }else if(path === '/StudentSuccessReg.html'){
+        //check if 
       }
       
     });
@@ -314,6 +317,9 @@ function getGeolocation(callback){
     },
     error => {
       console.error('Error getting geolocation', error);
+    },
+    {
+      enableHighAccuracy: true
     }
   )
 
@@ -768,6 +774,7 @@ function checkExamCode(){
                         alertMessage.textContent = 'Valid, You are set to take this exam!';
                         let closeBtn = document.getElementsByClassName("ModalSuccessCloseBtn")[0];
                         closeBtn.addEventListener("click", function(){
+                          console.log("/./.??");
                           compareAuthRiskScore(assessmentId);
                         })
                         
@@ -839,16 +846,33 @@ function compareAuthRiskScore(assessmentId){
      
       //get the os of the user
       var studentOS;
-      chrome.runtime.getPlatformInfo(function(info){
-        if(info){
-          studentOS = info.os;
-          // console.log(studentOS);
+      const userAgent = window.navigator.userAgent;
+        if(userAgent.includes('Windows NT')){
+          const windowsVersion = userAgent.match(/Windows NT (\d+\.\d+)/);
+          if(windowsVersion) {
+            const get_windowsVersion = windowsVersion[0];
+            studentOS = get_windowsVersion;
+          }
+        }else if(userAgent.includes('Mac OS X')){
+          const macOSVersion = userAgent.match(/Mac OS X (\d+[._]\d+[._]\d+)/);
+          if(macOSVersion){
+            const get_macOSVersion = macOSVersionMatch[0];
+            studentOS = get_macOSVersion;
+          }
+
+        }else if(userAgent.includes("Ubuntu")){
+          const linuxVersionMatch = userAgent.match(/Ubuntu\/(\d+\.\d+)/);
+          if (linuxVersionMatch) {
+            const get_linuxVersion = linuxVersionMatch[0];
+            studentOS = get_linuxVersion;
+          }
+        }else{
+          studentOS = "No OS Detected";
         }
-      });
+      
 
       //get the browser information
       var studentBrowser;
-      const userAgent = window.navigator.userAgent;
       if (userAgent.includes('Chrome')){
         // console.log('Google Chrome');
         studentBrowser = 'Google Chrome';
@@ -1008,7 +1032,7 @@ function compareAuthRiskScore(assessmentId){
                     IP_address: {currentIpaddress: ipAddress , didMatch: ipAddress_matched },
                     display: {currentDisplay: display , didMatch: display_matched },
                     cpu:{currentCPU: cpu, didMatch: cpu_matched,
-                    os: {currentOS: os , didMatch: os_matched },
+                    os: {currentOS: studentOS , didMatch: os_matched },
                     browser: {currentBrowser: browser, didMatch: browser_matched}
                     }
                   }
@@ -1024,11 +1048,20 @@ function compareAuthRiskScore(assessmentId){
                     //send the risk score
                     chrome.runtime.sendMessage({action: 'authRiskScore', value: AuthRiskScore});
                     chrome.runtime.sendMessage({action: 'studentIdentity_uponExam', value: studentIdentityUponExam});
-                    chrome.sidePanel.setOptions({path: StudentExamDetailsPage});
-                    
+                    // chrome.runtime.sendMessage({action: 'didAuthAllow', value: true});
+                    // // chrome.sidePanel.setOptions({path: StudentExamDetailsPage});
+                    chrome.runtime.sendMessage({action: 'didAuthAllow', value: true}, function(response) {
+                      if (chrome.runtime.lastError) {
+                          console.error('Error sending didAuthAllow message:', chrome.runtime.lastError);
+                          return;
+                      }
+                        // chrome.sidePanel.setOptions({path: StudentExamDetailsPage});
+                  
+                    });
 
                   }else{
                     console.log('FAILED: Auth Risk Score is: ' + AuthRiskScore);
+                    chrome.runtime.sendMessage({action: 'didAuthAllow', value: false});
                     let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
                     let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
                     modal.style.display = "block";
@@ -1585,11 +1618,17 @@ function saveProctoringReport(assessmentId, IDnumber, submissionTime){
   var student_identity_UponExam;
   chrome.storage.local.get('currentStudentIdentity_uponExam', function(data){
     student_identity_UponExam = data.currentStudentIdentity_uponExam;
-    console.log(student_identity_UponExam);
+    // console.log(student_identity_UponExam);
   })
 
   // var json_newTabsData = JSON.parse(newTabsData);
   // var json_tabsDataList = JSON.parse(tabsDataList);
+
+  var didAuthAllowValue;
+  chrome.storage.local.get('currentdidAuthAllow', function(data){
+    didAuthAllowValue = data.currentdidAuthAllow;
+    // console.log(student_identity_UponExam);
+  })
 
   
   console.log(numOfBrowserOutofFocus + "Value");
@@ -1634,8 +1673,7 @@ function saveProctoringReport(assessmentId, IDnumber, submissionTime){
                     const assessmentEndTime = childData.expected_time_end;
                     const assessmentStartDate = childData.date_start;
                     const assessmentEndDate = childData.date_end;
-
-                    
+                    // const assessmentTimeLimit =  childData.time_limit;
 
                     ExamDetailsDiv.innerHTML += `
                     <p id="output-labels-student">Exam Name</p>
@@ -1659,9 +1697,6 @@ function saveProctoringReport(assessmentId, IDnumber, submissionTime){
                     
                     //Make proctoring report
                     //Details for /proctoringReportStudent
-                    //Key: Student Number _ Exam Id
-                    var studentPRKey = IDnumber + assessmentId;
-                    
                     //Student Name
                     //Student Number
                     //Exam Details
@@ -1686,8 +1721,9 @@ function saveProctoringReport(assessmentId, IDnumber, submissionTime){
                       student_time_started: timeStarted,
                       student_time_submitted: submissionTime,
                       student_auth_risk_score: authRiskScore,
+                      student_didAuthAllow: didAuthAllowValue,
+                      student_total_flagged_activity: numofFlaggedActivity,
                       flagged_activities : {
-                        student_total_flagged_activity: numofFlaggedActivity,
                         student_num_changed_windows: numOfBrowserOutofFocus,
                         student_open_tabs_data: tabsDataList,
                         student_new_opened_tabs_data: newTabsData,
@@ -1702,7 +1738,7 @@ function saveProctoringReport(assessmentId, IDnumber, submissionTime){
                     const proctoringReportKey = IDnumber + "_" + assessmentId;
                     const reportStudentRef = ref(db,'proctoringReportStudent');
                     const updates = {};
-                    updates[`/proctoringReportStudent/${studentPRKey}/`] = newReportStudent;
+                    updates[`/proctoringReportStudent/${assessmentCourseSection}/${assessmentId}/${IDnumber}`] = newReportStudent;
                     update(ref(db), updates)
                       .then(()=>{
                         console.log('Success in Saving Student PR');
