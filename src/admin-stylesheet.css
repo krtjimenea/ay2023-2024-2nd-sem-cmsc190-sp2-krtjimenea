@@ -161,6 +161,27 @@ input{
   transform: translateY(4px);
 }
 
+.CourseModalCloseBtn {
+    background-color:transparent;
+    font-family: 'Urbanist', sans-serif;
+    color: #000000;
+    text-align: center;
+    font-size: 15px;
+    border: none;
+    box-shadow: none;
+    color: white;
+}
+
+.CourseModalCloseBtn:hover {
+    color: #ffffff; 
+    text-decoration:underline;
+}
+
+.CourseModalCloseBtn:active {
+  box-shadow: 0 5px #d0cfcf;
+  transform: translateY(4px);
+}
+
 /** Failed Modal **/
 .modal-failure-Overlay{
     position: fixed;

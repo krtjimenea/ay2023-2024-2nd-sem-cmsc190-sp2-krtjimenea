@@ -81,13 +81,14 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     chrome.storage.local.set({'value3': message.value});
   }
 
+//THIS IS FACULTY NAME
  if(message.action === 'facultyKeyValue'){
     //chrome storage
     console.log('Received facultyKeyValue:', message.value);
     chrome.storage.local.set({'currentfacultyKeyValue': message.value});
   } 
 
-  
+  //THIS IS FACULTY ID
  if(message.action === 'facultyIDValue'){
   //chrome storage
   console.log('Received facultyIDValue:', message.value);

@@ -3,6 +3,7 @@
 
 //import for SDKs
 import { FirebaseApp } from './firebase';
+import { getFirestore, doc, setDoc, addDoc,collection } from "firebase/firestore";
 import {getAuth,signInWithCredential,GoogleAuthProvider} from 'firebase/auth';
 import {getDatabase,ref,set,on, onValue, get, update,push, child, query,orderByChild,equalTo, startAfter, orderByValue,setValue} from 'firebase/database';
 import { nanoid } from 'nanoid';
@@ -270,7 +271,7 @@ window.addEventListener('DOMContentLoaded', function () {
       if (target.className === 'ModalCloseBtn'){
         console.log('Clicked Close Modal');
         //closeModal();
-        let modal = document.getElementsByClassName("Add-Faculty-Modal")[0];
+        let modal = document.getElementsByTagName("Add-Faculty-Modal")[0];
         let overlay = document.getElementsByClassName("modal-faculty-Overlay")[0];
         modal.style.display = "none";
         overlay.style.display = "none";
@@ -304,7 +305,10 @@ window.addEventListener('DOMContentLoaded', function () {
       //for adding a new course
       if(target.id==='Add-Course-DB'){
         console.log('Clicked Add New Course');
-        createNewCourse(facultyKeyValue);
+        chrome.storage.local.get('currentfacultyIDValue', function(data) {
+          var currentFaculty = data.currentfacultyIDValue;
+          createNewCourse(currentFaculty);
+        });
       }
 
       //for clicking the faculty card
@@ -809,7 +813,7 @@ function saveStudentToDB(studentData){
                 console.log("Error with database: " + err);
               })
 
-              //update the Student and Course relationship
+              //update the Course and Student relationship
               var studentInfo = {
                 Email: studentEmail,
                 StudentNumber: studentNumber
@@ -819,6 +823,17 @@ function saveStudentToDB(studentData){
               update(ref(db), updateRelationship)
               .then(()=>{
                 console.log('Success in Adding new student to taking Classes');
+              })
+              .catch((err) => {
+                console.log("Error with database: " + err);
+              })
+
+              //update Student and Course
+              var updateCoursesofStudent = {};
+              updateCoursesofStudent[`enrolledClasses/${newStudentKey}/${currentCourse}`] = true;
+              update(ref(db), updateCoursesofStudent)
+              .then(()=>{
+                // console.log('Success in Adding new student to taking Classes');
               })
               .catch((err) => {
                 console.log("Error with database: " + err);
@@ -1015,11 +1030,12 @@ function viewDetailsFaculty(facultyKeyValue){
 }
 
 //function to view the classes 
-function viewDetailsCourse(facultyKeyValue, FacultyIDNumber){
+function viewDetailsCourse(facultyName, FacultyIDNumber){
   //manipulate AdminManageFaculty html panel
   //manipulate the DOM
   //check if there is a logged in user
-  console.log(facultyKeyValue);
+  console.log(facultyName);
+  console.log(FacultyIDNumber);
    chrome.identity.getAuthToken({ interactive: true }, token =>
     {
       if ( chrome.runtime.lastError || ! token ) {
@@ -1189,7 +1205,7 @@ function createNewCourse(facultyKeyValue){
    var courseSemester = document.getElementById('CourseSemInput').value;
    var courseUnits = document.getElementById('CourseUnitsInput').value;
 
-   console.log(facultyKeyValue);
+   console.log("here: " + facultyKeyValue);
 
    //check if there is a logged in user
    chrome.identity.getAuthToken({ interactive: true }, token =>
@@ -1237,7 +1253,7 @@ function createNewCourse(facultyKeyValue){
                 
                 
                 //update the Student and Course relationship
-                var newRelationship = {studentId:''}
+                var newRelationship = {}
                 const updatesRelation = {};
                 updatesRelation['/takingClasses/' + courseKey] = newRelationship;
                 update(ref(db), updatesRelation)
@@ -1538,11 +1554,12 @@ function createNewAssessment(currentFacultyName){
               let alertMessage = document.getElementById("ModalTextSuccess-labels");
               alertMessage.textContent = `Exam Code is: ${examAccessCode}`;
               let closeBtn = document.getElementsByClassName("ModalSuccessCloseBtn")[0];
+              closeBtn.innerText = "Send Exam Code to Students";
               closeBtn.addEventListener("click", function(){
                 modal.style.display = "none";
                 overlay.style.display = "none";
                 //Send Email
-                sendExamAccessCodeMailer();
+                sendExamAccessCodeMailer(courseSelected, assessmentKey);
               })
             }).catch((err) => {
               console.log(("error with database" + err));
@@ -1555,6 +1572,115 @@ function createNewAssessment(currentFacultyName){
   alert('Exam Scheduled! The code is: ' + examAccessCode);
 
 }
+
+//function to send the exam code to the students taking the exam
+function sendExamAccessCodeMailer(courseSelected, assessmentKey){
+
+  //before sending the email, we need to check if the student is already registered via auth
+  //check if there is a logged in user
+  chrome.identity.getAuthToken({ interactive: true }, token =>
+    {
+      if ( chrome.runtime.lastError || ! token ) {
+        alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
+        return
+      }
+      //firebase authentication
+      signInWithCredential(auth, GoogleAuthProvider.credential(null, token))
+      .then(res =>{
+          const user = auth.currentUser;
+          if (user !== null) {
+            //look for which students are taking the exam
+            const db = getDatabase(); 
+            const firestoreDB = getFirestore();
+            const takingAssessmentsRef = ref(db,`/takingAssessments/${assessmentKey}/students/`);
+            const detailsAssessmentsRef = ref(db,`/takingAssessments/${assessmentKey}/`);
+            const studentsRef = ref(db, '/students');       
+            
+            get(detailsAssessmentsRef)
+              .then((examSnapshot) => {
+                const examData = examSnapshot.val();
+                const assessmentFIC = examData.FacultyInChargeName;
+                const assessmentName = examData.name;
+                const assessmentCourseSection = examData.course;
+                const assessmentCode = examData.access_code;
+                const assessmentStartTime = examData.expected_time_start;
+                const assessmentEndTime = examData.expected_time_end;
+                const assessmentStartDate= examData.date_start;
+                const assessmentEndDate= examData.date_end;
+                const assessmentTimeDuration = examData.time_limit;
+              
+                get(takingAssessmentsRef)
+                  .then((snapshot) => {
+                    if (snapshot.exists()) {
+                      const takingAssessmentsData = snapshot.val();
+                      get(studentsRef)
+                        .then((studentsSnapshot) => {
+                          if (studentsSnapshot.exists()) {
+                            const studentsData = studentsSnapshot.val();
+                            const matches = [];
+                            for(const studentId in takingAssessmentsData) {
+                              //get assessment data
+                              if(studentsData[studentId]) {
+                                matches.push(studentsData[studentId]);
+                                //check if that match has authProviderUID (registered)
+                                if(studentsData[studentId].authProviderUID !== ""){
+                                  //Construct Emai;
+                                  const emailData = {
+                                    to: [studentsData[studentId].Email],
+                                    message: {
+                                      subject: `Your Exam Code for ${assessmentName}`,
+                                      text: `Dear ${studentsData[studentId].FirstName} ${studentsData[studentId].LastName},
+                                      As part of ${assessmentCourseSection}, you are required to take the following exam:
+    
+                                        Exam Name: ${assessmentName}
+                                        Exam Faculty-in-Charge: ${assessmentFIC}
+                                        Exam Start Date: ${assessmentStartDate}
+                                        Exam Start Time: ${ assessmentStartTime}
+                                        Exam End Date: ${assessmentEndDate}
+                                        Exam End Time: ${assessmentEndDate}
+                                        Exam Duration: ${assessmentTimeDuration}
+                                              
+                                        Your unique exam code is: ${assessmentCode}
+                                              
+                                        Please ensure you have the necessary equipment and a stable internet connection before the exam begins.
+                                              
+                                        If you have any questions or concerns, feel free to reach out to us.
+                                              
+                                        Good luck with your exam!`
+                                    }
+                                  };
+                                  addDoc(collection(firestoreDB, 'mail'), emailData);
+                                  //After Emailing Students Go Back to Cour
+                                }//EOF Checking if Registered
+                              }//EOF Match
+                            }//EOF Forloop
+        
+                          }else{
+                            console.log('No student data available.');
+                          }
+                        })
+                        .catch((error) => {
+                          console.error('Error fetching students data:', error);
+                        });
+
+                    }else{
+                      alert('No student data available.');
+                    }
+                  })
+                  .catch((err) => {
+                    console.log("Error with database: " + err);
+                  });
+              }).catch((err) => {
+                console.log("Error with database: " + err);
+              });
+            }
+       })//EOF signInWithCredential
+      .catch(err =>{alert("SSO ended with an error" + err);})
+  }) 
+
+
+}
+
 
 //function to view the list of all assessments
 function viewAssessmentsList(){

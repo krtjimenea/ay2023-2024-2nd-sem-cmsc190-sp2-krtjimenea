@@ -147,7 +147,59 @@
             </section>
             <div class="modal-failure-Overlay"></div>
 
+            <section class="Add-Faculty-Modal">
+                <div class="modal-flex">
+                    <div class="modal-header">
+                        <button class="ModalCloseBtn">⨉</button>
+                        <p class="ModalPrompts">Enter Faculty Details</p>
+                        
+                    </div>
+                    <div class="modal-body">
+                        <p id="input-labels">Faculty Name</p>
+                        <input type="text" class="AdminTextInput" id ="FacultyNameInput"  placeholder="First Name MI Last Name"/>
+                        <p id="input-labels">Faculty ID Number</p>
+                        <input type="text" class="AdminTextInput" id ="FacultyIDNumber" placeholder="2012xxxxx"/>
+                        <p id="input-labels">Faculty Email</p>
+                        <input type="text" class="AdminTextInput" id ="FacultyEmail" placeholder="hello@edu.ph"/>
+                        
+                    </div>
+                     <!--Button to Add Faculty to Database-->
+                    <div class="Modal-AddBtnDiv">
+                        <button type="button" class="ModalAddBtn" id="Add-Faculty-DB">Add New Faculty</button>
+                    </div>
+                </div>
 
+        </section>
+        <div class="modal-faculty-Overlay"></div>
+            <!--Modal for Adding New Course-->
+                <section class="Add-Course-Modal">
+                    <div class="modal-flex">
+                        <div class="modal-header">
+                            <button class="CourseModalCloseBtn">⨉</button>
+                            <p class="ModalPrompts">Enter Course Details</p>
+                            
+                        </div>
+                        <div class="modal-body">
+                            <p id="input-labels">Course Code</p>
+                            <input type="text" class="AdminTextInput" id ="CourseCodeInput"  placeholder="CMSC 100"/>
+                            <p id="input-labels">Course Section</p>
+                            <input type="text" class="AdminTextInput" id ="CourseSectionInput" placeholder="WX-1L"/>
+                            <p id="input-labels">Course Title</p>
+                            <input type="text" class="AdminTextInput" id ="CourseTitleInput" placeholder="Introduction to "/>
+                            <p id="input-labels">Course Semester</p>
+                            <input type="text" class="AdminTextInput" id ="CourseSemInput" placeholder="1st Semester "/>
+                            <p id="input-labels">Course No. of Units</p>
+                            <input type="text" class="AdminTextInput" id ="CourseUnitsInput" placeholder="3 "/>
+    
+                            
+                        </div>
+                    
+                    <!--Button to Add Course to Database-->
+                        <div class="Modal-AddBtnDiv">
+                            <button type="button" class="ModalAddBtn" id="Add-Course-DB">Add New Course</button>
+                        </div>
+                </section>
+                <div class="modal-course-Overlay"></div>
             
         </div> 
     </div>

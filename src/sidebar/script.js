@@ -1,6 +1,7 @@
 //contains listeners and functions
 // Import the functions you need from the SDKs you need
 import { FirebaseApp } from './firebase';
+import { getFirestore, doc, setDoc } from "firebase/firestore";
 import {getAuth,signInWithCredential,GoogleAuthProvider, signOut} from 'firebase/auth';
 import {getDatabase,ref,set,on, onValue, get, update,push, child, query,orderByChild,equalTo, orderByValue,setValue} from 'firebase/database';
 import { nanoid } from 'nanoid';
@@ -126,6 +127,8 @@ function monitorSidePanelPath() {
           });
         });
 
+      }else if(path === '/StudentSuccessReg.html'){
+        //check if 
       }
       
     });
@@ -314,6 +317,9 @@ function getGeolocation(callback){
     },
     error => {
       console.error('Error getting geolocation', error);
+    },
+    {
+      enableHighAccuracy: true
     }
   )
 
@@ -840,16 +846,33 @@ function compareAuthRiskScore(assessmentId){
      
       //get the os of the user
       var studentOS;
-      chrome.runtime.getPlatformInfo(function(info){
-        if(info){
-          studentOS = info.os;
-          // console.log(studentOS);
+      const userAgent = window.navigator.userAgent;
+        if(userAgent.includes('Windows NT')){
+          const windowsVersion = userAgent.match(/Windows NT (\d+\.\d+)/);
+          if(windowsVersion) {
+            const get_windowsVersion = windowsVersion[0];
+            studentOS = get_windowsVersion;
+          }
+        }else if(userAgent.includes('Mac OS X')){
+          const macOSVersion = userAgent.match(/Mac OS X (\d+[._]\d+[._]\d+)/);
+          if(macOSVersion){
+            const get_macOSVersion = macOSVersionMatch[0];
+            studentOS = get_macOSVersion;
+          }
+
+        }else if(userAgent.includes("Ubuntu")){
+          const linuxVersionMatch = userAgent.match(/Ubuntu\/(\d+\.\d+)/);
+          if (linuxVersionMatch) {
+            const get_linuxVersion = linuxVersionMatch[0];
+            studentOS = get_linuxVersion;
+          }
+        }else{
+          studentOS = "No OS Detected";
         }
-      });
+      
 
       //get the browser information
       var studentBrowser;
-      const userAgent = window.navigator.userAgent;
       if (userAgent.includes('Chrome')){
         // console.log('Google Chrome');
         studentBrowser = 'Google Chrome';
@@ -1009,7 +1032,7 @@ function compareAuthRiskScore(assessmentId){
                     IP_address: {currentIpaddress: ipAddress , didMatch: ipAddress_matched },
                     display: {currentDisplay: display , didMatch: display_matched },
                     cpu:{currentCPU: cpu, didMatch: cpu_matched,
-                    os: {currentOS: os , didMatch: os_matched },
+                    os: {currentOS: studentOS , didMatch: os_matched },
                     browser: {currentBrowser: browser, didMatch: browser_matched}
                     }
                   }
@@ -1032,7 +1055,7 @@ function compareAuthRiskScore(assessmentId){
                           console.error('Error sending didAuthAllow message:', chrome.runtime.lastError);
                           return;
                       }
-                        chrome.sidePanel.setOptions({path: StudentExamDetailsPage});
+                        // chrome.sidePanel.setOptions({path: StudentExamDetailsPage});
                   
                     });
 
