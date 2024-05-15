@@ -165,6 +165,12 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     chrome.storage.local.set({'currentExamKey': message.value});
   }
 
+  if(message.action === 'studentKey'){
+    console.log('Received studentKey: ', message.value);
+    chrome.storage.local.set({'currentstudentKey': message.value});
+
+  }
+
 });
 
 let copyCounter = 0;

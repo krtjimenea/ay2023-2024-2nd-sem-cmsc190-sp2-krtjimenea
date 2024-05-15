@@ -83,7 +83,7 @@ input{
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 100%;
+    height: 200px;
     width: 100%;
     box-sizing: border-box;
 }
@@ -118,12 +118,12 @@ input{
 }
 .modal-body {
     padding: 10px;
+    padding-bottom: 50px;
     text-align: center;
     width: 100%;
     box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    display: grid;
+    place-items: center;
     align-items: center;
     height: 100%;
     box-sizing: border-box;
@@ -240,12 +240,6 @@ input{
     font-size: 20px;
 
 }
-.modal-body {
-    padding: 10px;
-    text-align: center;
-    width: 100%;
-    box-sizing: border-box;
-}
   
 .modal-footer-failure {
     padding: 10px;
@@ -279,11 +273,38 @@ input{
   transform: translateY(2px);
 }
 
-
+.DBisEmptyMssg{
+    margin-top: 30px;
+    height: 42px;
+    font-family: 'Urbanist', sans-serif;
+    color: #000;
+    text-align: center;
+    font-size: 15px;
+    font-style: normal;
+    font-weight: 300;
+}
+.BackBtnDiv{
+    align-self: flex-start;
+}
+#BackBtn{
+    background-color: #9ce49f;
+    border: none;
+    box-shadow: none;
+    color: white;
+    display: flex;
+    align-items: center;
+    height: 20px;
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    color: #fff;
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    border-radius: 6px;
+    margin-bottom: 30px;
+}
 
 /** Landing Page **/
 #AppBody{
-    width: 260px;
     flex-shrink: 1;
     margin: 30px;
     display: flex;
@@ -609,6 +630,7 @@ select:focus{
 }
 
 .AppSubHeader{
+    margin-top: 30px;
     width: 246px;
     color: #575761;
     font-size: 20px;
@@ -773,6 +795,19 @@ select:focus{
     box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);     
 }
 
+.cards-PR{
+    margin-bottom: 10px;
+    background-color: #fff;
+    width: 290px;             
+    border: 2px solid #000;   
+    border-radius: 4px;           
+    overflow: hidden;             
+    display: flex;                
+    flex-direction: column;  
+    box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);     
+}
+
+
 
 .cardHeader{
     color: #000;
@@ -780,7 +815,17 @@ select:focus{
     font-weight: 600;
     border-bottom: 2px solid #000;
     background-color: #FFB511;
-    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    font-size: 20px;
+    padding: 5px;
+}
+
+.cardHeader:hover{
+    color: #000;
+    text-align: center;
+    font-weight: 600;
+    border-bottom: 2px solid #000;
+    background-color: #f9ecd1;
     font-family: 'Urbanist', sans-serif;
     font-size: 20px;
     padding: 5px;
@@ -794,6 +839,7 @@ select:focus{
     border: 1px solid #000;   
     border-radius: 4px; 
 }
+
 
 .cardSubDiv-Click{
     padding: 5px;
@@ -825,12 +871,50 @@ select:focus{
     font-size: 15px;
 }
 
+#card-labels-PR{
+    text-align: center;
+    font-family: 'Urbanist', sans-serif;
+    font-size: 15px;
+}
+
+.cardSubDiv-pos{
+    display: flex;
+    flex-direction: column;
+    background-color: #538260;
+    align-items: center;
+    padding: 5px;
+    /* justify-content: space-between; */
+    margin: 10px;
+    border: 2px solid #000;   
+    border-radius: 4px; 
+    color: #fff;
+}
+
+.cardSubDiv-neg{
+    display: flex;
+    flex-direction: column;
+    background-color: #e99b9b;
+    padding: 5px;
+    align-items: center;
+    /* justify-content: space-between; */
+    margin: 10px;
+    border: 2px solid #000;   
+    border-radius: 4px; 
+}
+
+
 .cardText{
     font-family: 'Raleway', sans-serif;
     font-family: 'Urbanist', sans-serif;
     font-size: 15px;
 }
 
+.cardText-PR{
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    font-size: 35px;
+
+}
 
 .leftText{
     float: left;
@@ -952,11 +1036,6 @@ select:focus{
     padding-top: 20px;
 }
 
-.modal-body{
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
 
 .ModalCloseBtn{
     background-color: #dae8e0;
@@ -1022,5 +1101,4 @@ select:focus{
 #ViewProctoringReportSummary{
     border: none;
     background-color: transparent;
-
 }
