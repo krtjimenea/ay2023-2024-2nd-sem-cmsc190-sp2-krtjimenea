@@ -81,9 +81,7 @@ input{
 .modal-flex {
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-    height: 200px;
     width: 100%;
     box-sizing: border-box;
 }
@@ -120,7 +118,6 @@ input{
     padding: 10px;
     padding-bottom: 50px;
     text-align: center;
-    width: 100%;
     box-sizing: border-box;
     display: grid;
     place-items: center;
@@ -916,6 +913,13 @@ select:focus{
 
 }
 
+.cardText-small{
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    font-size: 15px;
+}
+
+
 .leftText{
     float: left;
 }
@@ -942,21 +946,35 @@ select:focus{
 }
 
 
-.Add-Faculty-Modal, .Add-Course-Modal{
+.Add-Faculty-Modal{
     background-color: #fff;
-    display: flex;
     flex-direction: column;
     justify-content: center;
     width: 230px;
     min-height: 250px;
     position: absolute;
-    top: 30%;
+    top: 15%;
     border: 2px solid #000;
     border-radius: 15px;
     z-index: 2;
     display: none;
     width: 250px;
     min-height: 200px;
+    box-sizing: border-box; /* Include padding and border in the width */
+}
+
+.Add-Course-Modal{
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 350px;
+    position: absolute;
+    top: 15%;
+    border: 2px solid #000;
+    border-radius: 15px;
+    z-index: 2;
+    display: none;
     box-sizing: border-box; /* Include padding and border in the width */
 }
 
@@ -1023,6 +1041,15 @@ select:focus{
 }
 
 .Modal-AddBtnDiv-CSV{
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    color: #000;
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+}
+
+.Modal-AddBtnDiv{
     display: flex;
     align-items: center;
     flex-direction: column;
@@ -1098,7 +1125,165 @@ select:focus{
     border-radius: 12px;
 }
 
-#ViewProctoringReportSummary{
+#ViewAuthReportSummary{
+    width: 100%;
     border: none;
     background-color: transparent;
+}
+
+#ViewProctoringReportSummary{
+    width: 100%;
+    border: none;
+    background-color: transparent;
+}
+/** INDIVIDUAL STUDENT PROCTORING REPORT **/
+
+#ViewStudentEnrolledCourses{
+    width: 100%;
+    border: none;
+    background-color: transparent;
+}
+
+#ViewStudentAssignedExam{
+    width: 100%;
+    border: none;
+    background-color: transparent;
+}
+
+#ViewStudentAssignedExamReport{
+    width: 100%;
+    border: none;
+    background-color: transparent;
+
+}
+.cards-PR-Students{
+    margin-bottom: 10px;
+    background-color: #fff;         
+    border: 2px solid #000;   
+    border-radius: 4px;           
+    overflow: hidden;             
+    display: flex;                
+    flex-direction: column;  
+    padding-right: 8px;
+    padding-left: 8px;
+    box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);     
+}
+
+#card-labels-PR{
+    text-align: center;
+    font-family: 'Urbanist', sans-serif;
+    font-size: 12px;
+}
+
+
+
+.cardSubDiv-neg{
+    display: flex;
+    flex-direction: column;
+    background-color: #e99b9b;
+    padding: 5px;
+    align-items: center;
+    /* justify-content: space-between; */
+    margin: 10px;
+    border: 2px solid #000;   
+    border-radius: 4px; 
+}
+
+.cardText-PR{
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    font-size: 35px;
+
+}
+
+/** Card Within a card **/
+
+#cardSubDiv-subCard{
+    display: flex;                
+    flex-direction: column;  
+    align-items: center;
+    padding: 5px;
+    margin: 10px;
+    border: 1px solid #000;   
+    border-radius: 4px; 
+    color: #fff;
+    width: 290px;
+}
+
+.subCard-PR-1{
+    margin-bottom: 10px;
+    background-color: #FFF8E8;         
+    border: 1px solid #000;   
+    border-radius: 4px;           
+    overflow: hidden;             
+    display: flex;                
+    flex-direction: column;  
+    box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);     
+}
+
+
+.subCard-PR-2{
+    margin: 10px;
+    background-color: #FFF8E8;         
+    border: 1px solid #000;   
+    border-radius: 4px;           
+    overflow: hidden;             
+    display: flex;                
+    flex-direction: column;  
+    box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);     
+}
+
+.subCard-Div{
+    display: flex;
+    padding: 5px;
+    justify-content: space-between;
+    margin: 10px;
+    border: 1px solid #000;   
+    border-radius: 4px; 
+}
+
+.cardSubDiv-PR-neg{
+    display: flex;
+    background-color: #e99b9b;
+    padding: 5px;
+    align-items: center;
+    justify-content: space-between;
+    margin: 10px;
+    border: 2px solid #000;   
+    border-radius: 4px; 
+}
+
+/**Authentication Report **/
+
+.cardSubDiv-AR{
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #000;   
+    padding: 5px;
+    margin: 10px;
+    border: 2px solid #000;   
+    border-radius: 4px; 
+}
+
+.cardSubDiv-Matched{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+   
+}
+
+#card-labels-PR-header{
+    margin-top: 10px;
+    text-align: center;
+    font-family: 'Urbanist', sans-serif;
+    font-size: 15px;
+    text-align: center;
+}
+
+#card-labels-PR-text{
+    margin-top: 10px;
+    text-align: center;
+    font-family: 'Urbanist', sans-serif;
+    font-weight: 800;
+    font-size: 15px;
 }

@@ -13,7 +13,8 @@ module.exports = {
     Firebase_Config: './src/sidebar/firebase.js',
     script: './src/sidebar/script.js',
     faculty_script: './src/sidebar/faculty-script.js',
-    admin: './src/sidebar/admin-script.js'
+    admin: './src/sidebar/admin-script.js',
+    report: './src/sidebar/report-script.js'
   },
   module: {
     rules: [
@@ -181,7 +182,11 @@ module.exports = {
       filename: "AdminViewStudentExams.html",
       chunks: ["admin"] // This is script from entry point
     }),
-    
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, "src", "sidebar", "AdminStudentProctoringReportSummary.html"),
+      filename: "AdminStudentProctoringReportSummary.html",
+      chunks: ["report"] // This is script from entry point
+    }),
     
     // Note: you can add as many new HtmlWebpackPlugin objects  
     // filename: being the html filename

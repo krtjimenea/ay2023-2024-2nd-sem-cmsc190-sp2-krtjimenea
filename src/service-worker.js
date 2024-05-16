@@ -39,13 +39,13 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         if(myList.includes(message.value)){
           //do not add to the stack anymore
           chrome.storage.local.set({'historyStack': myList}, function() {
-            console.log("History Stack updated with new item:", myList);
+            //console.log("History Stack updated with new item:", myList);
           });
         }else{
           myList.push(message.value);
           //save the updated list back to chrome storage
           chrome.storage.local.set({'historyStack': myList}, function() {
-            console.log("History Stack updated with new item:", myList);
+            //console.log("History Stack updated with new item:", myList);
           });
         }
         
@@ -57,7 +57,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
 
         // Save the initial list to chrome storage
         chrome.storage.local.set({'historyStack': initialList}, function() {
-          console.log("Initial history stack saved:", initialList);
+          //console.log("Initial history stack saved:", initialList);
         });
       }
     });
@@ -169,6 +169,14 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     console.log('Received studentKey: ', message.value);
     chrome.storage.local.set({'currentstudentKey': message.value});
 
+  }
+
+  if(message.action === 'currentStudentSection_Report'){
+    chrome.storage.local.set({'currentSectionKey': message.value});
+  }
+
+  if(message.action === 'currentStudentExam_Report'){
+    chrome.storage.local.set({'currentExamReportKey': message.value});
   }
 
 });
