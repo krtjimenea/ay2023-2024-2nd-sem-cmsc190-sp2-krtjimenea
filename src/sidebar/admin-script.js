@@ -30,6 +30,7 @@ const AdminManageStudentsInCourse = '/AdminManageStudentsInCourse.html';
 const AdminManageExamsInCourse = '/AdminManageExamsInCourse.html';
 const AdminViewProctoringReportSummary = '/AdminViewProctoringReportSummary.html';
 const AdminViewStudentExams =  '/AdminViewStudentExams.html'
+const AdminStudentProctoringReportSummary = '/AdminStudentProctoringReportSummary.html'
 
 //display the faculty data
 function displayFacultyList(){
@@ -289,7 +290,7 @@ window.addEventListener('DOMContentLoaded', function () {
       if (target.className === 'ModalCloseBtn'){
         console.log('Clicked Close Modal');
         //closeModal();
-        let modal = document.getElementsByTagName("Add-Faculty-Modal")[0];
+        let modal = document.getElementsByClassName("Add-Faculty-Modal")[0];
         let overlay = document.getElementsByClassName("modal-faculty-Overlay")[0];
         modal.style.display = "none";
         overlay.style.display = "none";
@@ -455,13 +456,25 @@ window.addEventListener('DOMContentLoaded', function () {
 
       }
 
-      if (target.className === 'ModalFailureCloseBtn'){
+      if(target.className === 'ModalFailureCloseBtn'){
         console.log('Clicked Close Modal');
         //closeModal();
         let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
         let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
         modal.style.display = "none";
         overlay.style.display = "none";
+      }
+
+      //for viewing individual proctoring report
+      if(target.id === 'ViewStudentAssignedExamReport'){
+        //stote the value
+        var selectedSectionandExam = target.value;
+        var currentKey = selectedSectionandExam.split("/");
+        console.log("b: " + currentKey[1]);
+        chrome.runtime.sendMessage({action: 'currentStudentSection_Report', value: currentKey[0]});
+        chrome.runtime.sendMessage({action: 'currentStudentExam_Report', value: currentKey[1]});
+        //change panel
+        chrome.sidePanel.setOptions({path:AdminStudentProctoringReportSummary })
       }
 
 
@@ -558,6 +571,10 @@ function viewStudentAssessmentsList(currentStudentKey){
                                             <p id="card-labels">End Time and Date:</p>
                                             <p class="cardText" id="CourseTitle">${assessmentEndTime}</p>
                                         </div>  
+
+                                        <div class="cardSubDiv-Click">
+                                      <button class="cardText" id="ViewStudentAssignedExamReport" value="${assessmentCourseSection}/${assessmentId}">View Proctoring Report</p>
+                                    </div>
                                   </div>
                                 </div>`;
 
@@ -2156,8 +2173,6 @@ function viewCoursesList(){
 
 //function to view one course/class only from viewCoursesList
 function viewOneCourseOnly(currentCourseKey){
-
-  console.log("hhhh");
   chrome.identity.getAuthToken({ interactive: true }, token =>
     {
       if ( chrome.runtime.lastError || ! token ) {

@@ -754,6 +754,8 @@ function checkExamCode(){
                 for(const assessmentId in assessmentData){
                   const assessment = assessmentData[assessmentId];
                   const accessCode = assessment.access_code;
+                  console.log(accessCode);
+                  console.log(examCodeInput);
                   if(examCodeInput===accessCode){
                     //there is an exam with the that code
                     console.log(accessCode);
@@ -774,7 +776,6 @@ function checkExamCode(){
                         alertMessage.textContent = 'Valid, You are set to take this exam!';
                         let closeBtn = document.getElementsByClassName("ModalSuccessCloseBtn")[0];
                         closeBtn.addEventListener("click", function(){
-                          console.log("/./.??");
                           compareAuthRiskScore(assessmentId);
                         })
                         
@@ -797,18 +798,6 @@ function checkExamCode(){
                     .catch((err) => {
                       console.log("Error with database: " + err);
                     });
-                  }else{
-                    // openFailedModal();
-                    let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
-                    let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
-                    modal.style.display = "block";
-                    overlay.style.display = "block";
-                    let alertMessage = document.getElementById("ModalTextFailure-labels");
-                    alertMessage.textContent = "ERROR: Check your Exam Code";
-                    let closeBtn = document.getElementsByClassName("ModalFailureCloseBtn")[0];
-                    closeBtn.addEventListener("click", function(){
-                      chrome.sidePanel.setOptions({path:landingPage})
-                    })
                   }
                 }
                  
@@ -1055,7 +1044,7 @@ function compareAuthRiskScore(assessmentId){
                           console.error('Error sending didAuthAllow message:', chrome.runtime.lastError);
                           return;
                       }
-                        // chrome.sidePanel.setOptions({path: StudentExamDetailsPage});
+                        chrome.sidePanel.setOptions({path: StudentExamDetailsPage});
                   
                     });
 
