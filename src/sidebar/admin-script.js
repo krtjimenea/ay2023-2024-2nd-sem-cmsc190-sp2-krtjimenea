@@ -446,6 +446,14 @@ window.addEventListener('DOMContentLoaded', function () {
         chrome.sidePanel.setOptions({path:AdminViewProctoringReportSummary});
       }
 
+      if(target.id === 'ViewProctoringReportSummaryExamOnly'){
+        var dataKey = target.value;
+        var keysList = dataKey.split("/");
+        chrome.runtime.sendMessage({action: 'examKey', value: keysList[0]});
+        chrome.runtime.sendMessage({action: 'passValue1', value: keysList[1]});
+        chrome.sidePanel.setOptions({path:AdminViewProctoringReportSummary});
+      }
+
       //for viewing student dashboard pass the student
       if(target.id === 'ViewStudentAssignedExam'){
         //find and get the key first
@@ -787,7 +795,7 @@ function viewExamsOfCourse(currentCourse){
                                           <p id="card-labels">Faculty-in-Charge:</p>
                                           <p class="cardText" id="CourseTitle">${assessmentFIC}</p>
                                       </div>  
-                                    
+                                     
                                       <div class="cardSubDiv">
                                           <p id="card-labels">Start Time and Date:</p>
                                           <p class="cardText" id="CourseTitle">${assessmentStartTime}</p>
@@ -894,8 +902,6 @@ function viewClasslistOfCourse(currentCourse){
 //function to update the path /takingAssessments/assessmentKey/Student
 function updateTakingAssessmentsStudent(courseGivenAssessment, assessmentKey){
 
-  console.log("ADMIN - Update the path !!!");
-  console.log(courseGivenAssessment);
   //save to database
   //check if there is a logged in user
   chrome.identity.getAuthToken({ interactive: true }, token =>
@@ -950,7 +956,8 @@ function updateTakingAssessmentsStudent(courseGivenAssessment, assessmentKey){
                   }
                 
                 } else {
-                  alert("Data does not exist!");
+                  alert("Student data does not exist! Upload Classlist");
+                  return;
                 }
               })
               .catch((error) => {
@@ -1674,6 +1681,18 @@ function generateExamCode(){
   return ID;
 }
 
+//function to convert time
+function AMPMFormat(currentTime){
+
+  const [hours, minutes] = currentTime.split(':');
+  const period = hours >= 12 ? 'PM' : 'AM';
+  //12-hour format
+  const formattedHours = hours % 12 || 12;
+  const formattedTime = `${formattedHours}:${minutes} ${period}`;
+
+  return formattedTime;
+
+}
 //function to add the scheduled exam by the admin
 function createNewAssessment(currentFacultyName){
   
@@ -1687,6 +1706,10 @@ function createNewAssessment(currentFacultyName){
   var startTimeSelected = document.getElementById('start-time').value;
   var endDateSelected = document.getElementById('end-date').value;
   var endTimeSelected = document.getElementById('end-time').value;
+  //split time values
+  const formattedStartTime = AMPMFormat(startTimeSelected);
+  const formattedEndTime = AMPMFormat(endTimeSelected);
+
   var assessmentTimeDuration = document.getElementById('assessmentTimeDuration').value;
   var examLink = document.getElementById('assessmentLinkInput').value;
   if(!examLink.trim()) {
@@ -1697,7 +1720,7 @@ function createNewAssessment(currentFacultyName){
     overlay.style.display = "block";
     let alertMessage = document.getElementById("ModalTextFailure-labels");
     alertMessage.textContent = "Enter a Valid Exam Link!";
-    return; 
+      return; 
   }
   //generate 6 character code
   var examAccessCode = generateExamCode();
@@ -1730,8 +1753,8 @@ function createNewAssessment(currentFacultyName){
               course: courseSelected,
               link:examLink,
               access_code: examAccessCode,
-              expected_time_start: startTimeSelected,
-              expected_time_end: endTimeSelected,
+              expected_time_start: formattedStartTime,
+              expected_time_end: formattedEndTime,
               date_start:startDateSelected,
               date_end:endDateSelected,
               time_limit: assessmentTimeDuration
@@ -1750,8 +1773,8 @@ function createNewAssessment(currentFacultyName){
               course: courseSelected,
               link:examLink,
               access_code: examAccessCode,
-              expected_time_start: startTimeSelected,
-              expected_time_end: endTimeSelected,
+              expected_time_start: formattedStartTime,
+              expected_time_end: formattedEndTime,
               date_start:startDateSelected,
               date_end:endDateSelected,
               time_limit: assessmentTimeDuration,
@@ -1773,8 +1796,8 @@ function createNewAssessment(currentFacultyName){
               course: courseSelected,
               link:examLink,
               access_code: examAccessCode,
-              expected_time_start: startTimeSelected,
-              expected_time_end: endTimeSelected,
+              expected_time_start: formattedStartTime,
+              expected_time_end: formattedEndTime,
               date_start:startDateSelected,
               date_end:endDateSelected,
               time_limit: assessmentTimeDuration
@@ -1791,8 +1814,8 @@ function createNewAssessment(currentFacultyName){
               course: courseSelected,
               link:examLink,
               access_code: examAccessCode,
-              expected_time_start: startTimeSelected,
-              expected_time_end: endTimeSelected,
+              expected_time_start: formattedStartTime,
+              expected_time_end: formattedEndTime,
               date_start:startDateSelected,
               date_end:endDateSelected,
               time_limit: assessmentTimeDuration
@@ -1826,8 +1849,6 @@ function createNewAssessment(currentFacultyName){
 
 //function to send the exam code to the students taking the exam
 function sendExamAccessCodeMailer(courseSelected, assessmentKey){
-  console.log("??");
-
   //before sending the email, we need to check if the student is already registered via auth
   //check if there is a logged in user
   chrome.identity.getAuthToken({ interactive: true }, token =>
@@ -1926,7 +1947,7 @@ function sendExamAccessCodeMailer(courseSelected, assessmentKey){
                             }//EOF Forloop
         
                           }else{
-                            console.log('No student data available.');
+                            console.log('No student data available. Upload Classlist');
                           }
                         })
                         .catch((error) => {
@@ -1934,7 +1955,7 @@ function sendExamAccessCodeMailer(courseSelected, assessmentKey){
                         });
 
                     }else{
-                      alert('No student data available.');
+                      alert('No student data available. Upload Classlist');
                     }
                   })
                   .catch((error) => {
@@ -1988,12 +2009,15 @@ function viewAssessmentsList(){
                     const assessmentCode = assessment.access_code;
                     const assessmentStartTime = assessment.expected_time_start;
                     const assessmentEndTime = assessment.expected_time_end;
+                    const assessmentStartDate = assessment.date_start;
+                    const assessmentEndDate = assessment.date_end;
+                    const assessmentTimeLimit =  assessment.time_limit;
 
                     cardListDiv.innerHTML += `<div class="cards">
                                 <p class="cardHeader" id="ExamName">${assessmentName}</p>
                                   <div class="cardDivText">
                                       <div class="cardSubDiv">
-                                          <p id="card-labels">Assigned Course and Section:</p>
+                                          <p id="card-labels">Course and Section:</p>
                                           <p class="cardText" id="CourseTitle">${assessmentCourseSection}</p>
                                       </div>
                                       <div class="cardSubDiv">
@@ -2002,20 +2026,35 @@ function viewAssessmentsList(){
                                       </div>  
                                       <div class="cardSubDiv">
                                           <p id="card-labels">Link:</p>
-                                          <p class="cardText" id="CourseTitle">${assessmentLink}</p>
+                                          <a href="${assessmentLink}" id="TabURL" class="cardText">Click Here</a>
                                       </div>  
                                       <div class="cardSubDiv">
                                           <p id="card-labels">Access Code:</p>
                                           <p class="cardText" id="CourseTitle">${assessmentCode}</p>
                                       </div>  
                                       <div class="cardSubDiv">
-                                          <p id="card-labels">Start Time and Date:</p>
-                                          <p class="cardText" id="CourseTitle">${assessmentStartTime}</p>
+                                          <p id="card-labels">Start Date:</p>
+                                          <p class="cardText" id="CourseTitle">${assessmentStartDate}</p>
                                       </div>  
                                       <div class="cardSubDiv">
-                                          <p id="card-labels">End Time and Date:</p>
-                                          <p class="cardText" id="CourseTitle">${assessmentEndTime}</p>
+                                          <p id="card-labels">Start Time:</p>
+                                          <p class="cardText" id="CourseTitle">${assessmentStartTime}</p>
+                                      </div> 
+                                      <div class="cardSubDiv">
+                                          <p id="card-labels">End Date:</p>
+                                          <p class="cardText" id="CourseTitle">${assessmentEndDate}</p>
                                       </div>  
+                                      <div class="cardSubDiv">
+                                          <p id="card-labels">End Time:</p>
+                                          <p class="cardText" id="CourseTitle">${assessmentEndTime}</p>
+                                      </div> 
+                                      <div class="cardSubDiv">
+                                        <p id="card-labels">Time Duration:</p>
+                                        <p class="cardText" id="CourseTitle">${assessmentTimeLimit} mins</p>
+                                      </div>  
+                                      <div class="cardSubDiv-Click">
+                                      <button class="cardText" id="ViewProctoringReportSummaryExamOnly" value="${assessmentId}/${assessmentCourseSection}">Click to View Proctoring Report</p>
+                                    </div>
                                 </div>
                               </div>`;
 

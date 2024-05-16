@@ -1137,6 +1137,7 @@ function viewStudentAssessmentDetails(assessmentId, IDnumber){
                     const assessmentLink = childData.link;
                     const assessmentStartTime = childData.expected_time_start;
                     const assessmentEndTime = childData.expected_time_end;
+                    const assessmentTimeLimit =  childData.time_limit;
 
                     ExamDetailsDiv.innerHTML += `<div class="cards">
                       <p class="cardHeader" id="ExamName">${assessmentName}</p>
