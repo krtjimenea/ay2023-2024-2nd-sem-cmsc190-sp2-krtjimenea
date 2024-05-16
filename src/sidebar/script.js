@@ -1235,7 +1235,7 @@ function studentIsReadyExam(assessmentId, IDnumber){
 
                     ExamDetailsDiv.innerHTML += `
                     <div class="output-student-examLink">
-                      <a href="${assessmentLink}" target="_blank" class="ExamLinkBtn" id="output-student-examName">${assessmentName}</a>
+                      <a href="${assessmentLink}" class="ExamLinkBtn" id="output-student-examName">${assessmentName}</a>
                     </div>
                       
                     <div class="studentDivText">
