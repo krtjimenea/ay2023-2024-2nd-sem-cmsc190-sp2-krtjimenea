@@ -1434,7 +1434,7 @@ function isBrowserMinimized(){
   
 }
 
-//function to check what tabs are open
+//function to check what tabs are open and were opened
 function getActiveTabs(){
   chrome.tabs.query({}, function(tabs) {
     var tabsList = [];
@@ -1471,21 +1471,40 @@ function getActiveTabs(){
 
 //function to check if a new tab was opened
 function isThereNewTab(){
+  let newTabsList = [];
   chrome.tabs.onCreated.addListener(function(tab) {
-    console.log("New tab created:", tab.id);
+    //console.log("New tab created:", tab.id);
+    newTabList.push({
+      id: tab.id,
+      url: '',
+      title: ''
+    });
   });
+
+  //once tab is done loading
   chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
     if(changeInfo.status === 'complete' && tab.url && tab.title) {
-        console.log("URL of the new tab:", tab.url);
-        console.log("New Tab Title:", tab.title);
-         //json for every new tab
-         var newTabObject = {
-          "id": tab.id,
-          "url": tab.url,
-          "title": tab.title,
+        // console.log("URL of the new tab:", tab.url);
+        // console.log("New Tab Title:", tab.title);
+        //update the initial tab opened, find it using the tabId added
+        const tabIndex = newTabsList.findIndex(t=> t.id === tabId);
+        if(tabIndex >-1){
+          newTabsList[tabIndex].url = tab.url;
+          newTabssList[tabIndex].title = tab.title;
+        }else{
+          //new tab not found in the list
+          //json for every new tab
+          newTabsList.push({
+            id: tab.id,
+            url: tab.url,
+            title: tab.title
+          });
         }
+         
+        //also update the active tabs list
+        getActiveTabs();
         //stringify json
-        var NewtabsJson = JSON.stringify(newTabObject, null, 2);
+        var NewtabsJson = JSON.stringify(newTabsList, null, 2);
         //send as message
         chrome.runtime.sendMessage({action: 'newTabData', value: NewtabsJson});
 
