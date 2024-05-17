@@ -283,6 +283,8 @@ window.addEventListener('DOMContentLoaded', function () {
       
     }
 
+    
+
   });
 });
 
@@ -1020,11 +1022,11 @@ function compareAuthRiskScore(assessmentId){
                     geolocation_long: {currentGeolocation_long: geolocation.longitude , didMatch: geolocation_long_matched },
                     IP_address: {currentIpaddress: ipAddress , didMatch: ipAddress_matched },
                     display: {currentDisplay: display , didMatch: display_matched },
-                    cpu:{currentCPU: cpu, didMatch: cpu_matched,
+                    cpu:{currentCPU: cpu, didMatch: cpu_matched},
                     os: {currentOS: studentOS , didMatch: os_matched },
                     browser: {currentBrowser: browser, didMatch: browser_matched}
-                    }
-                  }
+                 }
+                  
                   //stringify json
                   var studentIdentityUponExam = JSON.stringify(studentIdentity_uponExam, null, 2);
                   

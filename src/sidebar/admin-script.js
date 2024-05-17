@@ -30,7 +30,8 @@ const AdminManageStudentsInCourse = '/AdminManageStudentsInCourse.html';
 const AdminManageExamsInCourse = '/AdminManageExamsInCourse.html';
 const AdminViewProctoringReportSummary = '/AdminViewProctoringReportSummary.html';
 const AdminViewStudentExams =  '/AdminViewStudentExams.html'
-const AdminStudentProctoringReportSummary = '/AdminStudentProctoringReportSummary.html'
+const AdminStudentProctoringReportSummary = '/AdminStudentProctoringReportSummary.html';
+const AdminStudentAuthReport = '/AdminStudentAuthReport.html';
 
 //display the faculty data
 function displayFacultyList(){
@@ -190,7 +191,13 @@ function monitorSidePanelPath() {
             chrome.storage.local.get('currentExamKey', function(data) {
               var currentExam = data.currentExamKey;
               if(currentExam){
-                ViewProctoringReportSummary(currentExam, currentCourse);
+                chrome.storage.local.get('currentExamName', function(data) {
+                  var currentExamName = data.currentExamName;
+                  if(currentExamName){
+                    ViewProctoringReportSummary(currentExam, currentCourse, currentExamName);
+                  }
+                });
+               
               }
             });
           }
@@ -442,7 +449,9 @@ window.addEventListener('DOMContentLoaded', function () {
       //for viewing and generating proctoring report summary for that exam
       if(target.id === 'ViewProctoringReportSummary'){
         var assessmentKey = target.value;
-        chrome.runtime.sendMessage({action: 'examKey', value: assessmentKey});
+        var keysList = assessmentKey.split("/");
+        chrome.runtime.sendMessage({action: 'examKey', value: keysList[0]});
+        chrome.runtime.sendMessage({action: 'examName', value: keysList[1]});
         chrome.sidePanel.setOptions({path:AdminViewProctoringReportSummary});
       }
 
@@ -451,6 +460,7 @@ window.addEventListener('DOMContentLoaded', function () {
         var keysList = dataKey.split("/");
         chrome.runtime.sendMessage({action: 'examKey', value: keysList[0]});
         chrome.runtime.sendMessage({action: 'passValue1', value: keysList[1]});
+        chrome.runtime.sendMessage({action: 'examName', value: keysList[2]});
         chrome.sidePanel.setOptions({path:AdminViewProctoringReportSummary});
       }
 
@@ -475,15 +485,26 @@ window.addEventListener('DOMContentLoaded', function () {
 
       //for viewing individual proctoring report
       if(target.id === 'ViewStudentAssignedExamReport'){
-        //stote the value
+        //state the value
         var selectedSectionandExam = target.value;
         var currentKey = selectedSectionandExam.split("/");
-        console.log("b: " + currentKey[1]);
         chrome.runtime.sendMessage({action: 'currentStudentSection_Report', value: currentKey[0]});
         chrome.runtime.sendMessage({action: 'currentStudentExam_Report', value: currentKey[1]});
         //change panel
         chrome.sidePanel.setOptions({path:AdminStudentProctoringReportSummary })
       }
+
+      //for viewing auth reports per student
+      if(target.id==='ViewAuthReportSummary'){
+        //state the value
+        var selectedSectionandExam = target.value;
+        var currentKey = selectedSectionandExam.split("/");
+        chrome.runtime.sendMessage({action: 'currentStudentSection_Report', value: currentKey[0]});
+        chrome.runtime.sendMessage({action: 'currentStudentExam_Report', value: currentKey[1]});
+        //change panel
+        chrome.sidePanel.setOptions({path:AdminStudentAuthReport})
+      }
+        
 
 
     });
@@ -615,7 +636,7 @@ function viewStudentAssessmentsList(currentStudentKey){
   
 }
 //function to render the proctoring report for the exam
-function ViewProctoringReportSummary(currentExamKey, currentCourseKey){
+function ViewProctoringReportSummary(currentExamKey, currentCourseKey, currentExamName){
   
   //get the total number of prs under that exam
   //check if there is a logged in user
@@ -637,6 +658,9 @@ function ViewProctoringReportSummary(currentExamKey, currentCourseKey){
             get(assessmentRef)
               .then((snapshot) => {
                 if (snapshot.exists()) {
+                  const childData = snapshot.val();
+                  let headerCourseCode = document.getElementById('AdminHeaderDetails-CourseCode');
+                  headerCourseCode.textContent =  currentExamName;
                   //get the count of how many proctoring reports (aka total of who took the exam)
                   numof_StudentsTookExam = snapshot.size;
                   let studentsTotal = document.getElementById('TotalStudents');
@@ -646,11 +670,13 @@ function ViewProctoringReportSummary(currentExamKey, currentCourseKey){
                   numof_StudentsTookExam = 0;
                   let studentsTotal = document.getElementById('TotalStudents');
                   studentsTotal.textContent = numof_StudentsTookExam;
+                  let headerCourseCode = document.getElementById('AdminHeaderDetails-CourseCode');
+                  headerCourseCode.textContent =  "No Data Yet";
                   //alert("errorOR: Doesnt Exist, Firebase Access!");
                 }
               })
               .catch((error) => {
-                  console.log("erroror with database: " + error);
+                  console.log("error with database: " + error);
               });
 
               //query for flagged activity
@@ -809,7 +835,7 @@ function viewExamsOfCourse(currentCourse){
                                         <p class="cardText" id="CourseTitle">${assessmentTimeLimit} mins</p>
                                       </div>  
                                       <div class="cardSubDiv-Click">
-                                      <button class="cardText" id="ViewProctoringReportSummary" value="${assessmentId}">Click to View Proctoring Report</p>
+                                      <button class="cardText" id="ViewProctoringReportSummary" value="${assessmentId}/${assessmentName}">Click to View Proctoring Report</p>
                                     </div>
                                       
                                 </div>
@@ -2053,7 +2079,7 @@ function viewAssessmentsList(){
                                         <p class="cardText" id="CourseTitle">${assessmentTimeLimit} mins</p>
                                       </div>  
                                       <div class="cardSubDiv-Click">
-                                      <button class="cardText" id="ViewProctoringReportSummaryExamOnly" value="${assessmentId}/${assessmentCourseSection}">Click to View Proctoring Report</p>
+                                      <button class="cardText" id="ViewProctoringReportSummaryExamOnly" value="${assessmentId}/${assessmentCourseSection}/${assessmentName}">Click to View Proctoring Report</p>
                                     </div>
                                 </div>
                               </div>`;

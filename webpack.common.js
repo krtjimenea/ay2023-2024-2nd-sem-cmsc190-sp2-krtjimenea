@@ -187,6 +187,12 @@ module.exports = {
       filename: "AdminStudentProctoringReportSummary.html",
       chunks: ["report"] // This is script from entry point
     }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, "src", "sidebar", "AdminStudentAuthReport.html"),
+      filename: "AdminStudentAuthReport.html",
+      chunks: ["report"] // This is script from entry point
+    }),
+   
     
     // Note: you can add as many new HtmlWebpackPlugin objects  
     // filename: being the html filename
