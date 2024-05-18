@@ -128,8 +128,8 @@ function monitorSidePanelPath() {
         chrome.storage.local.get('currentUserId', function(data) {
           receivedUserId = data.currentUserId;
           if(receivedUserId){
-            chrome.storage.local.get('currentExamReportKey', function(data){
-              var currentExam = data.currentExamReportKey;
+            chrome.storage.local.get('currentExamKey', function(data){
+              var currentExam = data.currentExamKey;
                 if(currentExam){
                   viewScheduledExam(receivedUserId,currentExam);
                 }
@@ -1129,7 +1129,7 @@ function scheduleExam(){
   
   var assessmentKeyGenerator = examName+courseSelected+examAccessCode;
   var assessmentKey =  assessmentKeyGenerator.split(" ").join("");
-
+  chrome.runtime.sendMessage({action: 'examKey', value: assessmentKey});
   //save to database
   //check if there is a logged in user
   chrome.identity.getAuthToken({ interactive: true }, token =>
@@ -1163,7 +1163,7 @@ function scheduleExam(){
 
                     
               }).then(()=> {
-                alert("Saved to database!");
+                //alert("Saved to database!");
               }).catch((err) => {
                 console.log(("error with database" + err));
               })
@@ -1184,7 +1184,7 @@ function scheduleExam(){
                 students: {}
                     
               }).then(()=> {
-                alert("Saved to database!");
+                //alert("Saved to database!");
               }).catch((err) => {
                 console.log(("error with database" + err));
               })
@@ -1212,12 +1212,10 @@ function scheduleExam(){
               }).catch((err) => {
                 console.log(("error with database" + err));
               })
-            });
-
               //update course assessments
               update(ref(db,`courseAssessments/${courseSelected}/${assessmentKey}`),{
                 name: examName,
-                FacultyInChargeName: facultyNameSelected,
+                FacultyInChargeName: facultyName,
                 course: courseSelected,
                 link:examLink,
                 access_code: examAccessCode,
@@ -1245,14 +1243,13 @@ function scheduleExam(){
               }).catch((error) => {
                 console.log(("error with database" + error));
               })
+            });
 
+            
           }
        })//EOF signInWithCredential
       .catch(err =>{alert("SSO ended with an error" + err);})
   }) 
-
-  alert('Exam Scheduled! The code is: ' + examAccessCode);
-  mailExamCodes();
 
 }
 
