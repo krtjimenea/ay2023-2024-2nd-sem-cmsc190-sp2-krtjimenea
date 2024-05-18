@@ -864,6 +864,52 @@ input{
     border-radius: 4px; 
 }
 
+.cardHeader:hover{
+    color: #000;
+    text-align: center;
+    font-weight: 600;
+    border-bottom: 2px solid #000;
+    background-color: #f9ecd1;
+    font-family: 'Urbanist', sans-serif;
+    font-size: 20px;
+    padding: 5px;
+}
+
+.cardSubDiv{
+    display: flex;
+    padding: 5px;
+    justify-content: space-between;
+    margin: 10px;
+    border: 1px solid #000;   
+    border-radius: 4px; 
+}
+
+
+.cardSubDiv-Click{
+    padding: 5px;
+    align-content: center;
+    text-align: center;
+    margin: 10px;
+    color: #fff;
+    border: 2px solid #000;   
+    border-radius: 4px; 
+    background-color: #2c7c60;
+
+}
+
+.cardSubDiv-Click:hover {
+    background-color: #51c973da;
+    text-decoration:underline;
+}
+
+.cardSubDiv-Click:active {
+  background-color: #5eff8cda;
+  box-shadow: 0 5px #d0cfcf;
+  transform: translateY(4px);
+}
+
+
+
 #card-labels{
     font-family: 'Raleway', sans-serif;
     font-family: 'Urbanist', sans-serif;
@@ -874,6 +920,9 @@ input{
     font-family: 'Raleway', sans-serif;
     font-family: 'Urbanist', sans-serif;
     font-size: 15px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 
@@ -1080,10 +1129,6 @@ select:focus{
     padding-left: 5px;
 }
 
-.AppDiv-Admin{
-    margin-top: 50px;
-}
-
 
 .Buttons-Admin{
     background-color: #61488C;
@@ -1250,4 +1295,295 @@ select:focus{
     width: 246px;
     height: 43px;
     border-radius: 12px;     
+}
+
+
+.cardSubDiv{
+    display: flex;
+    padding: 5px;
+    justify-content: space-between;
+    margin: 10px;
+    border: 1px solid #000;   
+    border-radius: 4px; 
+}
+
+
+.cardSubDiv-Click{
+    padding: 5px;
+    align-content: center;
+    text-align: center;
+    margin: 10px;
+    color: #fff;
+    border: 2px solid #000;   
+    border-radius: 4px; 
+    background-color: #2c7c60;
+
+}
+
+.cardSubDiv-Click:hover {
+    background-color: #51c973da;
+    text-decoration:underline;
+}
+
+.cardSubDiv-Click:active {
+  background-color: #5eff8cda;
+  box-shadow: 0 5px #d0cfcf;
+  transform: translateY(4px);
+}
+
+
+#card-labels{
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    font-size: 15px;
+}
+
+#card-labels-PR{
+    text-align: center;
+    font-family: 'Urbanist', sans-serif;
+    font-size: 15px;
+}
+
+.cardSubDiv-pos{
+    display: flex;
+    flex-direction: column;
+    background-color: #538260;
+    align-items: center;
+    padding: 5px;
+    /* justify-content: space-between; */
+    margin: 10px;
+    border: 2px solid #000;   
+    border-radius: 4px; 
+    color: #fff;
+}
+
+.cardSubDiv-neg{
+    display: flex;
+    flex-direction: column;
+    background-color: #e99b9b;
+    padding: 5px;
+    align-items: center;
+    /* justify-content: space-between; */
+    margin: 10px;
+    border: 2px solid #000;   
+    border-radius: 4px; 
+}
+
+
+.cardText{
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    font-size: 15px;
+}
+
+.cardText-PR{
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    font-size: 35px;
+
+}
+
+.cardText-small{
+    font-family: 'Urbanist', sans-serif;
+    font-size: 15px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 250px; /* Adjust the width as needed */
+    display: inline-block;
+    vertical-align: bottom; 
+    text-align: center;
+}
+
+/** INDIVIDUAL STUDENT PROCTORING REPORT **/
+
+#ViewStudentEnrolledCourses{
+    width: 100%;
+    border: none;
+    background-color: transparent;
+}
+
+#ViewStudentAssignedExam{
+    width: 100%;
+    border: none;
+    background-color: transparent;
+}
+
+#ViewStudentAssignedExamReport{
+    width: 100%;
+    border: none;
+    background-color: transparent;
+
+}
+.cards-PR-Students{
+    margin-bottom: 10px;
+    background-color: #fff;         
+    border: 2px solid #000;   
+    border-radius: 4px;           
+    overflow: hidden;             
+    display: flex;                
+    flex-direction: column;  
+    padding-right: 8px;
+    padding-left: 8px;
+    box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);    
+    max-width: 300px; 
+    min-width: 250px;
+}
+
+#card-labels-PR{
+    text-align: center;
+    font-family: 'Urbanist', sans-serif;
+    font-size: 12px;
+}
+
+
+
+.cardSubDiv-neg{
+    display: flex;
+    flex-direction: column;
+    background-color: #e99b9b;
+    padding: 5px;
+    align-items: center;
+    /* justify-content: space-between; */
+    margin: 10px;
+    border: 2px solid #000;   
+    border-radius: 4px; 
+}
+
+.cardText-PR{
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    font-size: 35px;
+
+}
+
+/** Card Within a card **/
+
+#cardSubDiv-subCard{
+    display: flex;                
+    flex-direction: column;  
+    align-items: center;
+    padding: 5px;
+    margin: 10px;
+    border: 1px solid #000;   
+    border-radius: 4px; 
+    color: #fff;
+    width: 290px;
+}
+
+.subCard-PR-1{
+    margin-bottom: 10px;
+    background-color: #FFF8E8;         
+    border: 1px solid #000;   
+    border-radius: 4px;           
+    overflow: hidden;             
+    display: flex;                
+    flex-direction: column;  
+    box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);     
+}
+
+
+.subCard-PR-2{
+    margin: 10px;
+    background-color: #FFF8E8;         
+    border: 1px solid #000;   
+    border-radius: 4px;           
+    overflow: hidden;             
+    display: flex;                
+    flex-direction: column;  
+    box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);     
+}
+
+.subCard-PR-neg{
+    margin: 10px;
+    background-color: #e99b9b;       
+    border: 1px solid #000;   
+    border-radius: 4px;           
+    overflow: hidden;             
+    display: flex;                
+    flex-direction: column;  
+    box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);     
+}
+
+.subCard-Div{
+    display: flex;
+    padding: 5px;
+    justify-content: space-between;
+    margin: 10px;
+    border: 1px solid #000;   
+    border-radius: 4px;
+   
+}
+.subCard-Div-info{
+    display: flex;
+    padding: 5px;
+    /* justify-content: space-between; */
+    margin: 10px;
+    border: 1px solid #000;   
+    border-radius: 4px;
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center;  
+}
+
+.cardSubDiv-PR-neg{
+    display: flex;
+    background-color: #e99b9b;
+    padding: 5px;
+    align-items: center;
+    justify-content: space-between;
+    margin: 10px;
+    border: 2px solid #000;   
+    border-radius: 4px; 
+}
+
+/**Authentication Report **/
+
+.cardSubDiv-AR{
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #000;   
+    padding: 5px;
+    margin: 10px;
+    border: 2px solid #000;   
+    border-radius: 4px; 
+}
+
+.cardSubDiv-Matched{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+   
+}
+
+#card-labels-PR-header{
+    margin-top: 10px;
+    text-align: center;
+    font-family: 'Urbanist', sans-serif;
+    font-size: 15px;
+    text-align: center;
+}
+
+#card-labels-PR-text{
+    margin-top: 10px;
+    text-align: center;
+    font-family: 'Urbanist', sans-serif;
+    font-weight: 800;
+    font-size: 15px;
+}
+
+.FacultyHeaderDetails{
+    margin-top: 50px;
+    height: 43px;
+    font-size: 35px;
+    color: #000000;
+    font-family: 'Urbanist', sans-serif;   
+    text-decoration:underline;
+    
+}
+.FacultySubHeader{
+    font-size: 12px;
+    color: #000000;
+    font-family: 'Urbanist', sans-serif;   
+    margin-bottom: 15px;
 }

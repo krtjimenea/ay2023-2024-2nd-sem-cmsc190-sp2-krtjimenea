@@ -106,6 +106,26 @@ module.exports = {
       filename: "FacultyAssessmentDetails.html",
       chunks: ["faculty_script"] // This is script from entry point
     }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, "src", "sidebar", "FacultyViewProctoringReportSummary.html"),
+      filename: "FacultyViewProctoringReportSummary.html",
+      chunks: ["faculty_script"] // This is script from entry point
+    }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, "src", "sidebar", "FacultyViewClasslist.html"),
+      filename: "FacultyViewClasslist.html",
+      chunks: ["faculty_script"] // This is script from entry point
+    }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, "src", "sidebar", "FacultyViewStudentProctoringReportSummary.html"),
+      filename: "FacultyViewStudentProctoringReportSummary.html",
+      chunks: ["faculty_script"] // This is script from entry point
+    }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, "src", "sidebar", "FacultyStudentAuthReport.html"),
+      filename: "FacultyStudentAuthReport.html",
+      chunks: ["faculty_script"] // This is script from entry point
+    }),
     //Admin Pages
     new HtmlWebpackPlugin({
       template: path.join(__dirname, "src", "sidebar", "AdminDashboard.html"),
