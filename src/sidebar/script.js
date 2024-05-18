@@ -794,6 +794,13 @@ function checkExamCode(){
                         const assessmentStartDate = assessmentData.date_start;
                         const assessmentEndDate = assessmentData.date_end;
 
+                        console.log("Current Date: " + formattedCurrentDate);
+                        console.log("assessmentStartDate: " + assessmentStartDate);
+                        console.log("formattedCurrentTime: " + formattedCurrentTime);
+                        console.log("assessmentStartTime: " +  assessmentStartTime);
+                        console.log("assessmentEndTime: " + assessmentEndTime);
+                        
+
                         if(formattedCurrentDate === assessmentStartDate && formattedCurrentTime >= assessmentStartTime && formattedCurrentTime  <= assessmentEndTime) {
                             //calculate first the risk score
                             let modal = document.getElementsByClassName("Alerts-Success-Modal")[0];
