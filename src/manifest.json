@@ -36,6 +36,10 @@
         ]
       }
     ],
+
+   "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
+  },
   
   "oauth2": {
     "client_id": "205164436846-qg1sfv6uvcfvftqmv98arktleerfbtlf.apps.googleusercontent.com",

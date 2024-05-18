@@ -2,11 +2,11 @@
 <html>
 <head>
     <meta charset="UTF-8" />
-    <link rel="stylesheet" href="../admin-stylesheet.css" />
+    <link rel="stylesheet" href="../stylesheet.css" />
     <title>title</title>
-    <!-- <script src="script.js" type="module"></script> -->
-</head>
-<body id="Admin-UI">
+    <!-- <script src="admin-script.js" type="module"></script> -->
+<script defer src="faculty_script.js"></script></head>
+<body id="Faculty-UI">
     <div id="AppBody">
         <div id="flex-row">
             <div class="BackBtnDiv">
@@ -49,109 +49,28 @@
                     </svg>
             </div>
 
-            <div class="AppHeader-Admin">
-                <div class="AppSubHeader">Schedule an Exam</div>
-            </div>
+           
+            <div class="AppSubHeader">Classlist</div>
+           
 
-
-            <div class="AppDiv-Admin">
-                <div class="AppSubHeader">Enter Exam Details:</div>
+            <div class="FacultyHeaderDetails" id="FacultyHeaderDetails-CourseCode"></div>
+            <div class="FacultySubHeader">Course Code</div>
 
             
-            <div id="AdminSchedInput">
-                <p id="input-labels">Exam Name</p>
-                <input type="text" id ="assessmentName" name="studentNum" placeholder="Exam Name"/>
-               
-                <p id="input-labels">Faculty-in-Charge</p>
-                <div class="dropdown">
-                    <select name="facultylist" id="facultylist">
-                        <!-- <option value="course1">Course 1</option>
-                        <option value="course2">Course 2</option>
-                        <option value="course3">Course 3</option> -->
-                    </select>
-                </div>
-
-                <p id="input-labels">Course and Section</p>
-                <div class="dropdown">
-                    <select name="courselist" id="courselist">
-                        <!-- <option value="course1">Course 1</option>
-                        <option value="course2">Course 2</option>
-                        <option value="course3">Course 3</option> -->
-                    </select>
-                </div>
-               
-                <p id="input-labels">Date and Time Start</p>
-                <div class="datetime-div">
-                    <input type="date" id="start-date" min="2024-05-01" max="2024-12-31" />
-                    <input type="time" id="start-time"/>
-                </div>
+            <div class="AppDiv-AdminManage">
                 
-
-                <p id="input-labels">Date and Time End</p>
-                <div class="datetime-div">
-                    <input type="date" id="end-date" min="2024-05-01" max="2024-12-31" />
-                    <input type="time" id="end-time"/>
+                <!-- Button to Add Student -->
+                <!-- <div class="AdminAddButton">
+                    <button type="button" class="Add-Buttons-Admin" id="Add-New-Faculty">Add New Faculty</button>
+                </div> -->
+                <!--List of Student Cards-->
+                <div id="cardList">
+                   
                 </div>
-
-                <p id="input-labels">Time Duration (in minutes)</p>
-                <input type="number" id ="assessmentTimeDuration" name="assessmentTimeDuration" placeholder="20"/>
-
-                <p id="input-labels">Exam Link</p>
-                <input type="text" id ="assessmentLinkInput" name="assessmentCode" placeholder="Assessment Link"/>
-               
+                <!-- <button type="button"  class="Buttons-Admin" id="ViewFacultyBtn">View Faculty</button>           -->
+            </div>
                 
-
-
             </div>
-
-            <div class="SubmitIDDiv">
-                <button type="button" id="Admin-SubmitExamSchedBtn">Get Assessment Code</button>
-            </div>
-            </div>
-
-           
-             <!--Modal for Alerts-->
-             <section class="Alerts-Success-Modal">
-                <div class="modal-flex">
-                    <div class="modal-header-success">
-                        <p class="ModalTextSuccess">
-                            <svg width="30" height="30" viewBox="0 0 76 76" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M55.0613 26.5683C55.4549 26.9606 55.7672 27.4267 55.9803 27.9399C56.1935 28.4531 56.3032 29.0034 56.3032 29.5591C56.3032 30.1148 56.1935 30.665 55.9803 31.1782C55.7672 31.6914 55.4549 32.1576 55.0613 32.5498L35.3576 52.2535C34.9653 52.6471 34.4992 52.9595 33.986 53.1726C33.4728 53.3857 32.9226 53.4954 32.3669 53.4954C31.8112 53.4954 31.2609 53.3857 30.7477 53.1726C30.2345 52.9595 29.7684 52.6471 29.3761 52.2535L20.9317 43.8091C20.5389 43.4163 20.2274 42.9501 20.0148 42.4369C19.8023 41.9238 19.6929 41.3738 19.6929 40.8183C19.6929 40.2629 19.8023 39.7129 20.0148 39.1998C20.2274 38.6866 20.5389 38.2203 20.9317 37.8276C21.3244 37.4348 21.7907 37.1233 22.3038 36.9107C22.817 36.6982 23.367 36.5888 23.9224 36.5888C24.4779 36.5888 25.0278 36.6982 25.541 36.9107C26.0541 37.1233 26.5204 37.4348 26.9132 37.8276L32.3704 43.2778L49.0869 26.5578C49.4797 26.1659 49.9459 25.8553 50.4588 25.6437C50.9718 25.4321 51.5214 25.3237 52.0763 25.3247C52.6311 25.3257 53.1804 25.436 53.6926 25.6494C54.2048 25.8628 54.6699 26.1751 55.0613 26.5683ZM76 38C76 45.5157 73.7713 52.8626 69.5959 59.1117C65.4204 65.3607 59.4856 70.2313 52.542 73.1074C45.5984 75.9835 37.9579 76.7361 30.5866 75.2698C23.2153 73.8036 16.4444 70.1844 11.13 64.87C5.81556 59.5557 2.19641 52.7847 0.730176 45.4134C-0.736062 38.0421 0.0164649 30.4016 2.89259 23.458C5.76872 16.5144 10.6393 10.5796 16.8883 6.40415C23.1374 2.22866 30.4843 0 38 0C48.0748 0.0111756 57.7338 4.01832 64.8577 11.1423C71.9817 18.2662 75.9888 27.9252 76 38ZM67.5556 38C67.5556 32.1545 65.8222 26.4402 62.5746 21.5798C59.3269 16.7194 54.711 12.9312 49.3104 10.6942C43.9099 8.45724 37.9672 7.87194 32.234 9.01234C26.5008 10.1528 21.2345 12.9676 17.1011 17.1011C12.9677 21.2345 10.1528 26.5008 9.01236 32.234C7.87195 37.9672 8.45725 43.9098 10.6942 49.3104C12.9312 54.711 16.7194 59.3269 21.5798 62.5745C26.4402 65.8221 32.1545 67.5555 38 67.5555C45.8361 67.5472 53.3488 64.4306 58.8897 58.8897C64.4306 53.3487 67.5472 45.836 67.5556 38Z" fill="white"/>
-                            </svg>
-                        </p>
-                    </div>
-                    <div class="modal-body">
-                        <p id="ModalTextSuccess-labels">Message</p>
-                    </div>
-                    <div class="modal-footer-success">
-                          <button class="ModalSuccessCloseBtn">Continue</button>
-                    </div>
-                </div>
-                    
-
-            </section>
-            <div class="modal-success-Overlay"></div>
-
-            <section class="Alerts-Failure-Modal">
-                <div class="modal-flex">
-                    <div class="modal-header-failure">
-                        <p class="ModalTextFailure"><svg width="30" height="30" viewBox="0 0 76 76" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M50.0205 31.0205L43.0469 38L50.0294 44.9795C50.6986 45.6488 51.0746 46.5565 51.0746 47.503C51.0746 48.4494 50.6986 49.3571 50.0294 50.0264C49.3601 50.6957 48.4524 51.0717 47.506 51.0717C46.5595 51.0717 45.6518 50.6957 44.9825 50.0264L38 43.0469L31.0205 50.0294C30.3512 50.6986 29.4435 51.0746 28.497 51.0746C27.5506 51.0746 26.6429 50.6986 25.9736 50.0294C25.3043 49.3601 24.9284 48.4524 24.9284 47.5059C24.9284 46.5595 25.3043 45.6518 25.9736 44.9825L32.9531 38L25.9795 31.0205C25.6482 30.6891 25.3853 30.2957 25.206 29.8627C25.0266 29.4297 24.9343 28.9657 24.9343 28.497C24.9343 27.5506 25.3103 26.6429 25.9795 25.9736C26.6488 25.3043 27.5565 24.9284 28.503 24.9284C29.4495 24.9284 30.3572 25.3043 31.0264 25.9736L38 32.9531L44.9795 25.9706C45.6488 25.3014 46.5565 24.9254 47.503 24.9254C48.4495 24.9254 49.3572 25.3014 50.0264 25.9706C50.6957 26.6399 51.0717 27.5476 51.0717 28.4941C51.0717 29.4405 50.6957 30.3482 50.0264 31.0175L50.0205 31.0205ZM70.0625 38C70.0625 44.3414 68.1821 50.5403 64.659 55.813C61.1359 61.0856 56.1285 65.1952 50.2698 67.6219C44.4111 70.0486 37.9644 70.6836 31.7449 69.4464C25.5254 68.2093 19.8124 65.1556 15.3284 60.6716C10.8444 56.1876 7.79073 50.4746 6.55359 44.2551C5.31645 38.0356 5.95139 31.5889 8.37813 25.7302C10.8049 19.8716 14.9144 14.8641 20.187 11.341C25.4597 7.81793 31.6587 5.9375 38 5.9375C46.5006 5.94693 54.6504 9.32796 60.6612 15.3388C66.6721 21.3496 70.0531 29.4994 70.0625 38ZM62.9375 38C62.9375 33.0678 61.475 28.2464 58.7348 24.1455C55.9946 20.0445 52.0999 16.8482 47.5432 14.9608C42.9864 13.0733 37.9723 12.5794 33.1349 13.5417C28.2975 14.5039 23.8541 16.879 20.3665 20.3665C16.879 23.8541 14.5039 28.2975 13.5417 33.1349C12.5795 37.9723 13.0733 42.9864 14.9608 47.5432C16.8482 52.0999 20.0445 55.9946 24.1455 58.7348C28.2464 61.4749 33.0678 62.9375 38 62.9375C44.6117 62.9304 50.9505 60.3008 55.6257 55.6257C60.3008 50.9505 62.9304 44.6117 62.9375 38Z" fill="white"/>
-                            </svg>
-                        </p>
-                    </div>
-                    <div class="modal-body">
-                        <p id="ModalTextFailure-labels">Message</p>
-                    </div>
-                    <div class="modal-footer-failure">
-                        <button class="ModalFailureCloseBtn">Try Again</button>
-                  </div>
-                    
-                </div>
-                    
-
-            </section>
-            <div class="modal-failure-Overlay"></div> 
         </div> 
     </div>
     

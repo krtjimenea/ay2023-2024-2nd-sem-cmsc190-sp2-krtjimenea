@@ -1,8 +1,9 @@
 //contains listeners and functions
 // Import the functions you need from the SDKs you need
 import { FirebaseApp } from './firebase';
+import { getFirestore, doc, setDoc, addDoc,collection } from "firebase/firestore";
 import {getAuth,signInWithCredential,GoogleAuthProvider} from 'firebase/auth';
-import {getDatabase,ref,set,on, onValue, get, update,push, child, query,orderByChild,equalTo, orderByValue,setValue} from 'firebase/database';
+import {getDatabase,ref,set,on, onValue, get, update,push, child, query,orderByChild,equalTo, startAfter, orderByValue,setValue} from 'firebase/database';
 import { nanoid } from 'nanoid';
 import { customAlphabet } from 'nanoid';
 //Initialize Firebase
@@ -19,8 +20,10 @@ const StudentExamDetailsPage = '/StudentAssessmentDetails.html';
 const AdminDashboard = '/AdminDashboard.html';
 const facultyViewAssessments = '/FacultyManageAssessments.html';
 const facultyViewScheduledExam = '/FacultyAssessmentDetails.html';
-
-
+const FacultyViewProctoringReportSummary = '/FacultyViewProctoringReportSummary.html';
+const FacultyViewClasslist = '/FacultyViewClasslist.html';
+const FacultyViewStudentProctoringReport = '/FacultyViewStudentProctoringReportSummary.html';
+const FacultyStudentAuthReport = '/FacultyStudentAuthReport.html';
 
 
 //Function to get SidePanel path
@@ -32,6 +35,8 @@ function monitorSidePanelPath() {
     chrome.sidePanel.getOptions({ tabId }, function(options) {
       const path = options.path;
       console.log('path: ' + path);
+      //this the current path, create an array of history in the service worker, pass as message
+      chrome.runtime.sendMessage({action: 'sendCurrentPath', value: path});
       if(path === '/FacultySchedulePage.html'){
         var receivedUserId;
         chrome.storage.local.get('currentUserId', function(data) {
@@ -45,6 +50,79 @@ function monitorSidePanelPath() {
           receivedUserId = data.currentUserId;
           viewFacultyAssessmentsList(receivedUserId);
         });
+
+      }else if(path === '/FacultyViewProctoringReportSummary.html'){
+        chrome.storage.local.get('value1', function(data) {
+          var currentCourse = data.value1;
+          if(currentCourse){
+            chrome.storage.local.get('currentExamKey', function(data) {
+              var currentExam = data.currentExamKey;
+              if(currentExam){
+                chrome.storage.local.get('currentExamName', function(data) {
+                  var currentExamName = data.currentExamName;
+                  if(currentExamName){
+                    ViewProctoringReportSummary(currentExam, currentCourse, currentExamName);
+                  }
+                });
+               
+              }
+            });
+          }
+        });
+      }else if(path==='/FacultyViewClasslist.html'){
+        chrome.storage.local.get('value1', function(data) {
+          var currentCourse = data.value1;
+          if(currentCourse){
+            viewClasslistOfCourse(currentCourse)
+          }
+                
+        });
+        
+
+      }else if(path==='/FacultyViewStudentProctoringReportSummary.html'){
+        //get the student, course and section of the exams
+        chrome.storage.local.get('currentstudentKey', function(data) {
+            var currentStudent = data.currentstudentKey;
+            if(currentStudent){
+                chrome.storage.local.get('value1', function(data) {
+                    var currentSection= data.value1;
+                    if(currentSection){
+                        chrome.storage.local.get('currentExamKey', function(data) {
+                            var currentExam = data.currentExamKey;
+                            if(currentExam){
+                              viewStudentProctoringReport(currentSection,currentExam,currentStudent);
+                            }
+                          });
+                     
+                    }
+                  });
+             
+              
+            }
+          });
+       
+      }else if(path === '/FacultyStudentAuthReport.html'){
+        //get the student, course and section of the exams
+        chrome.storage.local.get('currentstudentKey', function(data) {
+          var currentStudent = data.currentstudentKey;
+          if(currentStudent){
+              chrome.storage.local.get('currentSectionKey', function(data) {
+                  var currentSection= data.currentSectionKey;
+                  if(currentSection){
+                      chrome.storage.local.get('currentExamReportKey', function(data) {
+                          var currentExam = data.currentExamReportKey;
+                          if(currentExam){
+                            viewStudentAuthReport(currentSection,currentExam,currentStudent);
+                          }
+                        });
+                   
+                  }
+                });
+           
+            
+          }
+        });
+
       }
     });
   });
@@ -64,6 +142,12 @@ window.addEventListener('DOMContentLoaded', function () {
     const target = event.target;
     var currentUserId;
 
+    //for routing
+    if(target.id ===  'BackBtn' || target.id === 'BackIcon'){
+      console.log('Back Clicked');
+      navigateBack();
+    }
+
     //For faculty dashboard events
     if(target.id === 'ScheduleBtn'){
       console.log('Clicked on Schedule Assessment');
@@ -81,8 +165,786 @@ window.addEventListener('DOMContentLoaded', function () {
       scheduleExam(currentUserId);
      
     }
+
+    if(target.id === 'ViewProctoringReportSummaryExamOnly'){
+      var dataKey = target.value;
+      var keysList = dataKey.split("/");
+      chrome.runtime.sendMessage({action: 'examKey', value: keysList[0]});
+      chrome.runtime.sendMessage({action: 'passValue1', value: keysList[1]});
+      chrome.runtime.sendMessage({action: 'examName', value: keysList[2]});
+      chrome.sidePanel.setOptions({path:FacultyViewProctoringReportSummary});
+    }
+
+    if(target.id === 'ViewStudentList'){
+      var dataKey = target.value;
+      var keysList = dataKey.split("/");
+      chrome.runtime.sendMessage({action: 'examKey', value: keysList[0]});
+      chrome.runtime.sendMessage({action: 'passValue1', value: keysList[1]});
+      chrome.runtime.sendMessage({action: 'examName', value: keysList[2]});
+      chrome.sidePanel.setOptions({path:FacultyViewClasslist});
+
+    }
+
+    if(target.id === 'ViewStudentAssignedExamReport'){
+      var dataKey = target.value;
+      chrome.runtime.sendMessage({action: 'studentKey', value: dataKey});
+      chrome.sidePanel.setOptions({path: FacultyViewStudentProctoringReport});
+
+    }
+
+    //for viewing auth reports per student
+    if(target.id === 'ViewAuthReportSummary'){
+      //state the value
+      var selectedSectionandExam = target.value;
+      var currentKey = selectedSectionandExam.split("/");
+      chrome.runtime.sendMessage({action: 'currentStudentSection_Report', value: currentKey[1]});
+      chrome.runtime.sendMessage({action: 'currentStudentExam_Report', value: currentKey[0]});
+      //change panel
+      chrome.sidePanel.setOptions({path:FacultyStudentAuthReport})
+    }
+
+    if(target.className === 'ModalFailureCloseBtn'){
+      console.log('Clicked Close Modal');
+      //closeModal();
+      let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
+      let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
+      modal.style.display = "none";
+      overlay.style.display = "none";
+    }
+
   });
 });
+
+//to handle route changes
+function navigateBack() {
+  chrome.storage.local.get('historyStack', function(result) {
+    var historyStack = result.historyStack || [];
+    if (historyStack.length > 1) {
+      // Pop the last item from the stack
+      var lastItem = historyStack.pop();
+      //save the updated stack back to chrome storage
+      chrome.storage.local.set({'historyStack': historyStack}, function() {
+        // Use the last item to navigate or perform the relevant action
+        var backToPath = historyStack.slice(-1)[0];
+        console.log("Navigating back to:", backToPath );
+        chrome.sidePanel.setOptions({path:backToPath});
+
+      });
+    } else {
+      console.log("No history to navigate back");
+    }
+  });
+}
+
+//function to view students auth report
+function viewStudentAuthReport(currentCourseKey,currentExamKey,currentStudent){
+  console.log(currentCourseKey,currentExamKey,currentStudent);
+ //check if there is a logged in user
+  chrome.identity.getAuthToken({ interactive: true }, token =>
+    {
+      if ( chrome.runtime.lasterroror || ! token ) {
+        alert(`SSO ended with an erroror: ${JSON.stringify(chrome.runtime.lasterroror)}`)
+        return
+      }
+      //firebase authentication
+      signInWithCredential(auth, GoogleAuthProvider.credential(null, token))
+      .then(res =>{
+          const user = auth.currentUser;
+          const db = getDatabase(); 
+          //get profile uid
+          if (user !== null) {
+            const assessmentRef = ref(db,`/proctoringReportStudent/${currentCourseKey}/${currentExamKey}/${currentStudent}`);
+            
+            get(assessmentRef)
+              .then((snapshot) => {
+
+                if (snapshot.exists()) {
+                    const childData = snapshot.val();
+                 
+                    var cardListDiv = document.getElementById('cardList');
+                    cardListDiv.innerHTML='';
+
+                    const email = childData.studentEmail;
+                    const timeStarted = childData.student_time_started;
+                    const timeSubmitted = childData.student_time_submitted;
+                    const flaggedActivities = childData.student_total_flagged_activity;
+                    const activity = childData.flagged_activities;
+                    const authScore = childData.student_auth_risk_score;
+                    const authStatus = childData.student_didAuthAllow;
+                    const examTakenName = childData.assessmentTaken.name;
+                    const examCourseSection = childData.assessmentTaken.courseSection;
+                    const examFIC = childData.assessmentTaken.FacultyInChargeName;
+                    const stringIdentity = childData.identity_UponExam;
+                    var IdentityJSON = JSON.parse(stringIdentity);
+                    console.log(IdentityJSON);
+
+                    let headerCourseCode = document.getElementById('FacultyHeaderDetails-CourseCode');
+                    headerCourseCode.textContent =  examTakenName;
+                    //iterate over each property of the identity
+                    let geolocation_lat_object, geolocation_long_object, IP_address_object, display_object, cpu_object, os_object, browser_object;
+                    for (let key in IdentityJSON) {
+                        if (IdentityJSON.hasOwnProperty(key)) {
+                            switch (key) {
+                                case "geolocation_lat":
+                                    geolocation_lat_object = IdentityJSON[key];
+                                    break;
+                                case "geolocation_long":
+                                    geolocation_long_object = IdentityJSON[key];
+                                    break;
+                                case "IP_address":
+                                    IP_address_object = IdentityJSON[key];
+                                    break;
+                                case "display":
+                                    display_object = IdentityJSON[key];
+                                    break;
+                                case "cpu":
+                                    cpu_object = IdentityJSON[key];
+                                    break;
+                                case "os":
+                                    os_object = IdentityJSON[key];
+                                    break;
+                                case "browser":
+                                    browser_object = IdentityJSON[key];
+                                    break;
+
+                            }
+                        }
+                    }
+
+
+                   
+                    cardListDiv.innerHTML+= ` <div class="cards-PR-Students">
+                    <div class="cardDivText">
+                    <div class="cardSubDiv-subCard-PR">
+                    <div class="subCard-PR-2">
+                        <div class="subCard-PR-Text">
+                            <p id="card-labels-PR-header">Student Email</p>                                            
+                            <div class="subCard-Div-info">
+                                <p class="cardText-small" id="StudentEmail">${email}</p>
+                            </div>
+                            
+                        </div>
+                    </div>
+                          </div>
+
+                          
+
+                          <div class="cardSubDiv-subCard-PR">
+                                      <div class="subCard-PR-2">
+                                          <div class="subCard-PR-Text">
+                                              <p id="card-labels-PR-header">Course and Section</p>                                            
+                                              <div class="subCard-Div-info">
+                                                  <p class="cardText-small" id="StudentCourseSection">${examCourseSection}</p>
+                                              </div>
+                                              
+                                          </div>
+                                      </div>
+                          </div>
+
+                          <div class="cardSubDiv-subCard-PR">
+                          <div class="subCard-PR-2">
+                              <div class="subCard-PR-Text">
+                                  <p id="card-labels-PR-header">Faculty-in-Charge</p>                                            
+                                  <div class="subCard-Div-info">
+                                      <p class="cardText-small" id="StudentCourseSection">${examFIC}</p>
+                                  </div>
+                                  
+                              </div>
+                          </div>
+                        </div>
+                                        
+                        <div class="cardSubDiv-subCard-PR">
+                                    <div class="subCard-PR-2">
+                                        <div class="subCard-PR-Text">
+                                            <p id="card-labels-PR-header">Auth Risk Score</p>                                            
+                                            <div class="subCard-Div-info">
+                                                <p class="cardText-small" id="StudentAuthRiskScore">${authScore}</p>
+                                            </div>
+                                            
+                                        </div>
+                                    </div>
+                            
+                        </div>
+
+                        <div class="cardSubDiv-subCard-PR">
+                            <div class="subCard-PR-2">
+                                <div class="subCard-PR-Text">
+                                    <p id="card-labels-PR-header">Authenticated to Take Exam</p>                                            
+                                    <div class="subCard-Div-info">
+                                        <p class="cardText-small" id="StudentAuthRiskBool">${authStatus}</p>
+                                    </div>
+                                
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cardSubDiv-subCard">
+                            <div class="subCard-PR-1">
+                                <div class="subCard-PR-Text">
+                                    <p id="card-labels-PR-header">IP Address</p>                                            
+                                    <div class="subCard-Div">
+                                        <p id="card-labels-PR">Matched:</p>
+                                        <p class="cardText" id="matchedValue">${IP_address_object.didMatch}</p>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cardSubDiv-subCard">
+                            <div class="subCard-PR-1">
+                                <div class="subCard-PR-Text">
+                                    <p id="card-labels-PR-header">Geolocation Latitude</p>                                            
+                                    <div class="subCard-Div">
+                                        <p id="card-labels-PR">Matched:</p>
+                                        <p class="cardText" id="matchedValue">${geolocation_lat_object.didMatch}</p>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cardSubDiv-subCard">
+                            <div class="subCard-PR-1">
+                                <div class="subCard-PR-Text">
+                                    <p id="card-labels-PR-header">Geolocation Longitude</p>                                            
+                                    <div class="subCard-Div">
+                                        <p id="card-labels-PR">Matched:</p>
+                                        <p class="cardText" id="matchedValue">${geolocation_long_object.didMatch}</p>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cardSubDiv-subCard">
+                            <div class="subCard-PR-1">
+                                <div class="subCard-PR-Text">
+                                    <p id="card-labels-PR-header">Display</p>                                            
+                                    <div class="subCard-Div">
+                                        <p id="card-labels-PR">Matched:</p>
+                                        <p class="cardText" id="matchedValue">${display_object.didMatch}</p>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cardSubDiv-subCard">
+                            <div class="subCard-PR-1">
+                                <div class="subCard-PR-Text">
+                                    <p id="card-labels-PR-header">CPU</p>                                            
+                                    <div class="subCard-Div">
+                                        <p id="card-labels-PR">Matched:</p>
+                                        <p class="cardText" id="matchedValue">${cpu_object.didMatch}</p>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cardSubDiv-subCard">
+                            <div class="subCard-PR-1">
+                                <div class="subCard-PR-Text">
+                                    <p id="card-labels-PR-header">Operating System</p>                                            
+                                    <div class="subCard-Div">
+                                        <p id="card-labels-PR">Matched:</p>
+                                        <p class="cardText" id="matchedValue">${os_object.didMatch}</p>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cardSubDiv-subCard">
+                            <div class="subCard-PR-1">
+                                <div class="subCard-PR-Text">
+                                    <p id="card-labels-PR-header">Browser</p>                                            
+                                    <div class="subCard-Div">
+                                        <p id="card-labels-PR">Matched:</p>
+                                        <p class="cardText" id="matchedValue">${browser_object.didMatch}</p>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                        
+                       
+
+                     
+                       
+                      
+                    </div>
+                </div>`
+                   
+              }else{
+                var cardListDiv = document.getElementById('cardList');
+                cardListDiv.innerHTML=`<p class="DBisEmptyMssg">Collection is empty, Nothing to show</p>`;
+              }
+            })
+            .catch((error) => {
+              console.log("error with database: " + error);
+            });
+
+          }
+      })
+      .catch((error) => {
+        alert("SSO ended with an error" + error);
+      });
+  });
+
+
+}
+
+
+function viewStudentProctoringReport(currentCourseKey,currentExamKey,currentStudent){
+
+  console.log(currentCourseKey,currentExamKey,currentStudent);
+  //check if there is a logged in user
+   chrome.identity.getAuthToken({ interactive: true }, token =>
+     {
+       if ( chrome.runtime.lasterroror || ! token ) {
+         alert(`SSO ended with an erroror: ${JSON.stringify(chrome.runtime.lasterroror)}`)
+         return
+       }
+       //firebase authentication
+       signInWithCredential(auth, GoogleAuthProvider.credential(null, token))
+       .then(res =>{
+           const user = auth.currentUser;
+           const db = getDatabase(); 
+           //get profile uid
+           if (user !== null) {
+             const assessmentRef = ref(db,`/proctoringReportStudent/${currentCourseKey}/${currentExamKey}/${currentStudent}`);
+             
+             get(assessmentRef)
+               .then((snapshot) => {
+ 
+                 if (snapshot.exists()) {
+                     const childData = snapshot.val();
+                  
+                     var cardListDiv = document.getElementById('cardList');
+                     cardListDiv.innerHTML='';
+ 
+                     const email = childData.studentEmail;
+                     const timeStarted = childData.student_time_started;
+                     const timeSubmitted = childData.student_time_submitted;
+                     const flaggedActivities = childData.student_total_flagged_activity;
+                     const examTakenName = childData.assessmentTaken.name;
+                     const examCourseSection = childData.assessmentTaken.courseSection;
+                     const examFIC = childData.assessmentTaken.FacultyInChargeName;
+                     let headerCourseCode = document.getElementById('FacultyHeaderDetails-CourseCode');
+                     headerCourseCode.textContent =  examTakenName;
+                     
+                     const activity = childData.flagged_activities;
+                    
+                     //flagged activities
+                     const windowChanges = activity.student_num_changed_windows;
+                     const tabSwitches = activity.student_num_tab_switched;
+                     const copyAction = activity.student_num_of_copy_action;
+                     const pasteAction = activity.student_num_of_paste_action;
+                     const newTabsString = activity.student_new_opened_tabs_data;
+                     const openTabsString = activity.student_open_tabs_data;
+                     
+                   
+ 
+                     cardListDiv.innerHTML+= `
+                     <div class="cards-PR-Students">
+                    
+                         <div class="cardSubDiv-subCard-PR">
+                                     <div class="subCard-PR-2">
+                                         <div class="subCard-PR-Text">
+                                             <p id="card-labels-PR-header">Student Email</p>                                            
+                                             <div class="subCard-Div-info">
+                                                 <p class="cardText-small" id="StudentEmail">${email}</p>
+                                             </div>
+                                             
+                                         </div>
+                                     </div>
+                         </div>
+ 
+                         <div class="cardSubDiv-subCard-PR">
+                                     <div class="subCard-PR-2">
+                                         <div class="subCard-PR-Text">
+                                             <p id="card-labels-PR-header">Course and Section</p>                                            
+                                             <div class="subCard-Div-info">
+                                                 <p class="cardText-small" id="StudentCourseSection">${examCourseSection}</p>
+                                             </div>
+                                             
+                                         </div>
+                                     </div>
+                         </div>
+ 
+                         <div class="cardSubDiv-subCard-PR">
+                         <div class="subCard-PR-2">
+                             <div class="subCard-PR-Text">
+                                 <p id="card-labels-PR-header">Faculty-in-Charge</p>                                            
+                                 <div class="subCard-Div-info">
+                                     <p class="cardText-small" id="StudentCourseSection">${examFIC}</p>
+                                 </div>
+                                 
+                             </div>
+                         </div>
+                       </div>
+                         
+ 
+                         <div class="cardSubDiv-subCard-PR">
+                                     <div class="subCard-PR-2">
+                                         <div class="subCard-PR-Text">
+                                             <p id="card-labels-PR-header">Time Started</p>                                            
+                                             <div class="subCard-Div-info">
+                                                 <p class="cardText-small" id="TimeStartedExam">${timeStarted}</p>
+                                             </div>
+                                             
+                                         </div>
+                                     </div>
+                             
+                         </div>
+ 
+                         <div class="cardSubDiv-subCard-PR">
+                             <div class="subCard-PR-2">
+                                 <div class="subCard-PR-Text">
+                                     <p id="card-labels-PR-header">Time Submitted</p>                                            
+                                     <div class="subCard-Div-info">
+                                         <p class="cardText-small" id="TimeSubmittedExam">${timeSubmitted}</p>
+                                     </div>
+                                 
+                                 </div>
+                             </div>
+                         </div>
+                        
+                         <div class="cardSubDiv-subCard-PR">
+                             <div class="subCard-PR-neg">
+                                 <div class="subCard-PR-Text">
+                                     <p id="card-labels-PR-header">Flagged Activity</p>                                            
+                                     <div class="subCard-Div-info">
+                                       <p class="cardText-small" id="TotalStudentFlaggedAct">${flaggedActivities} found</p>
+                                     </div>
+                                 
+                                 </div>
+                             </div>
+                         </div>
+ 
+                         <div class="cardSubDiv-subCard-PR">
+                             <div class="subCard-PR-neg">
+                                 <div class="subCard-PR-Text">
+                                     <p id="card-labels-PR-header">Browser Window Changed</p>                                            
+                                     <div class="subCard-Div-info">
+                                     <p class="cardText-small" id="TotalWindowChange">${windowChanges} time(s)</p>
+                                     </div>
+                                 
+                                 </div>
+                             </div>
+                         </div>
+ 
+                         <div class="cardSubDiv-subCard-PR">
+                             <div class="subCard-PR-neg">
+                                 <div class="subCard-PR-Text">
+                                     <p id="card-labels-PR-header">Tab Switched</p>                                            
+                                     <div class="subCard-Div-info">
+                                     <p class="cardText-small" id="TotalWindowChange">${tabSwitches} time(s)</p>
+                                     </div>
+                                 
+                                 </div>
+                             </div>
+                         </div>
+ 
+                         <div class="cardSubDiv-subCard-PR">
+                             <div class="subCard-PR-neg">
+                                 <div class="subCard-PR-Text">
+                                     <p id="card-labels-PR-header">Copy Action Detected:</p>                                            
+                                     <div class="subCard-Div-info">
+                                     <p class="cardText-small" id="TotalCopyAction">${copyAction} time(s)</p>
+                                     </div>
+                                 
+                                 </div>
+                             </div>
+                         </div>
+ 
+                         <div class="cardSubDiv-subCard-PR">
+                         <div class="subCard-PR-neg">
+                             <div class="subCard-PR-Text">
+                                 <p id="card-labels-PR-header">Paste Action Detected:</p>                                            
+                                 <div class="subCard-Div-info">
+                                 <p class="cardText-small" id="TotalCopyAction">${pasteAction} time(s)</p>
+                                 </div>
+                             
+                             </div>
+                         </div>
+                     </div>
+ 
+                         <!--Card within a card-->
+                         <div class="cardSubDiv-subCard-PR">
+                             <div class="subCard-PR-2">
+                                 <div class="subCard-PR-Text">
+                                     <p id="card-labels-PR-header">Tabs Open During Session:</p> 
+                                     <div id="subCard-Div-List">                                           
+                                         
+                                     </div>
+                                 
+                                 </div>
+                             </div>
+                         </div>
+                        
+ 
+                         <div class="cardSubDiv-subCard-PR">
+                         <div class="subCard-PR-2">
+                             <div class="subCard-PR-Text">
+                                 <p id="card-labels-PR-header">New Tabs Opened:</p> 
+                                 <div id="subCard-Div-List-New-Tabs">                                           
+                                     
+                                 </div>
+                             
+                             </div>
+                         </div>
+                     </div>
+ 
+                         <div class="cardSubDiv-Click">
+                             <button class="cardText" id="ViewAuthReportSummary" value="${currentExamKey}/${currentCourseKey}">Authentication Report</p>
+                         </div>
+ 
+                      
+                     </div>
+                 </div>`
+                    
+                 // console.log(openTabsJSON);
+                 var openTabsJSON = JSON.parse(openTabsString)
+                 var SubcardListDiv = document.getElementById('subCard-Div-List');
+                 SubcardListDiv.innerHTML='';
+                 for (const tab of openTabsJSON) {
+                     SubcardListDiv.innerHTML +=`<div class="subCard-Div">
+                                         <a href="${tab.url}" target="_blank" id="TabURL" class="cardText-small">${tab.title}</a>
+                                      </div>`
+                 }
+ 
+                 //render new tabs
+                 var newTabsJSON = JSON.parse(newTabsString)
+                 var newTabsSubcardListDiv = document.getElementById('subCard-Div-List-New-Tabs');
+                 newTabsSubcardListDiv.innerHTML='';
+                 for (const tab of newTabsJSON) {
+                     newTabsSubcardListDiv.innerHTML +=`<div class="subCard-Div">
+                                       <a href="${tab.url}" target="_blank" id="TabURL" class="cardText-small">${tab.title}</a>
+                                      </div>`
+                 }
+ 
+ 
+                 } else {
+                     var cardListDiv = document.getElementById('cardList');
+                     cardListDiv.innerHTML=`<p class="DBisEmptyMssg">Collection is empty, Nothing to show</p>`;
+                 }
+               })
+               .catch((error) => {
+                   console.log("error with database: " + error);
+               });
+ 
+             
+               
+           }
+       })
+       .catch((error) => {
+         alert("SSO ended with an error" + error);
+       });
+   });
+ 
+     
+ }
+//function to view classlist of course selected
+function viewClasslistOfCourse(currentCourse){
+  //check if there is a logged in user
+  chrome.identity.getAuthToken({ interactive: true }, token =>
+    {
+        if ( chrome.runtime.lastError || ! token ) {
+          alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
+          return
+        }
+  
+        //firebase authentication
+        signInWithCredential(auth, GoogleAuthProvider.credential(null, token))
+        .then(res =>{
+            const user = auth.currentUser;
+            //get profile uid
+            if (user !== null) {
+              const db = getDatabase(); 
+              const studentRef = ref(db,`/takingClasses/${currentCourse}`);
+              get(studentRef)
+                .then((snapshot) => {
+                  if (snapshot.exists()) {
+                    //alert("Success Firebase Access!");
+                    //checking for snapshot return
+                    const childData = snapshot.val();
+                    var cardListDiv = document.getElementById('cardList');
+                    let headerCourseCode = document.getElementById('FacultyHeaderDetails-CourseCode');
+                    headerCourseCode.textContent = currentCourse;
+                    cardListDiv.innerHTML='';
+                    //loop through the snapshot
+                    for(const studentId in childData){
+                      const student = childData[studentId];
+                      const studentEmail= student.Email;
+                      const studentNumber = student.StudentNumber;
+                      
+  
+                      cardListDiv.innerHTML += `<div class="cards">
+                                  <p class="cardHeader" id="StudentFullName">${studentEmail}</p>
+                                    <div class="cardDivText">
+                                        <div class="cardSubDiv">
+                                            <p id="card-labels">Student Number:</p>
+                                            <p class="cardText" id="CourseTitle">${studentNumber}</p>
+                                        </div>
+                                        <div class="cardSubDiv-Click">
+                                      <button class="cardText" id="ViewStudentAssignedExamReport" value="${studentNumber}">Proctoring Report</p>
+                                    </div>
+  
+                                       
+                                    </div>
+                                </div>`;
+  
+                    }
+                 
+                  } else {
+                    var cardListDiv = document.getElementById('cardList');
+                    cardListDiv.innerHTML=`<p class="DBisEmptyMssg">Collection is empty, Nothing to show</p>`;
+                  }
+                })
+                .catch((error) => {
+                    console.log("Error with database: " + error);
+                });
+            }
+        })
+        .catch((error) => {
+          alert("SSO ended with an error" + error);
+        });
+    });
+
+  
+}
+
+
+function ViewProctoringReportSummary(currentExamKey, currentCourseKey, currentExamName){
+  
+  //get the total number of prs under that exam
+  //check if there is a logged in user
+  chrome.identity.getAuthToken({ interactive: true }, token =>
+    {
+      if ( chrome.runtime.lasterroror || ! token ) {
+        alert(`SSO ended with an erroror: ${JSON.stringify(chrome.runtime.lasterroror)}`)
+        return
+      }
+      //firebase authentication
+      signInWithCredential(auth, GoogleAuthProvider.credential(null, token))
+      .then(res =>{
+          const user = auth.currentUser;
+          const db = getDatabase(); 
+          //get profile uid
+          if (user !== null) {
+            const assessmentRef = ref(db,`/proctoringReportStudent/${currentCourseKey}/${currentExamKey}`);
+            var numof_StudentsTookExam = 0;
+            get(assessmentRef)
+              .then((snapshot) => {
+                if (snapshot.exists()) {
+                  const childData = snapshot.val();
+                  let headerCourseCode = document.getElementById('FacultyHeaderDetails-CourseCode');
+                  headerCourseCode.textContent =  currentExamName;
+                  //get the count of how many proctoring reports (aka total of who took the exam)
+                  numof_StudentsTookExam = snapshot.size;
+                  let studentsTotal = document.getElementById('TotalStudents');
+                  studentsTotal.textContent = numof_StudentsTookExam;
+                  // console.log("Total Num of Students Taking the Exam: ", numof_StudentsTookExam);
+                } else {
+                  numof_StudentsTookExam = 0;
+                  let studentsTotal = document.getElementById('TotalStudents');
+                  studentsTotal.textContent = numof_StudentsTookExam;
+                  let headerCourseCode = document.getElementById('AdminHeaderDetails-CourseCode');
+                  headerCourseCode.textContent =  "No Data Yet";
+                  //alert("errorOR: Doesnt Exist, Firebase Access!");
+                }
+              })
+              .catch((error) => {
+                  console.log("error with database: " + error);
+              });
+
+              //query for flagged activity
+              var numof_FlaggedStudents = 0;
+              const flaggedActivityQuery = query(assessmentRef, orderByChild('student_total_flagged_activity'), startAfter(0));
+              get(flaggedActivityQuery)
+                .then((snapshot) => {
+                  if (snapshot.exists()) {
+                    numof_FlaggedStudents = snapshot.size;
+                    let studentsFlagged = document.getElementById('TotalFlagged');
+                    studentsFlagged.textContent = numof_FlaggedStudents;
+                    // const data = snapshot.val();
+                    // console.log('Total Num of Students with flagged activity:', numof_FlaggedStudents);
+                  } else {
+                    numof_FlaggedStudents = 0;
+                    let studentsFlagged = document.getElementById('TotalFlagged');
+                    studentsFlagged.textContent = numof_FlaggedStudents;
+                    // console.log('No students found with flagged activity');
+                  }
+                }).catch((erroror) => {
+                  console.erroror('erroror fetching data:', erroror);
+                });
+              
+              //query for NO flagged activity
+              var numof_No_FlaggedStudents = 0;
+              const no_flaggedActivityQuery = query(assessmentRef, orderByChild('student_total_flagged_activity'), equalTo(0));
+              get(no_flaggedActivityQuery)
+                .then((snapshot) => {
+                  if (snapshot.exists()) {
+                    numof_No_FlaggedStudents = snapshot.size;
+                    let studentsNOTflagged = document.getElementById('TotalNoFlagged');
+                    studentsNOTflagged.textContent = numof_No_FlaggedStudents;
+                    // const data = snapshot.val();
+                    // console.log('Total Num of Students with NO flagged activity:', numof_No_FlaggedStudents);
+                  } else {
+                    numof_No_FlaggedStudents = 0;
+                    let studentsNOTflagged = document.getElementById('TotalNoFlagged');
+                    studentsNOTflagged.textContent = numof_No_FlaggedStudents;
+                    // console.log('No students found with NO flagged activity');
+                  }
+                }).catch((error) => {
+                  console.error('Error fetching data:', error);
+                });
+
+              //query for did auth allow
+              var numof_AuthAllowedStudents = 0;
+              const AuthAllowedStudentsQuery = query(assessmentRef, orderByChild('student_didAuthAllow'), equalTo(true));
+              get(AuthAllowedStudentsQuery)
+                .then((snapshot) => {
+                  if (snapshot.exists()) {
+                    numof_AuthAllowedStudents = snapshot.size;
+                    let studentTotalAuthenticated = document.getElementById('TotalAuthenticated');
+                    studentTotalAuthenticated.textContent =numof_AuthAllowedStudents;
+                    // const data = snapshot.val();
+                    //console.log('Total Num of Students Allowed Authenticated:', numof_AuthAllowedStudents);
+                  } else {
+                    numof_AuthAllowedStudents = 0;
+                    let studentTotalAuthenticated = document.getElementById('TotalAuthenticated');
+                    studentTotalAuthenticated.textContent =numof_AuthAllowedStudents;
+                    // console.log('No students found with Allowed Authenticated');
+                  }
+                }).catch((error) => {
+                  console.error('Error fetching data:', error);
+                });
+              
+              //query for did NOT auth allow
+              var numof_NotAuthAllowedStudents = 0;
+              const AuthNotAllowedStudentsQuery = query(assessmentRef, orderByChild('student_didAuthAllow'), equalTo(false));
+              get(AuthNotAllowedStudentsQuery)
+                .then((snapshot) => {
+                  if (snapshot.exists()) {
+                    numof_NotAuthAllowedStudents = snapshot.size;
+                    let studentTotalNotAuthenticated = document.getElementById('TotalNotAuthenticated');
+                    studentTotaNotlAuthenticated.textContent = numof_NotAuthAllowedStudents;
+                    // const data = snapshot.val();
+                    //console.log('Total Num of Students NOT Authenticated:',  numof_NotAuthAllowedStudents);
+                  } else {
+                    numof_NotAuthAllowedStudents = 0;
+                    let studentTotalNotAuthenticated = document.getElementById('TotalNotAuthenticated');
+                    studentTotalNotAuthenticated.textContent = numof_NotAuthAllowedStudents;
+                    //console.log('No students found with NOT Authenticated');
+                  }
+                }).catch((error) => {
+                  console.error('Error fetching data:', error);
+                });
+              
+          }
+      })
+      .catch((error) => {
+        alert("SSO ended with an error" + error);
+      });
+  });
+}
 
 //function to generate a 6 digit code
 function generateExamCode(){
@@ -209,6 +1071,19 @@ function viewFacultyCourses(facultyKeyValue){
   });
 }
 
+//function to convert time
+function AMPMFormat(currentTime){
+
+  const [hours, minutes] = currentTime.split(':');
+  const period = hours >= 12 ? 'PM' : 'AM';
+  //12-hour format
+  const formattedHours = hours % 12 || 12;
+  const formattedTime = `${formattedHours}:${minutes} ${period}`;
+
+  return formattedTime;
+
+}
+
 //function to save the schedule of the exam
 function scheduleExam(){
   
@@ -226,14 +1101,22 @@ function scheduleExam(){
   var startTimeSelected = document.getElementById('start-time').value;
   var endDateSelected = document.getElementById('end-date').value;
   var endTimeSelected = document.getElementById('end-time').value;
+  //split time values
+  const formattedStartTime = AMPMFormat(startTimeSelected);
+  const formattedEndTime = AMPMFormat(endTimeSelected);
+  var assessmentTimeDuration = document.getElementById('assessmentTimeDuration').value;
   var examLink = document.getElementById('assessmentLinkInput').value;
 
-  console.log(examName);
-  console.log(examAccessCode);
-  console.log(courseSelected);
-  console.log(startDateSelected);
-  console.log(endDateSelected);
-  console.log(examLink);
+  if(!examLink.trim()) {
+    // examLink is empty or  whitespace
+    let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
+    let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
+    modal.style.display = "block";
+    overlay.style.display = "block";
+    let alertMessage = document.getElementById("ModalTextFailure-labels");
+    alertMessage.textContent = "Enter a Valid Exam Link!";
+      return; 
+  }
   
   var assessmentKeyGenerator = examName+courseSelected+examAccessCode;
   var assessmentKey =  assessmentKeyGenerator.split(" ").join("");
@@ -266,7 +1149,9 @@ function scheduleExam(){
                 expected_time_start: startTimeSelected,
                 expected_time_end: endTimeSelected,
                 date_start:startDateSelected,
-                date_end:endDateSelected
+                date_end:endDateSelected,
+                time_limit: assessmentTimeDuration
+
                     
               }).then(()=> {
                 alert("Saved to database!");
@@ -286,6 +1171,7 @@ function scheduleExam(){
                 expected_time_end: endTimeSelected,
                 date_start:startDateSelected,
                 date_end:endDateSelected,
+                time_limit: assessmentTimeDuration,
                 students: {}
                     
               }).then(()=> {
@@ -308,7 +1194,9 @@ function scheduleExam(){
                 expected_time_start: startTimeSelected,
                 expected_time_end: endTimeSelected,
                 date_start:startDateSelected,
-                date_end:endDateSelected
+                date_end:endDateSelected,
+                time_limit: assessmentTimeDuration
+
               }).then(()=> {
                 alert("Saved to database!");
                 chrome.sidePanel.setOptions({path:facultyViewScheduledExam});
@@ -317,6 +1205,38 @@ function scheduleExam(){
               })
             });
 
+              //update course assessments
+              update(ref(db,`courseAssessments/${courseSelected}/${assessmentKey}`),{
+                name: examName,
+                FacultyInChargeName: facultyNameSelected,
+                course: courseSelected,
+                link:examLink,
+                access_code: examAccessCode,
+                expected_time_start: formattedStartTime,
+                expected_time_end: formattedEndTime,
+                date_start:startDateSelected,
+                date_end:endDateSelected,
+                time_limit: assessmentTimeDuration
+              }).then(()=> {
+                //console.log("Saved to database!");
+                let modal = document.getElementsByClassName("Alerts-Success-Modal")[0];
+                let overlay = document.getElementsByClassName("modal-success-Overlay")[0];
+                modal.style.display = "block";
+                overlay.style.display = "block";
+                let alertMessage = document.getElementById("ModalTextSuccess-labels");
+                alertMessage.textContent = `Exam Code is: ${examAccessCode}`;
+                let closeBtn = document.getElementsByClassName("ModalSuccessCloseBtn")[0];
+                closeBtn.innerText = "Send Exam Code to Students";
+                closeBtn.addEventListener("click", function(){
+                  modal.style.display = "none";
+                  overlay.style.display = "none";
+                  //Send Email
+                  sendExamAccessCodeMailer(courseSelected, assessmentKey);
+                })
+              }).catch((error) => {
+                console.log(("error with database" + error));
+              })
+
           }
        })//EOF signInWithCredential
       .catch(err =>{alert("SSO ended with an error" + err);})
@@ -324,6 +1244,130 @@ function scheduleExam(){
 
   alert('Exam Scheduled! The code is: ' + examAccessCode);
   mailExamCodes();
+
+}
+
+//function to send the exam code to the students taking the exam
+function sendExamAccessCodeMailer(courseSelected, assessmentKey){
+  //before sending the email, we need to check if the student is already registered via auth
+  //check if there is a logged in user
+  chrome.identity.getAuthToken({ interactive: true }, token =>
+    {
+      if ( chrome.runtime.lastError || ! token ) {
+        alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
+        return
+      }
+      //firebase authentication
+      signInWithCredential(auth, GoogleAuthProvider.credential(null, token))
+      .then(res =>{
+          const user = auth.currentUser;
+          if (user !== null) {
+            //look for which students are taking the exam
+            const db = getDatabase(); 
+            const firestoreDB = getFirestore();
+            const takingAssessmentsRef = ref(db,`/takingAssessments/${assessmentKey}/students/`);
+            const detailsAssessmentsRef = ref(db,`/takingAssessments/${assessmentKey}/`);
+            const studentsRef = ref(db, '/students');       
+            
+            get(detailsAssessmentsRef)
+              .then((examSnapshot) => {
+                const examData = examSnapshot.val();
+                const assessmentFIC = examData.FacultyInChargeName;
+                const assessmentName = examData.name;
+                const assessmentCourseSection = examData.course;
+                const assessmentCode = examData.access_code;
+                const assessmentStartTime = examData.expected_time_start;
+                const assessmentEndTime = examData.expected_time_end;
+                const assessmentStartDate= examData.date_start;
+                const assessmentEndDate= examData.date_end;
+                const assessmentTimeDuration = examData.time_limit;
+              
+                get(takingAssessmentsRef)
+                  .then((snapshot) => {
+                    if (snapshot.exists()) {
+                      const takingAssessmentsData = snapshot.val();
+                      get(studentsRef)
+                        .then((studentsSnapshot) => {
+                          if (studentsSnapshot.exists()) {
+                            const studentsData = studentsSnapshot.val();
+                            const matches = [];
+                            for(const studentId in takingAssessmentsData) {
+                              //get assessment data
+                              if(studentsData[studentId]) {
+                                //check if that match has authProviderUID (registered)
+                                if(studentsData[studentId].authProviderUID !== ""){
+                                  matches.push(studentsData[studentId]);
+                                  //Construct Email;
+                                  const emailData = {
+                                    to: [studentsData[studentId].Email],
+                                    message: {
+                                      subject: `Your Exam Code for ${assessmentName}`,
+                                      html:`<p>Dear ${studentsData[studentId].FirstName} ${studentsData[studentId].LastName},</p>
+                                      <p>As part of ${assessmentCourseSection}, you are required to take the following exam:</p>
+                                      <ul>
+                                          <li>Exam Name: ${assessmentName}</li>
+                                          <li>Exam Faculty-in-Charge: ${assessmentFIC}</li>
+                                          <li>Exam Start Date (yyyy-mm-dd): ${assessmentStartDate}</li>
+                                          <li>Exam Start Time: ${assessmentStartTime}</li>
+                                          <li>Exam End Date (yyyy-mm-dd): ${assessmentEndDate}</li>
+                                          <li>Exam End Time: ${assessmentEndTime}</li>
+                                          <li>Exam Duration: ${assessmentTimeDuration} minutes</li>
+                                      </ul>
+                                      <h3>Your unique exam code is: ${assessmentCode}</h3>
+                                      <p>Please ensure you have the necessary equipment and a stable internet connection before the exam begins.</p>
+                                      <p>If you have any questions or concerns, feel free to reach out to us.</p>
+                                      <p>Good luck with your exam!</p>`
+                                    }
+                                  };
+                                  addDoc(collection(firestoreDB, 'mail'), emailData);
+                                  let modal = document.getElementsByClassName("Alerts-Success-Modal")[0];
+                                  let overlay = document.getElementsByClassName("modal-success-Overlay")[0];
+                                  modal.style.display = "block";
+                                  overlay.style.display = "block";
+                                  let alertMessage = document.getElementById("ModalTextSuccess-labels");
+                                  alertMessage.textContent = 'Exam Code sent to students';
+                                  let closeBtn = document.getElementsByClassName("ModalSuccessCloseBtn")[0];
+                                  closeBtn.innerText = "Continue";
+                                  closeBtn.addEventListener("click", function(){
+                                    chrome.sidePanel.setOptions({path:AdminManageAssessments});
+                                  })
+                                  //After Emailing Students Go Back to Cour
+                                }//EOF Checking if Registered
+
+                              }//EOF Match
+                                if(matches.length === 0){
+                                  let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
+                                  let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
+                                  modal.style.display = "block";
+                                  overlay.style.display = "block";
+                                  let alertMessage = document.getElementById("ModalTextFailure-labels");
+                                  alertMessage.textContent = "Ask Students to register first before scheduling exam";
+                                }
+
+                            }//EOF Forloop
+        
+                          }else{
+                            console.log('No student data available. Upload Classlist');
+                          }
+                        })
+                        .catch((error) => {
+                          console.log('Error fetching students data:', error);
+                        });
+
+                    }else{
+                      alert('No student data available. Upload Classlist');
+                    }
+                  })
+                  .catch((error) => {
+                    console.log("Error with database: " + error);
+                  });
+              }).catch((error) => {
+                console.log("Error with database: " + error);
+              });
+            }
+       })//EOF signInWithCredential
+      .catch(error =>{alert("SSO ended with an error" + error);})
+  }) 
 
 }
 
@@ -363,35 +1407,54 @@ function viewFacultyAssessmentsList(facultyKeyValue){
                     const assessmentCode = assessment.access_code;
                     const assessmentStartTime = assessment.expected_time_start;
                     const assessmentEndTime = assessment.expected_time_end;
+                    const assessmentStartDate= assessment.date_start;
+                    const assessmentEndDate= assessment.date_end;
+                    const assessmentTimeLimit = assessment.time_limit;
+                  
+
 
                     cardListDiv.innerHTML += `<div class="cards">
                                 <p class="cardHeader" id="ExamName">${assessmentName}</p>
                                   <div class="cardDivText">
                                       <div class="cardSubDiv">
-                                          <p id="card-labels">Assigned Course and Section:</p>
+                                          <p id="card-labels">Course & Section:</p>
                                           <p class="cardText" id="CourseTitle">${assessmentCourseSection}</p>
                                       </div>
                                       
                                       <div class="cardSubDiv">
-                                        <p id="card-labels">Faculty-in-Charge:</p>
-                                        <p class="cardText" id="CourseTitle">${assessmentFIC}</p>
-                                      </div> 
-                                      <div class="cardSubDiv">
                                           <p id="card-labels">Link:</p>
-                                          <p class="cardText" id="CourseTitle">${assessmentLink}</p>
+                                          <a href="${assessmentLink}" id="TabURL" class="cardText">Click Here</a>
                                       </div>  
                                       <div class="cardSubDiv">
                                           <p id="card-labels">Access Code:</p>
                                           <p class="cardText" id="CourseTitle">${assessmentCode}</p>
                                       </div>  
                                       <div class="cardSubDiv">
-                                          <p id="card-labels">Start Time and Date:</p>
-                                          <p class="cardText" id="CourseTitle">${assessmentStartTime}</p>
+                                          <p id="card-labels">Start Date:</p>
+                                          <p class="cardText" id="CourseTitle">${assessmentStartDate}</p>
                                       </div>  
                                       <div class="cardSubDiv">
-                                          <p id="card-labels">End Time and Date:</p>
-                                          <p class="cardText" id="CourseTitle">${assessmentEndTime}</p>
+                                          <p id="card-labels">Start Time:</p>
+                                          <p class="cardText" id="CourseTitle">${assessmentStartTime}</p>
+                                      </div> 
+                                      <div class="cardSubDiv">
+                                          <p id="card-labels">End Date:</p>
+                                          <p class="cardText" id="CourseTitle">${assessmentEndDate}</p>
                                       </div>  
+                                      <div class="cardSubDiv">
+                                          <p id="card-labels">End Time:</p>
+                                          <p class="cardText" id="CourseTitle">${assessmentEndTime}</p>
+                                      </div> 
+                                      <div class="cardSubDiv">
+                                        <p id="card-labels">Time Duration:</p>
+                                        <p class="cardText" id="CourseTitle">${assessmentTimeLimit} mins</p>
+                                      </div>  
+                                      <div class="cardSubDiv-Click">
+                                      <button class="cardText" id="ViewProctoringReportSummaryExamOnly" value="${assessmentId}/${assessmentCourseSection}/${assessmentName}">View Proctoring Report</p>
+                                    </div>
+                                    <div class="cardSubDiv-Click">
+                                    <button class="cardText" id="ViewStudentList" value="${assessmentId}/${assessmentCourseSection}/${assessmentName}">View Classlist</p>
+                                  </div>
                                 </div>
                               </div>`;
 
