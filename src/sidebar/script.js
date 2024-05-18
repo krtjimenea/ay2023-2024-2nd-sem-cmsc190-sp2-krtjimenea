@@ -223,7 +223,7 @@ window.addEventListener('DOMContentLoaded', function () {
     //student clicked to submit the exam
     if(target.id === 'submitExamBtn'){
       console.log('Student clicked Submit Exam');
-       //get the current time and pass it
+      //get the current time and pass it
       //format for 12hr
       function formatAMPM(date) {
         // var month = date.getMonth();
@@ -721,7 +721,23 @@ function isStudentRegistered(IDnumber){
   });
 }
 
+//format for date and time
+function formatDate(date) {
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const year = date.getFullYear();
+  return `${month}/${day}/${year}`;
+}
 
+function formatTime(date) {
+  let hours = date.getHours();
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  hours = hours % 12;
+  hours = hours ? hours : 12; // the hour '0' should be '12'
+  return `${hours}:${minutes}:${seconds} ${ampm}`;
+}
 
 //function to check exam code
 function checkExamCode(){
@@ -767,19 +783,41 @@ function checkExamCode(){
                     get(takingAssessmentRef)
                     .then((snapshot) =>{
                       if(snapshot.exists()){
-                        //console.log(snapshot.val());
-                        //alert("Valid, Student is SET TO TAKE THIS ASSESSMENT");
-                        //calculate first the risk score
-                        let modal = document.getElementsByClassName("Alerts-Success-Modal")[0];
-                        let overlay = document.getElementsByClassName("modal-success-Overlay")[0];
-                        modal.style.display = "block";
-                        overlay.style.display = "block";
-                        let alertMessage = document.getElementById("ModalTextSuccess-labels");
-                        alertMessage.textContent = 'Valid, You are set to take this exam!';
-                        let closeBtn = document.getElementsByClassName("ModalSuccessCloseBtn")[0];
-                        closeBtn.addEventListener("click", function(){
-                          compareAuthRiskScore(assessmentId);
-                        })
+                        const assessmentData = snapshot.val();
+                        
+                        //check if they can access the exam at access
+                        const currentDate = new Date();
+                        const formattedCurrentDate = formatDate(currentDate);
+                        const formattedCurrentTime = formatTime(currentDate);
+                        const assessmentStartTime = assessmentData.expected_time_start;
+                        const assessmentEndTime = assessmentData.expected_time_end;
+                        const assessmentStartDate = assessmentData.date_start;
+                        const assessmentEndDate = assessmentData.date_end;
+
+                        if(formattedCurrentDate === assessmentStartDate && formattedCurrentTime >= assessmentStartTime && formattedCurrentTime  <= assessmentEndTime) {
+                            //calculate first the risk score
+                            let modal = document.getElementsByClassName("Alerts-Success-Modal")[0];
+                            let overlay = document.getElementsByClassName("modal-success-Overlay")[0];
+                            modal.style.display = "block";
+                            overlay.style.display = "block";
+                            let alertMessage = document.getElementById("ModalTextSuccess-labels");
+                            alertMessage.textContent = 'Valid, You are set to take this exam!';
+                            let closeBtn = document.getElementsByClassName("ModalSuccessCloseBtn")[0];
+                              closeBtn.addEventListener("click", function(){
+                                compareAuthRiskScore(assessmentId);
+                            })
+                          }else{
+                            let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
+                            let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
+                            modal.style.display = "block";
+                            overlay.style.display = "block";
+                            let alertMessage = document.getElementById("ModalTextFailure-labels");
+                            alertMessage.textContent = "You are not valid to take this exam";
+                            let closeBtn = document.getElementsByClassName("ModalFailureCloseBtn")[0];
+                            closeBtn.addEventListener("click", function(){
+                              chrome.sidePanel.setOptions({path:landingPage})
+                            })
+                          }
                         
                       }else{
                         //alert("You are not valid to take this assessment");
@@ -1312,6 +1350,7 @@ function studentIsTakingExam(assessmentId, IDnumber){
                     const assessmentEndTime = childData.expected_time_end;
                     const assessmentStartDate = childData.date_start;
                     const assessmentEndDate = childData.date_end;
+                    const assessmentTimeDuration = childData.time_limit;
                     var timeRemaining = 0;
 
                     //time calculation
@@ -1336,7 +1375,6 @@ function studentIsTakingExam(assessmentId, IDnumber){
                     }
                     
                     var startTime = formatAMPM(new Date());
-                    console.log("Hi! " + startTime);
                     // document.getElementById("student-current-examTimeStarted").innerHTML = "Time Started: " +  startTime;
 
                     
@@ -1360,7 +1398,38 @@ function studentIsTakingExam(assessmentId, IDnumber){
                       // Output the result in an element with id="demo"
                       timeRemaining = days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
                       document.getElementById("student-current-examTimeLeft").innerHTML = "Time Left: " +  timeRemaining;
-                      // console.log(timeRemaining);
+                      
+                      if(timeRemaining === assessmentTimeDuration){
+                        let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
+                        let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
+                        modal.style.display = "block";
+                        overlay.style.display = "block";
+                        let alertMessage = document.getElementById("ModalTextFailure-labels");
+                        alertMessage.textContent = "THE TIMER HAS RUN OUT!";
+                        let closeBtn = document.getElementsByClassName("ModalFailureCloseBtn")[0];
+                        closeBtn.addEventListener("click", function(){
+                           //get the current time and pass it
+                            //format for 12hr
+                            function formatAMPM(date) {
+                              // var month = date.getMonth();
+                              var month = date.toLocaleString('default', { month: 'long' });
+                              var day = date.getDate();
+                              var year = date.getFullYear();
+                              var hours = date.getHours();
+                              var minutes = date.getMinutes();
+                              var seconds = date.getSeconds(); 
+                              var ampm = hours >= 12 ? 'pm' : 'am';
+                              hours = hours % 12;
+                              hours = hours ? hours : 12; // the hour '0' should be '12'
+                              minutes = minutes < 10 ? '0'+minutes : minutes;
+                              var strTime = month + ' ' + day + ' ' + year + ' ' + hours + ':' + minutes + ':' + seconds + ' ' + ampm;
+                              return strTime;
+                            }
+                            var submissionTime = formatAMPM(new Date());
+                            chrome.runtime.sendMessage({action: 'submissionTime', value: submissionTime});
+                            chrome.sidePanel.setOptions({path:StudentDoneExam});
+                        })
+                      }
                         
                       // If the count down is over, write some text 
                       if (distance < 0) {
