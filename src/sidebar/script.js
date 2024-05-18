@@ -794,30 +794,30 @@ function checkExamCode(){
                         const assessmentStartDate = assessmentData.date_start;
                         const assessmentEndDate = assessmentData.date_end;
 
-                        // if(formattedCurrentDate === assessmentStartDate && formattedCurrentTime >= assessmentStartTime && formattedCurrentTime  <= assessmentEndTime) {
-                        //     //calculate first the risk score
-                        //     let modal = document.getElementsByClassName("Alerts-Success-Modal")[0];
-                        //     let overlay = document.getElementsByClassName("modal-success-Overlay")[0];
-                        //     modal.style.display = "block";
-                        //     overlay.style.display = "block";
-                        //     let alertMessage = document.getElementById("ModalTextSuccess-labels");
-                        //     alertMessage.textContent = 'Valid, You are set to take this exam!';
-                        //     let closeBtn = document.getElementsByClassName("ModalSuccessCloseBtn")[0];
-                        //       closeBtn.addEventListener("click", function(){
-                        //         compareAuthRiskScore(assessmentId);
-                        //     })
-                        //   }else{
-                        //     let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
-                        //     let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
-                        //     modal.style.display = "block";
-                        //     overlay.style.display = "block";
-                        //     let alertMessage = document.getElementById("ModalTextFailure-labels");
-                        //     alertMessage.textContent = "You are not valid to take this exam";
-                        //     let closeBtn = document.getElementsByClassName("ModalFailureCloseBtn")[0];
-                        //     closeBtn.addEventListener("click", function(){
-                        //       chrome.sidePanel.setOptions({path:landingPage})
-                        //     })
-                        //   }
+                        if(formattedCurrentDate === assessmentStartDate && formattedCurrentTime >= assessmentStartTime && formattedCurrentTime  <= assessmentEndTime) {
+                            //calculate first the risk score
+                            let modal = document.getElementsByClassName("Alerts-Success-Modal")[0];
+                            let overlay = document.getElementsByClassName("modal-success-Overlay")[0];
+                            modal.style.display = "block";
+                            overlay.style.display = "block";
+                            let alertMessage = document.getElementById("ModalTextSuccess-labels");
+                            alertMessage.textContent = 'Valid, You are set to take this exam!';
+                            let closeBtn = document.getElementsByClassName("ModalSuccessCloseBtn")[0];
+                              closeBtn.addEventListener("click", function(){
+                                compareAuthRiskScore(assessmentId);
+                            })
+                          }else{
+                            let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
+                            let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
+                            modal.style.display = "block";
+                            overlay.style.display = "block";
+                            let alertMessage = document.getElementById("ModalTextFailure-labels");
+                            alertMessage.textContent = "You are not valid to take this exam";
+                            let closeBtn = document.getElementsByClassName("ModalFailureCloseBtn")[0];
+                            closeBtn.addEventListener("click", function(){
+                              chrome.sidePanel.setOptions({path:landingPage})
+                            })
+                          }
                         
                       }else{
                         //alert("You are not valid to take this assessment");
