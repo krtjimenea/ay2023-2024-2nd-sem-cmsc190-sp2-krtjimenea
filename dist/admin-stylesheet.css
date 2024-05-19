@@ -732,6 +732,11 @@ select:focus{
     color: #000000;
     font-family: 'Urbanist', sans-serif;   
     text-decoration:underline;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 250px; /* Adjust the width as needed */
+
 }
 .FacultySubHeader{
     font-size: 12px;

@@ -1038,6 +1038,12 @@ function compareAuthRiskScore(assessmentId){
                   }else{
                     //console.log('Did not match Geolocation Lat');
                     geolocation_lat_matched = false;
+                    if(geolocation.longitude === geolocationlong){
+                      //console.log('Matched Geolocation Longitude');
+                      geolocation_long_matched = true;
+                    }else{
+                      geolocation_long_matched = false;
+                    }
                   }
                   //console.log('Saved GeoLat'+ geolocationlat + ' Current Signin GeoLat:'+ geolocation.latitude);
 
@@ -1104,7 +1110,7 @@ function compareAuthRiskScore(assessmentId){
                   //create an object to pass the identity that did not match
                   var studentIdentity_uponExam = {
                     geolocation_lat: {currentGeolocation_lat: geolocation.latitude , didMatch: geolocation_lat_matched },
-                    geolocation_long: {currentGeolocation_long: geolocation.longitude , didMatch: geolocation_long_matched },
+                    geolocation_long: {currentGeolocation_long: geolocation.longitude , didMatch: geolocation_long_matched},
                     IP_address: {currentIpaddress: ipAddress , didMatch: ipAddress_matched },
                     display: {currentDisplay: display , didMatch: display_matched },
                     cpu:{currentCPU: cpu, didMatch: cpu_matched},
@@ -1692,12 +1698,12 @@ function saveProctoringReport(assessmentId, IDnumber, submissionTime){
   chrome.storage.local.get('currentNewtabsData', function(data){
     newTabsData = data.currentNewtabsData;
     //undefined check
-    if(newTabsData === undefined){
+    if(newTabsData === undefined || newTabsData === []){
       //console.log('No Changes');
       newTabsData = 0;
     }else{
       numofFlaggedActivity+=1;
-      //console.log('new tab opened data: ' + newTabsData);
+      console.log('new tab opened data: ' + newTabsData);
     }
     
   });
@@ -1756,7 +1762,7 @@ function saveProctoringReport(assessmentId, IDnumber, submissionTime){
   })
 
   
-  console.log(numOfBrowserOutofFocus + "Value");
+  //console.log(numOfBrowserOutofFocus + "Value");
   //check if there is a logged in user
   chrome.identity.getAuthToken({ interactive: true }, token =>
     {
