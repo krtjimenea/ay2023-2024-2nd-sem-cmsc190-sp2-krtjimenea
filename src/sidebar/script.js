@@ -140,6 +140,7 @@ function monitorSidePanelPath() {
 monitorSidePanelPath();
 
 
+
 //to handle route changes
 function navigateBack() {
   chrome.storage.local.get('historyStack', function(result) {
@@ -163,8 +164,6 @@ function navigateBack() {
 
 window.addEventListener('DOMContentLoaded', function () {
 
-  
-  
   const headDiv = document.getElementById('AppBody'); // Replace with the actual ID
 
   headDiv.addEventListener('click', function (event) {
@@ -210,14 +209,19 @@ window.addEventListener('DOMContentLoaded', function () {
 
     //student clicked get examlink
     if(target.id==='getExamLinkBtn'){
-      console.log('Student Get Exam Link');
       chrome.sidePanel.setOptions({path:StudentReadyExam});
     }
 
     //STUDENT CLICKED THE EXAM LINK
     if(target.id==='output-student-examName'){
-      console.log('Student Clicked Exam Link');
-      chrome.sidePanel.setOptions({path:StudentActiveExam});
+      var assessmentLink = target.href;
+      console.log("Link: " + assessmentLink);
+      // Get the current tab and update its URL
+      chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+        chrome.tabs.update(tabs[0].id, { url: assessmentLink});
+        chrome.sidePanel.setOptions({path:StudentActiveExam});
+      });
+      
     }
 
     //student clicked to submit the exam
@@ -243,7 +247,12 @@ window.addEventListener('DOMContentLoaded', function () {
       
       var submissionTime = formatAMPM(new Date());
       chrome.runtime.sendMessage({action: 'submissionTime', value: submissionTime});
-      chrome.sidePanel.setOptions({path:StudentDoneExam});
+      // Get the current tab and update its URL
+      chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+        chrome.tabs.update(tabs[0].id, { url: 'https://www.google.com/'});
+        chrome.sidePanel.setOptions({path:StudentDoneExam});
+      });
+      
 
 
     }
@@ -331,7 +340,7 @@ function getChromeIdentity(){
   chrome.identity.getAuthToken({ interactive: true }, token =>
     {
       if ( chrome.runtime.lastError || ! token ) {
-        alert('SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}')
+        console.log('SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}')
         return
       }
      
@@ -397,7 +406,7 @@ function getStudentDetails(IDnumber){
     chrome.identity.getAuthToken({ interactive: true }, token =>
       {
         if ( chrome.runtime.lastError || ! token ) {
-          alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
+          console.log(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
           return
         }
 
@@ -548,7 +557,7 @@ function isFacultyRegistered(IDnumber){
    chrome.identity.getAuthToken({ interactive: true }, token =>
     {
       if ( chrome.runtime.lastError || ! token ) {
-        alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
+        console.log(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
         return
       }
 
@@ -567,7 +576,7 @@ function isFacultyRegistered(IDnumber){
               get(facultyRef)
               .then((snapshot) => {
                 if(snapshot.exists()){
-                  alert("Success Firebase Access!");
+                  console.log("Success Firebase Access!");
                   //check the UID
                   const facultyData = snapshot.val();
                   if(facultyData.authProviderUID === ""){
@@ -579,7 +588,7 @@ function isFacultyRegistered(IDnumber){
                       update(ref(db), updates)
                         .then(()=>{
                           console.log('Success in Registering Email: ' + IDnumber);
-                          alert('Success in Faculty Registration');
+                          console.log('Success in Faculty Registration');
                           chrome.sidePanel.setOptions({path:FacultySuccessReg});
                         })
                         .catch((err) => {
@@ -587,19 +596,19 @@ function isFacultyRegistered(IDnumber){
                         })
                     }else{
                       //it means that the user is using a different email not registered
-                      alert("Please use a valid Email");
+                      console.log("Please use a valid Email");
                       //route to Faculty Dashboard
                       chrome.sidePanel.setOptions({path:landingPage})
                     }
                    
                   }else{
                     //user already registerd
-                    alert("Your Faculty Number is already registered with an Email");
+                    console.log("Your Faculty Number is already registered with an Email");
                     chrome.sidePanel.setOptions({path:facultyDashboardPage});
                   }
                   
                 }else{
-                  alert("You are not yet registered, Please contact the Admin");
+                  console.log("You are not yet registered, Please contact the Admin");
                   //route to Faculty Dashboard
                   chrome.sidePanel.setOptions({path:landingPage})
                 }
@@ -611,7 +620,7 @@ function isFacultyRegistered(IDnumber){
         }
       })
       .catch((err) => {
-        alert("SSO ended with an error" + err);
+        console.log("SSO ended with an error" + err);
       });
   });
 
@@ -623,7 +632,7 @@ function isStudentRegistered(IDnumber){
    chrome.identity.getAuthToken({ interactive: true }, token =>
     {
       if ( chrome.runtime.lastError || ! token ) {
-        alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
+        console.log(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
         return
       }
 
@@ -726,7 +735,7 @@ function formatDate(date) {
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
   const year = date.getFullYear();
-  return `${month}/${day}/${year}`;
+  return `${year}-${month}-${day}`;
 }
 
 function formatTime(date) {
@@ -736,7 +745,7 @@ function formatTime(date) {
   const ampm = hours >= 12 ? 'PM' : 'AM';
   hours = hours % 12;
   hours = hours ? hours : 12; // the hour '0' should be '12'
-  return `${hours}:${minutes}:${seconds} ${ampm}`;
+  return `${hours}:${minutes} ${ampm}`;
 }
 
 //function to check exam code
@@ -751,7 +760,7 @@ function checkExamCode(){
   chrome.identity.getAuthToken({ interactive: true }, token =>
     {
       if ( chrome.runtime.lastError || ! token ) {
-        alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
+        console.log(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
         return
       }
 
@@ -780,44 +789,72 @@ function checkExamCode(){
                     console.log(assessmentId);
                     //find if that student should be taking that exams
                     const takingAssessmentRef = ref(db, `/takingAssessments/${assessmentId}/students/${IDnumber}`);
+                    const AssessmentRef = ref(db, `/takingAssessments/${assessmentId}`);
                     get(takingAssessmentRef)
                     .then((snapshot) =>{
                       if(snapshot.exists()){
-                        const assessmentData = snapshot.val();
+                        get(AssessmentRef)
+                        .then((assessmentSnapshot) => {
+                          if(assessmentSnapshot.exists()){
+                            const assessmentData = assessmentSnapshot.val();
+                            console.log(assessmentData);
                         
-                        //check if they can access the exam at access
-                        const currentDate = new Date();
-                        const formattedCurrentDate = formatDate(currentDate);
-                        const formattedCurrentTime = formatTime(currentDate);
-                        const assessmentStartTime = assessmentData.expected_time_start;
-                        const assessmentEndTime = assessmentData.expected_time_end;
-                        const assessmentStartDate = assessmentData.date_start;
-                        const assessmentEndDate = assessmentData.date_end;
+                            //check if they can access the exam at access
+                            const currentDate = new Date();
+                            const formattedCurrentDate = formatDate(currentDate);
+                            const formattedCurrentTime = formatTime(currentDate);
+                            const assessmentStartTime = assessmentData.expected_time_start;
+                            const assessmentEndTime = assessmentData.expected_time_end;
+                            const assessmentStartDate = assessmentData.date_start;
+                            const assessmentEndDate = assessmentData.date_end;
 
-                        if(formattedCurrentDate === assessmentStartDate && formattedCurrentTime >= assessmentStartTime && formattedCurrentTime  <= assessmentEndTime) {
-                            //calculate first the risk score
-                            let modal = document.getElementsByClassName("Alerts-Success-Modal")[0];
-                            let overlay = document.getElementsByClassName("modal-success-Overlay")[0];
-                            modal.style.display = "block";
-                            overlay.style.display = "block";
-                            let alertMessage = document.getElementById("ModalTextSuccess-labels");
-                            alertMessage.textContent = 'Valid, You are set to take this exam!';
-                            let closeBtn = document.getElementsByClassName("ModalSuccessCloseBtn")[0];
+                            console.log("Current Date: " + formattedCurrentDate);
+                            console.log("assessmentStartDate: " + assessmentStartDate);
+                            console.log("formattedCurrentTime: " + formattedCurrentTime);
+                            console.log("assessmentStartTime: " +  assessmentStartTime);
+                            console.log("assessmentEndTime: " + assessmentEndTime);
+                            
+                            //check date range
+                            const isWithinDateRange = (formattedCurrentDate >= assessmentStartDate) && (formattedCurrentDate <= assessmentEndDate);
+                            let isWithinTimeRange = false;
+                            //make sure that instances of the date and time are between the schedule
+                            if (formattedCurrentDate === assessmentStartDate) {
+                              isWithinTimeRange = (formattedCurrentTime >= assessmentStartTime);
+                            }else if (formattedCurrentDate === assessmentEndDate) {
+                              isWithinTimeRange = (formattedCurrentTime <= assessmentEndTime);
+                            }else if (formattedCurrentDate > assessmentStartDate && formattedCurrentDate < assessmentEndDate) {
+                              isWithinTimeRange = true;
+                            }
+
+                            if (isWithinDateRange && isWithinTimeRange) {
+                              //calculate first the risk score
+                              let modal = document.getElementsByClassName("Alerts-Success-Modal")[0];
+                              let overlay = document.getElementsByClassName("modal-success-Overlay")[0];
+                              modal.style.display = "block";
+                              overlay.style.display = "block";
+                              let alertMessage = document.getElementById("ModalTextSuccess-labels");
+                              alertMessage.textContent = 'Valid, You are set to take this exam!';
+                              let closeBtn = document.getElementsByClassName("ModalSuccessCloseBtn")[0];
+                                 closeBtn.addEventListener("click", function(){
+                                   compareAuthRiskScore(assessmentId);
+                              })
+                             
+                            }else{
+                              let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
+                              let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
+                              modal.style.display = "block";
+                              overlay.style.display = "block";
+                              let alertMessage = document.getElementById("ModalTextFailure-labels");
+                              alertMessage.textContent = "You are not valid to take this exam";
+                              let closeBtn = document.getElementsByClassName("ModalFailureCloseBtn")[0];
                               closeBtn.addEventListener("click", function(){
-                                compareAuthRiskScore(assessmentId);
-                            })
-                          }else{
-                            let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
-                            let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
-                            modal.style.display = "block";
-                            overlay.style.display = "block";
-                            let alertMessage = document.getElementById("ModalTextFailure-labels");
-                            alertMessage.textContent = "You are not valid to take this exam";
-                            let closeBtn = document.getElementsByClassName("ModalFailureCloseBtn")[0];
-                            closeBtn.addEventListener("click", function(){
-                              chrome.sidePanel.setOptions({path:landingPage})
-                            })
+                                chrome.sidePanel.setOptions({path:landingPage})
+                              })
+                            }
+                               
                           }
+
+                        })
                         
                       }else{
                         //alert("You are not valid to take this assessment");
@@ -844,13 +881,13 @@ function checkExamCode(){
               }
             })
             .catch((err) => {
-              alert("Error with database: " + err);
+              console.log("Error with database: " + err);
             });
           
         }
       })
       .catch((err) => {
-        alert("SSO ended with an error" + err);
+        console.log("SSO ended with an error" + err);
       });
   });
       
@@ -867,7 +904,7 @@ function compareAuthRiskScore(assessmentId){
   chrome.identity.getAuthToken({ interactive: true }, token =>
     {
       if ( chrome.runtime.lastError || ! token ) {
-        alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
+        console.log(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
         return
       }
 
@@ -1012,7 +1049,7 @@ function compareAuthRiskScore(assessmentId){
                     display_matched = true;
                   }else{
                     display_matched = false;
-                    alert('Display did not match');
+                    console.log('Display did not match');
                   }
                   console.log( 'Saved Display: ' + display + ' Current Display: ' + studentDisplay)
 
@@ -1105,7 +1142,7 @@ function compareAuthRiskScore(assessmentId){
                   }
                 })
                 .catch((err) => {
-                  alert(("error with database" + err));
+                  console.log(("error with database" + err));
                 })
               });
 
@@ -1113,7 +1150,7 @@ function compareAuthRiskScore(assessmentId){
           }) //EOF signInWithCredential
           .catch(err =>
           {
-            alert("SSO ended with an error" + err);
+            console.log("SSO ended with an error" + err);
           })
         }) //EOF geolocation
     })//EOF ipCallback
@@ -1145,7 +1182,7 @@ function viewStudentAssessmentDetails(assessmentId, IDnumber){
    chrome.identity.getAuthToken({ interactive: true }, token =>
     {
       if ( chrome.runtime.lastError || ! token ) {
-        alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
+        console.log(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
         return
       }
 
@@ -1212,7 +1249,7 @@ function viewStudentAssessmentDetails(assessmentId, IDnumber){
                         
 
               }else{
-                alert("Snapshot does not exist");
+                console.log("Snapshot does not exist");
                         
               }
             }).catch((err) => {
@@ -1227,7 +1264,7 @@ function viewStudentAssessmentDetails(assessmentId, IDnumber){
           
           }//EOF If User
       }).catch((err) => {
-        alert("SSO ended with an error" + err);
+        console.log("SSO ended with an error" + err);
       });
   });
 
@@ -1241,7 +1278,7 @@ function studentIsReadyExam(assessmentId, IDnumber){
   chrome.identity.getAuthToken({ interactive: true }, token =>
     {
       if ( chrome.runtime.lastError || ! token ) {
-        alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
+        console.log(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
         return
       }
 
@@ -1293,7 +1330,7 @@ function studentIsReadyExam(assessmentId, IDnumber){
                 })
 
               }else{
-                alert("Snapshot does not exist");
+                console.log("Snapshot does not exist");
                         
               }
             }).catch((err) => {
@@ -1302,7 +1339,7 @@ function studentIsReadyExam(assessmentId, IDnumber){
                   
           }//EOF If User
       }).catch((err) => {
-        alert("SSO ended with an error" + err);
+        console.log("SSO ended with an error" + err);
       });
   });
 
@@ -1317,7 +1354,7 @@ function studentIsTakingExam(assessmentId, IDnumber){
   chrome.identity.getAuthToken({ interactive: true }, token =>
     {
       if ( chrome.runtime.lastError || ! token ) {
-        alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
+        console.log(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
         return
       }
 
@@ -1353,10 +1390,6 @@ function studentIsTakingExam(assessmentId, IDnumber){
                     const assessmentTimeDuration = childData.time_limit;
                     var timeRemaining = 0;
 
-                    //time calculation
-                    // console.log(assessmentEndDate);
-                    // console.log(assessmentEndTime);
-                    var countDownDate = new Date(assessmentEndDate + " " + assessmentEndTime).getTime();
                     //format for 12hr
                     function formatAMPM(date) {
                       // var month = date.getMonth();
@@ -1377,29 +1410,23 @@ function studentIsTakingExam(assessmentId, IDnumber){
                     var startTime = formatAMPM(new Date());
                     // document.getElementById("student-current-examTimeStarted").innerHTML = "Time Started: " +  startTime;
 
-                    
+                    //time calculation
+                    var countDownDate = new Date(Date.now() + assessmentTimeDuration * 60000);
+                    let countdownMessage = '';
                     // Update the count down every 1 second
-                    var x = setInterval(function() {
-
-                      // Get today's date and time
-                      var now = new Date().getTime();
-
-                      // Find the distance between now and the count down date
-                      // console.log(countDownDate);
-                      // console.log(now);
-                      var distance = countDownDate - now;
-                        
-                      // Time calculations for days, hours, minutes and seconds
-                      var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-                      var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                      var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                      var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-                        
-                      // Output the result in an element with id="demo"
-                      timeRemaining = days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
-                      document.getElementById("student-current-examTimeLeft").innerHTML = "Time Left: " +  timeRemaining;
+                    var x = setInterval(function () {
+                      const now = new Date();
                       
-                      if(timeRemaining === assessmentTimeDuration){
+                      // Find the distance between now and the count down date
+                      const timeRemaining = countDownDate - now;
+                      console.log("Time Remaining: " + timeRemaining);
+                      if (timeRemaining > 0) {
+                        const minutesRemaining = Math.floor(timeRemaining / 60000);
+                        const secondsRemaining = Math.floor((timeRemaining % 60000) / 1000);
+                        // countdownMessage = `${minutesRemaining} minutes ${secondsRemaining} seconds`;
+                        document.getElementById("student-current-examTimeLeft").innerHTML = "Time Left: " + minutesRemaining + " minutes " + secondsRemaining + " seconds";
+                      } else {
+                        document.getElementById("student-current-examTimeLeft").innerHTML = "Time Left: 0 minutes 0 seconds";
                         let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
                         let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
                         modal.style.display = "block";
@@ -1427,18 +1454,23 @@ function studentIsTakingExam(assessmentId, IDnumber){
                             }
                             var submissionTime = formatAMPM(new Date());
                             chrome.runtime.sendMessage({action: 'submissionTime', value: submissionTime});
+
+                            // Query the currently active tab in the current window
+                            chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+                              if (tabs.length > 0) {
+                                // Close the current active tab
+                                chrome.tabs.remove(tabs[0].id, () => {
+                                  console.log(`Closed tab ${tabs[0].id}`);
+                                });
+                              }
+                            });
                             chrome.sidePanel.setOptions({path:StudentDoneExam});
                         })
-                      }
                         
-                      // If the count down is over, write some text 
-                      if (distance < 0) {
-                        clearInterval(x);
-                        document.getElementById("student-current-examTimeLeft").innerHTML = "EXPIRED";
                       }
-
-
+                   
                     },1000);
+          
 
                     ExamDetailsDiv.innerHTML += `
                     <p id="output-labels-student">Exam Name</p>
@@ -1451,7 +1483,7 @@ function studentIsTakingExam(assessmentId, IDnumber){
                     <p id="output-labels-student">Time and Date Started</p>
                     <p class="output-student-active-time-exam" id="student-current-examTimeStarted">${startTime}</p>
                     <p id="output-labels-student">Time Countdown:</p>
-                    <p class="output-student-active-time-exam" id="student-current-examTimeLeft">${timeRemaining}</p>
+                    <p class="output-student-active-time-exam" id="student-current-examTimeLeft"></p>
                     <p class="output-student-active-exam-record" id="recorded-message">BROWSER ACTIVITY IS RECORDED</p>
             
                     <div class="SubmitDiv">
@@ -1462,14 +1494,13 @@ function studentIsTakingExam(assessmentId, IDnumber){
                     chrome.runtime.sendMessage({action: 'timeStarted', value: startTime});
                     isBrowserMinimized();
                     getActiveTabs();
-                    isThereNewTab();
-                    // didCopy();
+                    isThereNewTab(assessmentLink);
                     didSwitchTabs();
                   }
                 })
 
               }else{
-                alert("Snapshot does not exist");
+                console.log("Snapshot does not exist");
                         
               }
             }).catch((err) => {
@@ -1478,7 +1509,7 @@ function studentIsTakingExam(assessmentId, IDnumber){
                   
           }//EOF If User
       }).catch((err) => {
-        alert("SSO ended with an error" + err);
+        console.log("SSO ended with an error" + err);
       });
   });
 
@@ -1541,7 +1572,7 @@ function getActiveTabs(){
 }
 
 //function to check if a new tab was opened
-function isThereNewTab(){
+function isThereNewTab(assessmentLink){
   let newTabsList = [];
   chrome.tabs.onCreated.addListener(function(tab) {
     //console.log("New tab created:", tab.id);
@@ -1555,8 +1586,10 @@ function isThereNewTab(){
   //once tab is done loading
   chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
     if(changeInfo.status === 'complete' && tab.url && tab.title) {
-        // console.log("URL of the new tab:", tab.url);
-        // console.log("New Tab Title:", tab.title);
+       if(tab.url === assessmentLink){
+        //do not add the exam link
+       }else{
+         // console.log("New Tab Title:", tab.title);
         //update the initial tab opened, find it using the tabId added
         const tabIndex = newTabsList.findIndex(t=> t.id === tabId);
         if(tabIndex >-1){
@@ -1572,6 +1605,8 @@ function isThereNewTab(){
           });
         }
          
+       }
+       
         //also update the active tabs list
         getActiveTabs();
         //stringify json
@@ -1716,7 +1751,7 @@ function saveProctoringReport(assessmentId, IDnumber, submissionTime){
   chrome.identity.getAuthToken({ interactive: true }, token =>
     {
       if ( chrome.runtime.lastError || ! token ) {
-        alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
+        console.log(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
         return
       }
 
@@ -1832,7 +1867,7 @@ function saveProctoringReport(assessmentId, IDnumber, submissionTime){
                     
 
               }else{
-                alert("Snapshot does not exist");
+                console.log("Snapshot does not exist");
                         
               }
             }).catch((err) => {
@@ -1843,15 +1878,37 @@ function saveProctoringReport(assessmentId, IDnumber, submissionTime){
                   
           }//EOF If User
       }).catch((err) => {
-        alert("SSO ended with an error" + err);
+        console.log("SSO ended with an error" + err);
       });
   });
 
   
 }
 
-function studentSignOut(){
+function revokeAuthToken() {
+  // Get the current authentication token
+  chrome.identity.getAuthToken({ interactive: false }, token => {
+    if (chrome.runtime.lastError || !token) {
+      console.log(`No token to revoke: ${JSON.stringify(chrome.runtime.lastError)}`);
+      return;
+    }
+    // Revoke the token
+    chrome.identity.removeCachedAuthToken({ token: token }, () => {
+      fetch(`https://accounts.google.com/o/oauth2/revoke?token=${token}`)
+        .then(response => {
+          if (response.ok) {
+            console.log('Token revoked successfully');
+            clearUserData();
+          } else {
+            console.log('Error revoking token:', response.statusText);
+          }
+        })
+        .catch(error => console.error('Error during token revocation:', error));
+    });
+  });
+}
 
+function studentSignOut(){
   chrome.storage.local.clear(function() {
     var error = chrome.runtime.lastError;
     if (error) {
@@ -1860,12 +1917,13 @@ function studentSignOut(){
     //after clearing local storage log out
     const auth = getAuth();
     signOut(auth).then(() => {
-    // Sign-out successful.
-    alert('Sign out Success');
-    chrome.sidePanel.setOptions({path:landingPage})
+      // Sign-out successful.
+      revokeAuthToken();
+      console.log('Sign out Success');
+      chrome.sidePanel.setOptions({path:landingPage})
     }).catch((error) => {
       // An error happened.
-      alert("Error: " + error);
+      console.log("Error: " + error);
     });
   });
   
