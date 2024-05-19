@@ -12,14 +12,16 @@ chrome.runtime.onInstalled.addListener(function() {
   });
 });
 
+chrome.windows.onRemoved.addListener(function(windowId) {
+  // Clear Chrome storage when any window is closed
+  chrome.storage.local.clear(function() {
+      console.log('Chrome storage cleared.');
+  });
+});
 
-// Allows users to open the side panel by clicking on the action toolbar icon
-chrome.sidePanel
-  .setPanelBehavior({ openPanelOnActionClick: true })
-  .catch((error) => console.error(error));
 
-//array of user's history
-// var historyStack = [];
+chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true })
+    .catch((error) => console.error('Error setting panel behavior:', error));
 
 //chrome listener for message passing between panels
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
