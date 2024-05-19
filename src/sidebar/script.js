@@ -1703,7 +1703,7 @@ function saveProctoringReport(assessmentId, IDnumber, submissionTime){
       newTabsData = 0;
     }else{
       numofFlaggedActivity+=1;
-      console.log('new tab opened data: ' + newTabsData);
+      //console.log('new tab opened data: ' + newTabsData);
     }
     
   });
