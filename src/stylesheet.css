@@ -1592,3 +1592,14 @@ select:focus{
     font-family: 'Urbanist', sans-serif;   
     margin-bottom: 15px;
 }
+
+.DBisEmptyMssg{
+    margin-top: 30px;
+    height: 42px;
+    font-family: 'Urbanist', sans-serif;
+    color: #000;
+    text-align: center;
+    font-size: 15px;
+    font-style: normal;
+    font-weight: 300;
+}
