@@ -37,7 +37,7 @@ function monitorSidePanelPath() {
     //get the sidepanel information
     chrome.sidePanel.getOptions({ tabId }, function(options) {
       const path = options.path;
-      console.log('path: ' + path);
+      // console.log('path: ' + path);
       //this the current path, create an array of history in the service worker, pass as message
       chrome.runtime.sendMessage({action: 'sendCurrentPath', value: path});
 
@@ -61,7 +61,7 @@ function monitorSidePanelPath() {
         var receivedAssessmentId;
         chrome.storage.local.get('currentAssessmentId', function(data) {
           receivedAssessmentId = data.currentAssessmentId;
-          console.log("Data in storage: " + receivedAssessmentId);
+          // console.log("Data in storage: " + receivedAssessmentId);
           //get the student ID
           var receivedUserId;
           chrome.storage.local.get('currentUserId', function(data) {
@@ -77,7 +77,7 @@ function monitorSidePanelPath() {
         var receivedAssessmentId;
         chrome.storage.local.get('currentAssessmentId', function(data) {
           receivedAssessmentId = data.currentAssessmentId;
-          console.log("Data in storage: " + receivedAssessmentId);
+          // console.log("Data in storage: " + receivedAssessmentId);
           //get the student ID
           var receivedUserId;
           chrome.storage.local.get('currentUserId', function(data) {
@@ -93,7 +93,7 @@ function monitorSidePanelPath() {
          var receivedAssessmentId;
          chrome.storage.local.get('currentAssessmentId', function(data) {
            receivedAssessmentId = data.currentAssessmentId;
-           console.log("Data in storage: " + receivedAssessmentId);
+          //console.log("Data in storage: " + receivedAssessmentId);
            //get the student ID
            var receivedUserId;
            chrome.storage.local.get('currentUserId', function(data) {
@@ -110,17 +110,17 @@ function monitorSidePanelPath() {
         var receivedAssessmentId;
         chrome.storage.local.get('currentAssessmentId', function(data) {
           receivedAssessmentId = data.currentAssessmentId;
-          console.log("Data in storage: " + receivedAssessmentId);
+          // console.log("Data in storage: " + receivedAssessmentId);
           //get the student ID
           var receivedUserId;
           chrome.storage.local.get('currentUserId', function(data) {
             receivedUserId = data.currentUserId;
             //view the details of the assessment
-            console.log("Data in storage: " + receivedUserId);
+            // console.log("Data in storage: " + receivedUserId);
             var receivedSubmissionTime;
             chrome.storage.local.get('currentUserSubmitTime',function(data){
               receivedSubmissionTime = data.currentUserSubmitTime;
-              console.log("Submission Time Data in storage: " + receivedSubmissionTime);
+              // console.log("Submission Time Data in storage: " + receivedSubmissionTime);
               saveProctoringReport(receivedAssessmentId, receivedUserId, receivedSubmissionTime);
             });
             
@@ -152,12 +152,12 @@ function navigateBack() {
       chrome.storage.local.set({'historyStack': historyStack}, function() {
         // Use the last item to navigate or perform the relevant action
         var backToPath = historyStack.slice(-1)[0];
-        console.log("Navigating back to:", backToPath );
+        // console.log("Navigating back to:", backToPath);
         chrome.sidePanel.setOptions({path:backToPath});
 
       });
     } else {
-      console.log("No history to navigate back");
+      alert("Can't go back!");
     }
   });
 }
@@ -174,13 +174,13 @@ window.addEventListener('DOMContentLoaded', function () {
 
     // Check if the clicked element is the GoogleLoginBtn
     if (target.id === 'GoogleLoginBtn') {
-      console.log('Clicked on GoogleLoginBtn');
+      // console.log('Clicked on GoogleLoginBtn');
       getChromeIdentity();
     }
 
     // Check if the clicked element is the SubmitIDBtn
     if (target.id === 'SubmitIDBtn') {
-      console.log('Clicked on SubmitIDBtn');
+      // console.log('Clicked on SubmitIDBtn');
       checkUser();
     }
 
@@ -202,7 +202,7 @@ window.addEventListener('DOMContentLoaded', function () {
 
     //For student
     if(target.id==='SubmitBtn'){
-      console.log('Clicked Submit Exam Code');
+      // console.log('Clicked Submit Exam Code');
       //check if the exam code is valid then show the assessment details
       checkExamCode();
     }
@@ -226,7 +226,7 @@ window.addEventListener('DOMContentLoaded', function () {
 
     //student clicked to submit the exam
     if(target.id === 'submitExamBtn'){
-      console.log('Student clicked Submit Exam');
+      // console.log('Student clicked Submit Exam');
       //get the current time and pass it
       //format for 12hr
       function formatAMPM(date) {
@@ -258,18 +258,18 @@ window.addEventListener('DOMContentLoaded', function () {
     }
     //student clicked log out
     if(target.id === 'LogOutStudentBtn'){
-      console.log('Student Logged Out');
+      // console.log('Student Logged Out');
       studentSignOut();
     }
 
     //for routing
     if(target.id ===  'BackBtn' || target.id === 'BackIcon'){
-      console.log('Back Clicked');
+      // console.log('Back Clicked');
       navigateBack();
     }
 
     if (target.className === 'ModalFailureCloseBtn'){
-      console.log('Clicked Close Modal');
+      // console.log('Clicked Close Modal');
       //closeModal();
       let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
       let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
@@ -308,7 +308,7 @@ function getIPAddress(callback){
     })
     .then(data => {
       const ipAdd = data.ip;
-      console.log('Public IP is: ', ipAdd);
+      // console.log('Public IP is: ', ipAdd);
       //callback
       callback(ipAdd);
     })
@@ -362,16 +362,16 @@ function checkUser(){
     chrome.runtime.sendMessage({action: 'currentUser', value: IDinput});
 
     if(IDinput[0]=== '1' && Dropdowninput === 'Faculty' ){
-      console.log('Faculty');
+      // console.log('Faculty');
       //check the database first if that faculty exists
       isFacultyRegistered(IDinput);
     }else if(IDinput[0] === '2' && Dropdowninput === 'Student'){
-      console.log('Student');
+      // console.log('Student');
       isStudentRegistered(IDinput);
       //route to Student Dashboard
     }else if(IDinput === '001802885' && Dropdowninput === 'Admin'){
       //route to Admin Dashboard
-      console.log('Admin')
+      // console.log('Admin')
       chrome.sidePanel.setOptions({path: AdminDashboard})
     }else{
       //alert('Wrong Format');
@@ -441,14 +441,14 @@ function getStudentDetails(IDnumber){
         //get the browser information
         var studentBrowser;
         if (userAgent.includes('Chrome')){
-          console.log('Google Chrome');
+          // console.log('Google Chrome');
           studentBrowser = 'Google Chrome';
         }else if (userAgent.includes('Firefox')) {
           studentBrowser = 'Mozilla Firefox';
         } else if (userAgent.includes('Edge')) {
           studentBrowser = 'Microsoft Edge';
         } else {
-          console.log('Browser: Unknown');
+          studentBrowser = 'Unknown';
         }
 
         //get the display resolution
@@ -458,9 +458,9 @@ function getStudentDetails(IDnumber){
             //loop through
             info.forEach(display => {
               // studentDisplay = info.bounds.width + 'x' + info.bounds.height;
-              console.log('Bounds:', display.bounds);
-              console.log('Width:', display.bounds.width);
-              console.log('Height:', display.bounds.height);
+              // console.log('Bounds:', display.bounds);
+              // console.log('Width:', display.bounds.width);
+              // console.log('Height:', display.bounds.height);
               studentDisplay = display.bounds.width + 'x' + display.bounds.height;
 
             })
@@ -587,8 +587,8 @@ function isFacultyRegistered(IDnumber){
                       updates[`/faculty-in-charge/${IDnumber}/authProviderUID`] = profileID;
                       update(ref(db), updates)
                         .then(()=>{
-                          console.log('Success in Registering Email: ' + IDnumber);
-                          console.log('Success in Faculty Registration');
+                          // console.log('Success in Registering Email: ' + IDnumber);
+                          // console.log('Success in Faculty Registration');
                           chrome.sidePanel.setOptions({path:FacultySuccessReg});
                         })
                         .catch((err) => {
@@ -596,19 +596,28 @@ function isFacultyRegistered(IDnumber){
                         })
                     }else{
                       //it means that the user is using a different email not registered
-                      console.log("Please use a valid Email");
+                      let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
+                      let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
+                      modal.style.display = "block";
+                      overlay.style.display = "block";
+                      let alertMessage = document.getElementById("ModalTextFailure-labels");
+                      alertMessage.textContent = "Please use a valid email";
                       //route to Faculty Dashboard
                       chrome.sidePanel.setOptions({path:landingPage})
                     }
                    
                   }else{
                     //user already registerd
-                    console.log("Your Faculty Number is already registered with an Email");
                     chrome.sidePanel.setOptions({path:facultyDashboardPage});
                   }
                   
                 }else{
-                  console.log("You are not yet registered, Please contact the Admin");
+                  let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
+                  let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
+                  modal.style.display = "block";
+                  overlay.style.display = "block";
+                  let alertMessage = document.getElementById("ModalTextFailure-labels");
+                  alertMessage.textContent = "You are not yet registered, Please contact the Admin";
                   //route to Faculty Dashboard
                   chrome.sidePanel.setOptions({path:landingPage})
                 }
@@ -651,7 +660,7 @@ function isStudentRegistered(IDnumber){
               get(studentRef)
               .then((snapshot) => {
                 if (snapshot.exists()) {
-                  console.log("Success Firebase Access!");
+                  //console.log("Success Firebase Access!");
                   //check the UID
                   const studentData = snapshot.val();
                   if(studentData.authProviderUID===""){
@@ -659,7 +668,7 @@ function isStudentRegistered(IDnumber){
                     //register
                     //check if it matches the email added by the admin
                     if(studentData.Email===email){
-                      console.log("email is the same");
+                      //console.log("email is the same");
                       //register the student
                       //get the information of the student
                       getStudentDetails(IDnumber);
@@ -689,6 +698,7 @@ function isStudentRegistered(IDnumber){
                       overlay.style.display = "block";
                       let alertMessage = document.getElementById("ModalTextFailure-labels");
                       alertMessage.textContent = "Please use a valid email";
+                      
                     }
                   }
                   
@@ -781,12 +791,12 @@ function checkExamCode(){
                 for(const assessmentId in assessmentData){
                   const assessment = assessmentData[assessmentId];
                   const accessCode = assessment.access_code;
-                  console.log(accessCode);
-                  console.log(examCodeInput);
+                  //console.log(accessCode);
+                  //console.log(examCodeInput);
                   if(examCodeInput===accessCode){
                     //there is an exam with the that code
-                    console.log(accessCode);
-                    console.log(assessmentId);
+                    //console.log(accessCode);
+                    //console.log(assessmentId);
                     //find if that student should be taking that exams
                     const takingAssessmentRef = ref(db, `/takingAssessments/${assessmentId}/students/${IDnumber}`);
                     const AssessmentRef = ref(db, `/takingAssessments/${assessmentId}`);
@@ -797,7 +807,7 @@ function checkExamCode(){
                         .then((assessmentSnapshot) => {
                           if(assessmentSnapshot.exists()){
                             const assessmentData = assessmentSnapshot.val();
-                            console.log(assessmentData);
+                           // console.log(assessmentData);
                         
                             //check if they can access the exam at access
                             const currentDate = new Date();
@@ -808,11 +818,11 @@ function checkExamCode(){
                             const assessmentStartDate = assessmentData.date_start;
                             const assessmentEndDate = assessmentData.date_end;
 
-                            console.log("Current Date: " + formattedCurrentDate);
-                            console.log("assessmentStartDate: " + assessmentStartDate);
-                            console.log("formattedCurrentTime: " + formattedCurrentTime);
-                            console.log("assessmentStartTime: " +  assessmentStartTime);
-                            console.log("assessmentEndTime: " + assessmentEndTime);
+                            // console.log("Current Date: " + formattedCurrentDate);
+                            // console.log("assessmentStartDate: " + assessmentStartDate);
+                            // console.log("formattedCurrentTime: " + formattedCurrentTime);
+                            // console.log("assessmentStartTime: " +  assessmentStartTime);
+                            // console.log("assessmentEndTime: " + assessmentEndTime);
                             
                             //check date range
                             const isWithinDateRange = (formattedCurrentDate >= assessmentStartDate) && (formattedCurrentDate <= assessmentEndDate);
@@ -1013,88 +1023,94 @@ function compareAuthRiskScore(assessmentId){
                   let totalMatchedWeight = 0;
                   //compare geolocation
                   if(geolocation.latitude === geolocationlat){
-                    console.log('Matched Geolocation Latitude');
+                    //console.log('Matched Geolocation Latitude');
                     if(geolocation.longitude === geolocationlong){
-                      console.log('Matched Geolocation Longitude');
+                      //console.log('Matched Geolocation Longitude');
                       geolocation_lat_matched = true;
                       geolocation_long_matched = true;
                       //Current Total Matched Weight = 6
                       totalMatchedWeight = 6;
                     }else{
-                      console.log('Did not match Geolocation Long');
+                      //console.log('Did not match Geolocation Long');
                       geolocation_long_matched = false;
                       
                     }
                   }else{
-                    console.log('Did not match Geolocation Lat');
+                    //console.log('Did not match Geolocation Lat');
                     geolocation_lat_matched = false;
+                    if(geolocation.longitude === geolocationlong){
+                      //console.log('Matched Geolocation Longitude');
+                      geolocation_long_matched = true;
+                    }else{
+                      geolocation_long_matched = false;
+                    }
                   }
-                  console.log('Saved GeoLat'+ geolocationlat + ' Current Signin GeoLat:'+ geolocation.latitude);
+                  //console.log('Saved GeoLat'+ geolocationlat + ' Current Signin GeoLat:'+ geolocation.latitude);
 
                   //compare IP address
                   if(ipAddress===ipAddressStudent){
-                    console.log('IP Matched');
+                    //console.log('IP Matched');
                     totalMatchedWeight = totalMatchedWeight + 5;
                     ipAddress_matched = true;
                   }else{
-                    console.log('IP Did not match');
+                    //console.log('IP Did not match');
                     ipAddress_matched = false;
                   }
-                  console.log('Saved IP: ' + ipAddressStudent + ' Current IP: '+ ipAddress);
+                  //console.log('Saved IP: ' + ipAddressStudent + ' Current IP: '+ ipAddress);
 
                   //compare system Display
                   if(studentDisplay===display){
-                    console.log('Display Matched');
+                    //console.log('Display Matched');
                     totalMatchedWeight = totalMatchedWeight + 4;
                     display_matched = true;
                   }else{
                     display_matched = false;
-                    console.log('Display did not match');
+                    //console.log('Display did not match');
                   }
-                  console.log( 'Saved Display: ' + display + ' Current Display: ' + studentDisplay)
+                  //console.log( 'Saved Display: ' + display + ' Current Display: ' + studentDisplay)
 
                   //compare system CPU
                   if(studentCPU===cpu){
-                    console.log('CPU Matched');
+                    //console.log('CPU Matched');
                     cpu_matched = true;
                     totalMatchedWeight = totalMatchedWeight + 3;
                   }else{
                     cpu_matched = false;
-                    console.log('CPU Did not match');
+                    //console.log('CPU Did not match');
                   }
-                  console.log('Saved CPU: ' + cpu + ' Current CPU: ' + studentCPU);
+                  //console.log('Saved CPU: ' + cpu + ' Current CPU: ' + studentCPU);
 
                   //compare system OS
                   if(studentOS===os){
-                    console.log('OS Matched');
+                    //console.log('OS Matched');
                     os_matched = true;
                     totalMatchedWeight = totalMatchedWeight + 2;
                   }else{
                     os_matched = false;
-                    console.log('OS Did not match');
+                    //console.log('OS Did not match');
                   }
-                  console.log('Saved OS: '+ os + ' Current OS: ' + studentOS);
+                  //console.log('Saved OS: '+ os + ' Current OS: ' + studentOS);
 
                   //compare system browser
                   if(studentBrowser===browser){
                     browser_matched = true;
-                    console.log('Browser Matched');
+                    //console.log('Browser Matched');
                     totalMatchedWeight = totalMatchedWeight + 1;
                   }else{
-                    console.log('Browser Did not match');
+                    //console.log('Browser Did not match');
                     browser_matched = false;
                   }
-                  console.log('Saved Browser: ' + browser + ' Current Browser: ' + studentBrowser);
+                  //console.log('Saved Browser: ' + browser + ' Current Browser: ' + studentBrowser);
 
-                  console.log('Total Matched Weight: ' + totalMatchedWeight);
+                  //console.log('Total Matched Weight: ' + totalMatchedWeight);
                   //compute AuthRiskScore
                   var AuthRiskScore = getAuthRiskScore(totalMatchedWeight);
-                  console.log('AuthRiskScore is = ' + AuthRiskScore);
+                  //console.log('AuthRiskScore is = ' + AuthRiskScore);
 
                   //create an object to pass the identity that did not match
                   var studentIdentity_uponExam = {
                     geolocation_lat: {currentGeolocation_lat: geolocation.latitude , didMatch: geolocation_lat_matched },
-                    geolocation_long: {currentGeolocation_long: geolocation.longitude , didMatch: geolocation_long_matched },
+                    geolocation_long: {currentGeolocation_long: geolocation.longitude , didMatch: geolocation_long_matched},
                     IP_address: {currentIpaddress: ipAddress , didMatch: ipAddress_matched },
                     display: {currentDisplay: display , didMatch: display_matched },
                     cpu:{currentCPU: cpu, didMatch: cpu_matched},
@@ -1108,7 +1124,7 @@ function compareAuthRiskScore(assessmentId){
                   //if riskscore is 0.90 above go to next page
                   if(AuthRiskScore >= 1){
                     
-                    console.log('SUCCESS: Auth Risk Score is: ' + AuthRiskScore);
+                    //console.log('SUCCESS: Auth Risk Score is: ' + AuthRiskScore);
                     //send the message first containing assessment ID
                     chrome.runtime.sendMessage({action: 'currentAssessment', value: assessmentId});
                     //send the risk score
@@ -1126,7 +1142,7 @@ function compareAuthRiskScore(assessmentId){
                     });
 
                   }else{
-                    console.log('FAILED: Auth Risk Score is: ' + AuthRiskScore);
+                    //console.log('FAILED: Auth Risk Score is: ' + AuthRiskScore);
                     chrome.runtime.sendMessage({action: 'didAuthAllow', value: false});
                     let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
                     let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
@@ -1203,7 +1219,7 @@ function viewStudentAssessmentDetails(assessmentId, IDnumber){
                 .then((snapshot)=>{
                   if(snapshot.exists()){
                     var childData = snapshot.val();
-                    console.log(childData.FacultyInCharge);
+                    //console.log(childData.FacultyInCharge);
                     var ExamDetailsDiv = document.getElementById('ExamDetailsStudent');
                     ExamDetailsDiv.innerHTML='';
       
@@ -1299,7 +1315,7 @@ function studentIsReadyExam(assessmentId, IDnumber){
                 .then((snapshot)=>{
                   if(snapshot.exists()){
                     var childData = snapshot.val();
-                    console.log(childData.FacultyInCharge);
+                    //console.log(childData.FacultyInCharge);
                     var ExamDetailsDiv = document.getElementById('ExamDetailsStudent');
                     ExamDetailsDiv.innerHTML='';
       
@@ -1375,7 +1391,7 @@ function studentIsTakingExam(assessmentId, IDnumber){
                 .then((snapshot)=>{
                   if(snapshot.exists()){
                     var childData = snapshot.val();
-                    console.log(childData.FacultyInCharge);
+                    //console.log(childData.FacultyInCharge);
                     var ExamDetailsDiv = document.getElementById('ExamDetailsStudent');
                     ExamDetailsDiv.innerHTML='';
                     // const assessmentFIC = childData.FacultyInCharge;
@@ -1419,7 +1435,7 @@ function studentIsTakingExam(assessmentId, IDnumber){
                       
                       // Find the distance between now and the count down date
                       const timeRemaining = countDownDate - now;
-                      console.log("Time Remaining: " + timeRemaining);
+                      //console.log("Time Remaining: " + timeRemaining);
                       if (timeRemaining > 0) {
                         const minutesRemaining = Math.floor(timeRemaining / 60000);
                         const secondsRemaining = Math.floor((timeRemaining % 60000) / 1000);
@@ -1460,7 +1476,7 @@ function studentIsTakingExam(assessmentId, IDnumber){
                               if (tabs.length > 0) {
                                 // Close the current active tab
                                 chrome.tabs.remove(tabs[0].id, () => {
-                                  console.log(`Closed tab ${tabs[0].id}`);
+                                  //console.log(`Closed tab ${tabs[0].id}`);
                                 });
                               }
                             });
@@ -1524,13 +1540,13 @@ function isBrowserMinimized(){
   chrome.windows.onFocusChanged.addListener(function(windowId) {
     //Check if the focus change, opened other windows or clicked on other windows
     if (windowId === chrome.windows.WINDOW_ID_NONE) {
-      console.log("Browser window is OUT OF FOCUS");
+      //console.log("Browser window is OUT OF FOCUS");
       timesBrowserOutofFocus+=1;
-      console.log("Browser window is OUT OF FOCUS " + timesBrowserOutofFocus + " times!!!!!!!");
+      //console.log("Browser window is OUT OF FOCUS " + timesBrowserOutofFocus + " times!!!!!!!");
       chrome.runtime.sendMessage({action: 'timesBrowserOutOfFocus', value: timesBrowserOutofFocus});
 
     }else{
-      console.log("BROWSER IS IN FOCUS");
+      //console.log("BROWSER IS IN FOCUS");
     }
   });
   
@@ -1542,11 +1558,11 @@ function getActiveTabs(){
     var tabsList = [];
     // tabs is an array of Tab objects
     tabs.forEach(function(tab) {
-        console.log("Tab ID:", tab.id);
-        console.log("Tab URL:", tab.url);
-        console.log("Tab Title:", tab.title);
-        console.log("Is Tab Active:", tab.active);
-        console.log("---");
+        // console.log("Tab ID:", tab.id);
+        // console.log("Tab URL:", tab.url);
+        // console.log("Tab Title:", tab.title);
+        // console.log("Is Tab Active:", tab.active);
+        // console.log("---");
 
         //json for every open tab
         var tabObject = {
@@ -1629,9 +1645,9 @@ function didSwitchTabs(){
     var tabId = activeInfo.tabId;
     chrome.tabs.get(tabId, function(tab) {
       var tabUrl = tab.url;
-      console.log("Tab switched. Tab ID:", tabId, "URL:", tabUrl);
+      //console.log("Tab switched. Tab ID:", tabId, "URL:", tabUrl);
   });
-  console.log(tabSwitchCount);
+  //console.log(tabSwitchCount);
   chrome.runtime.sendMessage({ action: "tabSwitched", value: tabSwitchCount });
    
 });
@@ -1656,16 +1672,16 @@ function saveProctoringReport(assessmentId, IDnumber, submissionTime){
           numOfBrowserOutofFocus = data.currentBrowserOutOfFocus;
           //undefined check
           if(numOfBrowserOutofFocus === undefined){
-            console.log('No Changes');
+            //console.log('No Changes');
             numOfBrowserOutofFocus = 0;
           }else{
             numofFlaggedActivity+=1;
           }
           
-          console.log('Time Started Exam: ' + timeStarted);
-          console.log('Time Ended Exam: ' + submissionTime);
-          console.log('Auth Risk Score: ' + authRiskScore);
-          console.log('Student Changed Focus Times: ' + numOfBrowserOutofFocus);
+          // console.log('Time Started Exam: ' + timeStarted);
+          // console.log('Time Ended Exam: ' + submissionTime);
+          // console.log('Auth Risk Score: ' + authRiskScore);
+          // console.log('Student Changed Focus Times: ' + numOfBrowserOutofFocus);
         });
       }
     });
@@ -1675,19 +1691,19 @@ function saveProctoringReport(assessmentId, IDnumber, submissionTime){
   var tabsDataList;
   chrome.storage.local.get('currenttabsListData', function(data){
     tabsDataList = data.currenttabsListData;
-    console.log('opened tabs data: ' + tabsDataList);
+    //console.log('opened tabs data: ' + tabsDataList);
   });
 
   var newTabsData;
   chrome.storage.local.get('currentNewtabsData', function(data){
     newTabsData = data.currentNewtabsData;
     //undefined check
-    if(newTabsData === undefined){
-      console.log('No Changes');
+    if(newTabsData === undefined || newTabsData === []){
+      //console.log('No Changes');
       newTabsData = 0;
     }else{
       numofFlaggedActivity+=1;
-      console.log('new tab opened data: ' + newTabsData);
+      //console.log('new tab opened data: ' + newTabsData);
     }
     
   });
@@ -1697,11 +1713,11 @@ function saveProctoringReport(assessmentId, IDnumber, submissionTime){
     numTabsSwitched = data.currentNumTabsSwitched;
     //undefined check
     if(numTabsSwitched === undefined){
-      console.log('No Changes');
+      //console.log('No Changes');
       numTabsSwitched = 0;
     }else{
       numofFlaggedActivity+=1;
-      console.log('num of times tab switched: ' + numTabsSwitched);
+      //console.log('num of times tab switched: ' + numTabsSwitched);
     }
     
   });
@@ -1713,7 +1729,7 @@ function saveProctoringReport(assessmentId, IDnumber, submissionTime){
       numofFlaggedActivity = numofFlaggedActivity;
     }else{
       numofFlaggedActivity+=1;
-      console.log("Student copied " + countedCopyAction + " times");
+      //console.log("Student copied " + countedCopyAction + " times");
     }
     
   });
@@ -1725,7 +1741,7 @@ function saveProctoringReport(assessmentId, IDnumber, submissionTime){
       numofFlaggedActivity = numofFlaggedActivity;
     }else{
       numofFlaggedActivity+=1;
-      console.log("Student pasted " + countedPasteAction + " times");
+      //console.log("Student pasted " + countedPasteAction + " times");
     }
     
   });
@@ -1746,7 +1762,7 @@ function saveProctoringReport(assessmentId, IDnumber, submissionTime){
   })
 
   
-  console.log(numOfBrowserOutofFocus + "Value");
+  //console.log(numOfBrowserOutofFocus + "Value");
   //check if there is a logged in user
   chrome.identity.getAuthToken({ interactive: true }, token =>
     {
@@ -1856,7 +1872,7 @@ function saveProctoringReport(assessmentId, IDnumber, submissionTime){
                     updates[`/proctoringReportStudent/${assessmentCourseSection}/${assessmentId}/${IDnumber}`] = newReportStudent;
                     update(ref(db), updates)
                       .then(()=>{
-                        console.log('Success in Saving Student PR');
+                        //console.log('Success in Saving Student PR');
                         })
                       .catch((err) => {
                         console.log("Error with database: " + err);
@@ -1919,7 +1935,7 @@ function studentSignOut(){
     signOut(auth).then(() => {
       // Sign-out successful.
       revokeAuthToken();
-      console.log('Sign out Success');
+      //console.log('Sign out Success');
       chrome.sidePanel.setOptions({path:landingPage})
     }).catch((error) => {
       // An error happened.

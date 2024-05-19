@@ -1573,12 +1573,17 @@ select:focus{
 }
 
 .FacultyHeaderDetails{
-    margin-top: 50px;
+    margin-top: 10px;
     height: 43px;
     font-size: 35px;
     color: #000000;
     font-family: 'Urbanist', sans-serif;   
     text-decoration:underline;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 250px; /* Adjust the width as needed */
+
     
 }
 .FacultySubHeader{
