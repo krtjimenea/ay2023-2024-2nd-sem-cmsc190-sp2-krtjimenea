@@ -4,7 +4,7 @@
 //import for SDKs
 import { FirebaseApp } from './firebase';
 import { getFirestore, doc, setDoc, addDoc,collection } from "firebase/firestore";
-import {getAuth,signInWithCredential,GoogleAuthProvider} from 'firebase/auth';
+import {getAuth,signInWithCredential,GoogleAuthProvider, signOut} from 'firebase/auth';
 import {getDatabase,ref,set,on, onValue, get, update,push, child, query,orderByChild,equalTo, startAfter, orderByValue,setValue} from 'firebase/database';
 import { nanoid } from 'nanoid';
 import { customAlphabet } from 'nanoid';
@@ -32,6 +32,7 @@ const AdminViewProctoringReportSummary = '/AdminViewProctoringReportSummary.html
 const AdminViewStudentExams =  '/AdminViewStudentExams.html'
 const AdminStudentProctoringReportSummary = '/AdminStudentProctoringReportSummary.html';
 const AdminStudentAuthReport = '/AdminStudentAuthReport.html';
+const landingPage = '/LandingPage.html';
 
 //display the faculty data
 function displayFacultyList(){
@@ -81,8 +82,8 @@ function displayFacultyList(){
                                       <p class="cardText" id="FacultyNumber">${FacultyIDNumber}</p>
                                   </div>
                                   <div class="cardSubDiv">
-                                      <p id="card-labels">Num of Courses:</p>
-                                      <p class="cardText" id="FacultyNumCourses">10</p>
+                                      <p id="card-labels">Email</p>
+                                      <p class="cardText" id="FacultyEmail">${facultyEmail}</p>
                                   </div>
                             </div>
                           </div>`;
@@ -272,16 +273,6 @@ window.addEventListener('DOMContentLoaded', function () {
         let overlay = document.getElementsByClassName("modal-faculty-Overlay")[0];
         modal.style.display = "block";
         overlay.style.display = "block";
-      }
-
-      //CSV Upload Faculty
-      if(target.id==='Add-New-CSV-Faculty'){
-        // openModal();
-        let modal = document.getElementsByClassName("Add-Faculty-CSV-Modal")[0];
-        let overlay = document.getElementsByClassName("modal-faculty-Overlay")[0];
-        modal.style.display = "block";
-        overlay.style.display = "block";
-
       }
 
       if (target.className === 'ModalCloseBtnCSV'){
@@ -503,6 +494,11 @@ window.addEventListener('DOMContentLoaded', function () {
         chrome.runtime.sendMessage({action: 'currentStudentExam_Report', value: currentKey[1]});
         //change panel
         chrome.sidePanel.setOptions({path:AdminStudentAuthReport})
+      }
+
+      if(target.id === 'LogOutFacultyAdmin'){
+        // console.log('Student Logged Out');
+        AdminsignOut();
       }
         
 
@@ -1539,27 +1535,13 @@ function createNewCourse(facultyKeyValue){
                 update(ref(db), updatesRelationFaculty)
                 .then(()=>{
                   //console.log('Success in Adding new course to teaching Classes');
-                   //close add course modal
-                   let modal = document.getElementsByClassName("Add-Course-Modal")[0];
-                   let overlay = document.getElementsByClassName("modal-course-Overlay")[0];
-                   modal.style.display = "none";
-                   overlay.style.display = "none";
-                   let modalSuccess = document.getElementsByClassName("Alerts-Success-Modal")[0];
-                   let overlaySuccess = document.getElementsByClassName("modal-success-Overlay")[0];
-                   modalSuccess.style.display = "block";
-                   overlaySuccess.style.display = "block";
-                   let alertMessage = document.getElementById("ModalTextSuccess-labels");
-                   alertMessage.textContent = 'Success in adding new course!';
-                   let closeBtn = document.getElementsByClassName("ModalSuccessCloseBtn")[0];
-                   closeBtn.addEventListener("click", function(){
-                      //load the new database
-                      location.reload();
-                    })
+                  
                   
                 })
                 .catch((error) => {
                   console.log("Error with database: " + error);
                 })
+
                
             }
         
@@ -2147,9 +2129,7 @@ function viewStudentsList(){
                                       <div class="cardSubDiv-Click">
                                       <button class="cardText" id="ViewStudentAssignedExam" value="${studentNumber}">View Assigned Exams</p>
                                     </div>
-                                    <div class="cardSubDiv-Click">
-                                      <button class="cardText" id="ViewStudentEnrolledCourses" value="${studentNumber}">View Enrolled Courses</p>
-                                    </div>
+                                  
                                      
                                   </div>
                               </div>`;
@@ -2307,4 +2287,48 @@ function viewOneCourseOnly(currentCourseKey){
       });
   });
 
+}
+
+function revokeAuthToken() {
+  // Get the current authentication token
+  chrome.identity.getAuthToken({ interactive: false }, token => {
+    if (chrome.runtime.lastError || !token) {
+      console.log(`No token to revoke: ${JSON.stringify(chrome.runtime.lastError)}`);
+      return;
+    }
+    // Revoke the token
+    chrome.identity.removeCachedAuthToken({ token: token }, () => {
+      fetch(`https://accounts.google.com/o/oauth2/revoke?token=${token}`)
+        .then(response => {
+          if (response.ok) {
+            console.log('Token revoked successfully');
+            //clearUserData();
+          } else {
+            console.log('Error revoking token:', response.statusText);
+          }
+        })
+        .catch(error => console.error('Error during token revocation:', error));
+    });
+  });
+}
+
+function AdminsignOut(){
+  chrome.storage.local.clear(function() {
+    var error = chrome.runtime.lastError;
+    if (error) {
+        console.error("Error: " + error);
+    }
+    //after clearing local storage log out
+    const auth = getAuth();
+    signOut(auth).then(() => {
+      // Sign-out successful.
+      revokeAuthToken();
+      //console.log('Sign out Success');
+      chrome.sidePanel.setOptions({path:landingPage})
+    }).catch((error) => {
+      // An error happened.
+      console.log("Error: " + error);
+    });
+  });
+  
 }

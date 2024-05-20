@@ -1021,6 +1021,16 @@ function updateTakingAssessmentsStudent(courseGivenAssessment, assessmentKey){
                     }).catch((err) => {
                       console.log(("error with database" + err));
                     })
+
+                    //update path /assignedAssessment/studentkey/assessmentKey = true;
+                    const updateAssignedAssessment = {}
+                    updateAssignedAssessment[`/assignedAssessments/${studentId}/${assessmentKey}`] = true;
+                    update(ref(db), updateAssignedAssessment)
+                    .then(()=> {
+                      //console.log("Saved Assigned Exam to Student!");
+                    }).catch((error) => {
+                      console.log(("error with database" + error));
+                    })
                     
                   }
                 

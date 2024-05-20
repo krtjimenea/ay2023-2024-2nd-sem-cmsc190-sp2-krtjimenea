@@ -726,16 +726,18 @@ select:focus{
 }
 
 .AdminHeaderDetails{
-    margin-top: 50px;
-    height: 43px;
+    margin-top: 35px;
     font-size: 35px;
     color: #000000;
     font-family: 'Urbanist', sans-serif;   
     text-decoration:underline;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space:  pre-line;
     max-width: 250px; /* Adjust the width as needed */
+    min-height: 43px;
+    max-height: 100px;
+    align-items: center; /* Center the content vertically */
+    justify-content: center;
+    text-align: center;
 
 }
 .FacultySubHeader{
@@ -1322,4 +1324,26 @@ select:focus{
     font-family: 'Urbanist', sans-serif;
     font-weight: 800;
     font-size: 15px;
+}
+
+#ViewProctoringReportSummaryExamOnly{
+    width: 100%;
+    border: none;
+    background-color: transparent;
+    margin: 0;
+    cursor: pointer;
+
+}
+
+.LogOutFacultyAdmin{
+    margin-top: 20px;
+    background-color: #e09697;
+    width: 246px;
+    height: 43px;
+    color: #000;
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    border-radius: 12px;
+    border: 2px solid #000;   
+    box-shadow: 0 4px 10px 0 #00000033, 0 6px 20px 0 rgba(0, 0, 0, 0.19);     
 }
