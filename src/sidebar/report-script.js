@@ -437,7 +437,7 @@ function viewStudentAuthReport(currentCourseKey,currentExamKey,currentStudent){
                     const flaggedActivities = childData.student_total_flagged_activity;
                     const activity = childData.flagged_activities;
                     const authScore = childData.student_auth_risk_score;
-                    const authStatus = childData.student_didAuthAllow;
+                    const authStatus = childData.student_AuthFlagged;
                     const examTakenName = childData.assessmentTaken.name;
                     const examCourseSection = childData.assessmentTaken.courseSection;
                     const examFIC = childData.assessmentTaken.FacultyInChargeName;
@@ -445,6 +445,12 @@ function viewStudentAuthReport(currentCourseKey,currentExamKey,currentStudent){
                     var IdentityJSON = JSON.parse(stringIdentity);
                     console.log(IdentityJSON);
 
+                    let authMessage = '';
+                    if(authStatus === false){
+                        authMessage = 'Warning: Authentication Factors Did Not Match'
+                    }else{
+                        authMessage = 'Passed: Most Authentication Factors Matched'
+                    }
                     let headerCourseCode = document.getElementById('AdminHeaderDetails-CourseCode');
                     headerCourseCode.textContent =  examTakenName;
                     //iterate over each property of the identity
@@ -536,9 +542,9 @@ function viewStudentAuthReport(currentCourseKey,currentExamKey,currentStudent){
                         <div class="cardSubDiv-subCard-PR">
                             <div class="subCard-PR-2">
                                 <div class="subCard-PR-Text">
-                                    <p id="card-labels-PR-header">Authenticated to Take Exam</p>                                            
+                                    <p id="card-labels-PR-header">Authentication Status</p>                                            
                                     <div class="subCard-Div-info">
-                                        <p class="cardText-small" id="StudentAuthRiskBool">${authStatus}</p>
+                                        <p class="cardText-small" id="StudentAuthRiskBool">${authMessage}</p>
                                     </div>
                                 
                                 </div>

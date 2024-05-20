@@ -167,7 +167,7 @@ window.addEventListener('DOMContentLoaded', function () {
   const headDiv = document.getElementById('AppBody'); // Replace with the actual ID
 
   headDiv.addEventListener('click', function (event) {
-    console.log('Click event fired');
+    //console.log('Click event fired');
 
     const target = event.target;
     var currentUserId;
@@ -190,12 +190,12 @@ window.addEventListener('DOMContentLoaded', function () {
 
     //For faculty dashboard events
     if(target.id === 'ScheduleBtn'){
-      console.log('Clicked on Schedule Assessment');
+      //console.log('Clicked on Schedule Assessment');
       chrome.sidePanel.setOptions({path:facultySchedulePage});
 
     }
     if(target.id === 'ManageBtn'){
-      console.log('Clicked on Manage Assessment');
+      //console.log('Clicked on Manage Assessment');
       chrome.sidePanel.setOptions({path:facultyViewAssessments});
 
     }
@@ -215,7 +215,7 @@ window.addEventListener('DOMContentLoaded', function () {
     //STUDENT CLICKED THE EXAM LINK
     if(target.id==='output-student-examName'){
       var assessmentLink = target.href;
-      console.log("Link: " + assessmentLink);
+      //console.log("Link: " + assessmentLink);
       // Get the current tab and update its URL
       chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
         chrome.tabs.update(tabs[0].id, { url: assessmentLink});
@@ -552,7 +552,7 @@ function getStudentDetails(IDnumber){
 
 //function to check if faculty is already registered
 function isFacultyRegistered(IDnumber){
-  console.log(IDnumber);
+  //console.log(IDnumber);
    //check if there is a logged in user
    chrome.identity.getAuthToken({ interactive: true }, token =>
     {
@@ -576,7 +576,7 @@ function isFacultyRegistered(IDnumber){
               get(facultyRef)
               .then((snapshot) => {
                 if(snapshot.exists()){
-                  console.log("Success Firebase Access!");
+                  //console.log("Success Firebase Access!");
                   //check the UID
                   const facultyData = snapshot.val();
                   if(facultyData.authProviderUID === ""){
@@ -664,7 +664,7 @@ function isStudentRegistered(IDnumber){
                   //check the UID
                   const studentData = snapshot.val();
                   if(studentData.authProviderUID===""){
-                    console.log("auth UID is empty");
+                    //console.log("auth UID is empty");
                     //register
                     //check if it matches the email added by the admin
                     if(studentData.Email===email){
@@ -957,7 +957,8 @@ function compareAuthRiskScore(assessmentId){
       } else if (userAgent.includes('Edge')) {
         studentBrowser = 'Microsoft Edge';
       } else {
-        console.log('Browser: Unknown');
+        // console.log('Browser: Unknown');
+        studentBrowser = 'Unknown'
       }
 
       //get the display resolution
@@ -1123,18 +1124,17 @@ function compareAuthRiskScore(assessmentId){
                   
                   //if riskscore is 0.90 above go to next page
                   if(AuthRiskScore >= 1){
-                    
                     //console.log('SUCCESS: Auth Risk Score is: ' + AuthRiskScore);
                     //send the message first containing assessment ID
                     chrome.runtime.sendMessage({action: 'currentAssessment', value: assessmentId});
                     //send the risk score
                     chrome.runtime.sendMessage({action: 'authRiskScore', value: AuthRiskScore});
                     chrome.runtime.sendMessage({action: 'studentIdentity_uponExam', value: studentIdentityUponExam});
-                    // chrome.runtime.sendMessage({action: 'didAuthAllow', value: true});
+                    // chrome.runtime.sendMessage({action: 'AuthFlagged', value: true});
                     // // chrome.sidePanel.setOptions({path: StudentExamDetailsPage});
-                    chrome.runtime.sendMessage({action: 'didAuthAllow', value: true}, function(response) {
+                    chrome.runtime.sendMessage({action: 'AuthFlagged', value: true}, function(response) {
                       if (chrome.runtime.lastError) {
-                          console.error('Error sending didAuthAllow message:', chrome.runtime.lastError);
+                          console.error('Error sending AuthFlagged message:', chrome.runtime.lastError);
                           return;
                       }
                         chrome.sidePanel.setOptions({path: StudentExamDetailsPage});
@@ -1143,18 +1143,17 @@ function compareAuthRiskScore(assessmentId){
 
                   }else{
                     //console.log('FAILED: Auth Risk Score is: ' + AuthRiskScore);
-                    chrome.runtime.sendMessage({action: 'didAuthAllow', value: false});
-                    let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
-                    let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
-                    modal.style.display = "block";
-                    overlay.style.display = "block";
-                    let alertMessage = document.getElementById("ModalTextFailure-labels");
-                    alertMessage.textContent = "You are not authenticated to take this exam";
-                    let closeBtn = document.getElementsByClassName("ModalFailureCloseBtn")[0];
-                    closeBtn.addEventListener("click", function(){
-                      chrome.sidePanel.setOptions({path:landingPage})
-                    })
+                    chrome.runtime.sendMessage({action: 'currentAssessment', value: assessmentId});
                     chrome.runtime.sendMessage({action: 'authRiskScore', value: AuthRiskScore});
+                    chrome.runtime.sendMessage({action: 'studentIdentity_uponExam', value: studentIdentityUponExam});
+                    chrome.runtime.sendMessage({action: 'AuthFlagged', value: false}, function(response) {
+                      if (chrome.runtime.lastError) {
+                          console.error('Error sending AuthFlagged message:', chrome.runtime.lastError);
+                          return;
+                      }
+                        chrome.sidePanel.setOptions({path: StudentExamDetailsPage});
+                  
+                    });
                   }
                 })
                 .catch((err) => {
@@ -1184,9 +1183,9 @@ function getAuthRiskScore(totalMatchedWeight){
   // var cpuWeight = 3;
   // var osWeight = 2;
   // var browserWeight =1;
-  // var totalWeight = 21;
+  var totalWeight = 21;
 
-  var AuthRiskScore = totalMatchedWeight/7;
+  var AuthRiskScore = totalMatchedWeight/totalWeight;
 
   return AuthRiskScore;
 }
@@ -1230,13 +1229,15 @@ function viewStudentAssessmentDetails(assessmentId, IDnumber){
                     const assessmentLink = childData.link;
                     const assessmentStartTime = childData.expected_time_start;
                     const assessmentEndTime = childData.expected_time_end;
-                    const assessmentTimeLimit =  childData.time_limit;
+                    const assessmentStartDate= childData.date_start;
+                    const assessmentEndDate= childData.date_end;
+                    const assessmentTimeLimit = childData.time_limit;
 
                     ExamDetailsDiv.innerHTML += `<div class="cards">
                       <p class="cardHeader" id="ExamName">${assessmentName}</p>
                       <div class="cardDivText">
                           <div class="cardSubDiv">
-                            <p id="card-labels">Faculty-in-Charge:</p>
+                            <p id="card-labels">Faculty:</p>
                             <p class="cardText" id="CourseTitle">${assessmentFIC}</p>
                           </div> 
                           <div class="cardSubDiv">
@@ -1244,12 +1245,24 @@ function viewStudentAssessmentDetails(assessmentId, IDnumber){
                               <p class="cardText" id="ExamCourse">${assessmentCourseSection}</p>
                           </div>    
                           <div class="cardSubDiv">
-                              <p id="card-labels">Start Time and Date:</p>
-                              <p class="cardText" id="ExamStartTimeDate">${assessmentStartTime}</p>
+                            <p id="card-labels">Start Date:</p>
+                            <p class="cardText" id="CourseTitle">${assessmentStartDate}</p>
                           </div>  
                           <div class="cardSubDiv">
-                              <p id="card-labels">End Time and Date:</p>
-                              <p class="cardText" id="ExamEndTimeDate">${assessmentEndTime}</p>
+                              <p id="card-labels">Start Time:</p>
+                              <p class="cardText" id="CourseTitle">${assessmentStartTime}</p>
+                          </div> 
+                          <div class="cardSubDiv">
+                              <p id="card-labels">End Date:</p>
+                              <p class="cardText" id="CourseTitle">${assessmentEndDate}</p>
+                          </div>  
+                          <div class="cardSubDiv">
+                              <p id="card-labels">End Time:</p>
+                              <p class="cardText" id="CourseTitle">${assessmentEndTime}</p>
+                          </div> 
+                          <div class="cardSubDiv">
+                            <p id="card-labels">Time Duration:</p>
+                            <p class="cardText" id="CourseTitle">${assessmentTimeLimit} mins</p>
                           </div>  
                       </div>`
   
@@ -1325,6 +1338,9 @@ function studentIsReadyExam(assessmentId, IDnumber){
                     const assessmentLink = childData.link;
                     const assessmentStartTime = childData.expected_time_start;
                     const assessmentEndTime = childData.expected_time_end;
+                    const assessmentStartDate= childData.date_start;
+                    const assessmentEndDate= childData.date_end;
+                    const assessmentTimeLimit = childData.time_limit;
 
                     ExamDetailsDiv.innerHTML += `
                     <div class="output-student-examLink">
@@ -1334,12 +1350,18 @@ function studentIsReadyExam(assessmentId, IDnumber){
                     <div class="studentDivText">
                       <p id="output-labels-student">Course and Section</p>
                       <p class="output-student-exam">${assessmentCourseSection}</p>
-                      <p id="output-labels-student">Faculty-in-Charge</p>
+                      <p id="output-labels-student">Faculty</p>
                       <p class="output-student-exam">${assessmentFIC}</p>
-                      <p id="output-labels-student">Start Time and Date</p>
+                      <p id="output-labels-student">Start Date</p>
+                      <p class="output-student-exam">${assessmentStartDate}</p>
+                      <p id="output-labels-student">Start Time</p>
                       <p class="output-student-exam">${assessmentStartTime}</p>
-                      <p id="output-labels-student">End Time and Date</p>
+                      <p id="output-labels-student">End Date</p>
+                      <p class="output-student-exam">${assessmentEndDate}</p>
+                      <p id="output-labels-student">End Time</p>
                       <p class="output-student-exam">${assessmentEndTime}</p>
+                      <p id="output-labels-student">Time Duration</p>
+                      <p class="output-student-exam">${assessmentTimeLimit}</p>
                     </div>`
 
                   }
@@ -1493,7 +1515,7 @@ function studentIsTakingExam(assessmentId, IDnumber){
                     <p class="output-student-active-exam" id="student-current-examName">${assessmentName}</p>
                     <p id="output-labels-student">Course and Section</p>
                     <p class="output-student-active-exam" id="student-current-examSection">${assessmentCourseSection}</p>
-                    <p id="output-labels-student">Faculty-in-Charge</p>
+                    <p id="output-labels-student">Faculty</p>
                     <p class="output-student-active-exam" id="student-current-examFIC">${assessmentFIC}</p>                 
                   
                     <p id="output-labels-student">Time and Date Started</p>
@@ -1501,6 +1523,7 @@ function studentIsTakingExam(assessmentId, IDnumber){
                     <p id="output-labels-student">Time Countdown:</p>
                     <p class="output-student-active-time-exam" id="student-current-examTimeLeft"></p>
                     <p class="output-student-active-exam-record" id="recorded-message">BROWSER ACTIVITY IS RECORDED</p>
+                    <p class="output-student-active-exam-record" id="recorded-message">SUBMIT YOUR ONLINE EXAM IN YOUR LMS FIRST</p>
             
                     <div class="SubmitDiv">
                         <button type="button" class="greenBtn" id="submitExamBtn">SUBMIT EXAM</button>
@@ -1755,9 +1778,9 @@ function saveProctoringReport(assessmentId, IDnumber, submissionTime){
   // var json_newTabsData = JSON.parse(newTabsData);
   // var json_tabsDataList = JSON.parse(tabsDataList);
 
-  var didAuthAllowValue;
-  chrome.storage.local.get('currentdidAuthAllow', function(data){
-    didAuthAllowValue = data.currentdidAuthAllow;
+  var AuthFlaggedValue;
+  chrome.storage.local.get('currentAuthFlagged', function(data){
+    AuthFlaggedValue = data.currentAuthFlagged;
     // console.log(student_identity_UponExam);
   })
 
@@ -1811,7 +1834,7 @@ function saveProctoringReport(assessmentId, IDnumber, submissionTime){
                     <p class="output-student-done-exam" id="student-current-examName">${assessmentName}</p>
                     <p id="output-labels-student">Course and Section</p>
                     <p class="output-student-done-exam" id="student-current-examSection">${assessmentCourseSection}</p>
-                    <p id="output-labels-student">Faculty-in-Charge</p>
+                    <p id="output-labels-student">Faculty</p>
                     <p class="output-student-done-exam" id="student-current-examFIC">${assessmentFIC} </p>                 
                     
                     <p id="output-labels-student">Time Started</p>
@@ -1852,7 +1875,7 @@ function saveProctoringReport(assessmentId, IDnumber, submissionTime){
                       student_time_started: timeStarted,
                       student_time_submitted: submissionTime,
                       student_auth_risk_score: authRiskScore,
-                      student_didAuthAllow: didAuthAllowValue,
+                      student_AuthFlagged: AuthFlaggedValue,
                       student_total_flagged_activity: numofFlaggedActivity,
                       flagged_activities : {
                         student_num_changed_windows: numOfBrowserOutofFocus,
@@ -1914,7 +1937,7 @@ function revokeAuthToken() {
         .then(response => {
           if (response.ok) {
             console.log('Token revoked successfully');
-            clearUserData();
+            //clearUserData();
           } else {
             console.log('Error revoking token:', response.statusText);
           }

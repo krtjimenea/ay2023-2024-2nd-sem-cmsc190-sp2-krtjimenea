@@ -156,10 +156,10 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     chrome.storage.local.set({'currentStudentIdentity_uponExam': message.value});
   }
 
-  if(message.action === 'didAuthAllow'){
+  if(message.action === 'AuthFlagged'){
     console.log('Received didAuth: ', message.value);
-    chrome.storage.local.set({'currentdidAuthAllow': message.value});
-    sendResponse({status: 'received didAuthAllow'});
+    chrome.storage.local.set({'currentAuthFlagged': message.value});
+    sendResponse({status: 'received AuthFlagged'});
   }
 
   if(message.action === 'examKey'){

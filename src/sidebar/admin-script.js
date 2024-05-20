@@ -723,7 +723,7 @@ function ViewProctoringReportSummary(currentExamKey, currentCourseKey, currentEx
 
               //query for did auth allow
               var numof_AuthAllowedStudents = 0;
-              const AuthAllowedStudentsQuery = query(assessmentRef, orderByChild('student_didAuthAllow'), equalTo(true));
+              const AuthAllowedStudentsQuery = query(assessmentRef, orderByChild('student_AuthFlagged'), equalTo(true));
               get(AuthAllowedStudentsQuery)
                 .then((snapshot) => {
                   if (snapshot.exists()) {
@@ -744,7 +744,7 @@ function ViewProctoringReportSummary(currentExamKey, currentCourseKey, currentEx
               
               //query for did NOT auth allow
               var numof_NotAuthAllowedStudents = 0;
-              const AuthNotAllowedStudentsQuery = query(assessmentRef, orderByChild('student_didAuthAllow'), equalTo(false));
+              const AuthNotAllowedStudentsQuery = query(assessmentRef, orderByChild('student_AuthFlagged'), equalTo(false));
               get(AuthNotAllowedStudentsQuery)
                 .then((snapshot) => {
                   if (snapshot.exists()) {

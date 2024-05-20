@@ -512,14 +512,14 @@ input{
 .ExamLinkBtn{
     display: block;
     text-align: justify;
-    background-color: #FFB511;
+    background-color: #e99f00;
     width: 264px;
     height: 40px;
     color: #000;
     font-family: 'Raleway', sans-serif;
     font-family: 'Urbanist', sans-serif;
     border-radius: 4px;
-    border: 2px solid #000;   
+    border: 3px solid #000;   
     box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); 
     line-height: 40px;
     font-size: 25px;
@@ -760,7 +760,17 @@ input{
 
 /*** Faculty Dashboard **/
 
-
+.LogOutFacultyAdmin{
+    background-color: #e09697;
+    width: 246px;
+    height: 43px;
+    color: #000;
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    border-radius: 12px;
+    border: 2px solid #000;   
+    box-shadow: 0 4px 10px 0 #00000033, 0 6px 20px 0 rgba(0, 0, 0, 0.19);     
+}
 
 .AppHeaderFaculty{
     display: flex; 
@@ -1386,9 +1396,11 @@ select:focus{
 .cardText-small{
     font-family: 'Urbanist', sans-serif;
     font-size: 15px;
-    white-space: nowrap;
+    /* white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis;
+    text-overflow: ellipsis; */
+    display: flex;
+    flex-wrap: wrap;
     max-width: 250px; /* Adjust the width as needed */
     display: inline-block;
     vertical-align: bottom; 
@@ -1401,18 +1413,52 @@ select:focus{
     width: 100%;
     border: none;
     background-color: transparent;
+    cursor: pointer;
+}
+
+#ViewAuthReportSummary{
+    width: 100%;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+
+}
+
+#ViewStudentEnrolledCourses{
+    width: 100%;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+}
+
+#ViewProctoringReportSummaryExamOnly{
+    width: 100%;
+    border: none;
+    background-color: transparent;
+    margin: 0;
+    cursor: pointer;
+
+}
+
+#ViewStudentList{
+    width: 100%;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
 }
 
 #ViewStudentAssignedExam{
     width: 100%;
     border: none;
     background-color: transparent;
+    cursor: pointer;
 }
 
 #ViewStudentAssignedExamReport{
     width: 100%;
     border: none;
     background-color: transparent;
+    cursor: pointer;
 
 }
 .cards-PR-Students{
