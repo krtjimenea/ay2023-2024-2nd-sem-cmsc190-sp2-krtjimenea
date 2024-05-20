@@ -1064,7 +1064,7 @@ function compareAuthRiskScore(assessmentId){
                       geolocation_lat_matched = true;
                       geolocation_long_matched = true;
                       //Current Total Matched Weight = 6
-                      totalMatchedWeight = 6;
+                      totalMatchedWeight = 5;
                     }else{
                       //console.log('Did not match Geolocation Long');
                       geolocation_long_matched = false;
@@ -1085,7 +1085,7 @@ function compareAuthRiskScore(assessmentId){
                   //compare IP address
                   if(ipAddress===ipAddressStudent){
                     //console.log('IP Matched');
-                    totalMatchedWeight = totalMatchedWeight + 5;
+                    totalMatchedWeight = totalMatchedWeight + 4;
                     ipAddress_matched = true;
                   }else{
                     //console.log('IP Did not match');
@@ -1096,7 +1096,7 @@ function compareAuthRiskScore(assessmentId){
                   //compare system Display
                   if(studentDisplay===display){
                     //console.log('Display Matched');
-                    totalMatchedWeight = totalMatchedWeight + 4;
+                    totalMatchedWeight = totalMatchedWeight + 3;
                     display_matched = true;
                   }else{
                     display_matched = false;
@@ -1108,7 +1108,7 @@ function compareAuthRiskScore(assessmentId){
                   if(studentCPU===cpu){
                     //console.log('CPU Matched');
                     cpu_matched = true;
-                    totalMatchedWeight = totalMatchedWeight + 3;
+                    totalMatchedWeight = totalMatchedWeight + 2;
                   }else{
                     cpu_matched = false;
                     //console.log('CPU Did not match');
@@ -1119,7 +1119,7 @@ function compareAuthRiskScore(assessmentId){
                   if(studentOS===os){
                     //console.log('OS Matched');
                     os_matched = true;
-                    totalMatchedWeight = totalMatchedWeight + 2;
+                    totalMatchedWeight = totalMatchedWeight + 1;
                   }else{
                     os_matched = false;
                     //console.log('OS Did not match');
@@ -1130,7 +1130,7 @@ function compareAuthRiskScore(assessmentId){
                   if(studentBrowser===browser){
                     browser_matched = true;
                     //console.log('Browser Matched');
-                    totalMatchedWeight = totalMatchedWeight + 1;
+                    // totalMatchedWeight = totalMatchedWeight + 1;
                   }else{
                     //console.log('Browser Did not match');
                     browser_matched = false;
@@ -1211,13 +1211,12 @@ function compareAuthRiskScore(assessmentId){
 function getAuthRiskScore(totalMatchedWeight){
 
   //weights
-  // var geolocWeight = 6;
-  // var ipAddrWeight = 5;
-  // var displayWeight = 4;
-  // var cpuWeight = 3;
-  // var osWeight = 2;
-  // var browserWeight =1;
-  var totalWeight = 21;
+  // var geolocWeight = 5;
+  // var ipAddrWeight = 4;
+  // var displayWeight = 3;
+  // var cpuWeight = 2;
+  // var osWeight = 1;
+  var totalWeight = 15;
 
   var AuthRiskScore = totalMatchedWeight/totalWeight;
 
