@@ -791,6 +791,7 @@ function checkExamCode(){
                 for(const assessmentId in assessmentData){
                   const assessment = assessmentData[assessmentId];
                   const accessCode = assessment.access_code;
+                  const assessmentCourse = assessment.course;
                   //console.log(accessCode);
                   //console.log(examCodeInput);
                   if(examCodeInput===accessCode){
@@ -800,91 +801,118 @@ function checkExamCode(){
                     //find if that student should be taking that exams
                     const takingAssessmentRef = ref(db, `/takingAssessments/${assessmentId}/students/${IDnumber}`);
                     const AssessmentRef = ref(db, `/takingAssessments/${assessmentId}`);
-                    get(takingAssessmentRef)
-                    .then((snapshot) =>{
-                      if(snapshot.exists()){
-                        get(AssessmentRef)
-                        .then((assessmentSnapshot) => {
-                          if(assessmentSnapshot.exists()){
-                            const assessmentData = assessmentSnapshot.val();
-                           // console.log(assessmentData);
-                        
-                            //check if they can access the exam at access
-                            const currentDate = new Date();
-                            const formattedCurrentDate = formatDate(currentDate);
-                            const formattedCurrentTime = formatTime(currentDate);
-                            const assessmentStartTime = assessmentData.expected_time_start;
-                            const assessmentEndTime = assessmentData.expected_time_end;
-                            const assessmentStartDate = assessmentData.date_start;
-                            const assessmentEndDate = assessmentData.date_end;
+                    const PRAssessmentRef = ref(db, `/proctoringReportStudent/${assessmentCourse}/${assessmentId}/${IDnumber}`);
 
-                            // console.log("Current Date: " + formattedCurrentDate);
-                            // console.log("assessmentStartDate: " + assessmentStartDate);
-                            // console.log("formattedCurrentTime: " + formattedCurrentTime);
-                            // console.log("assessmentStartTime: " +  assessmentStartTime);
-                            // console.log("assessmentEndTime: " + assessmentEndTime);
-                            
-                            //check date range
-                            const isWithinDateRange = (formattedCurrentDate >= assessmentStartDate) && (formattedCurrentDate <= assessmentEndDate);
-                            let isWithinTimeRange = false;
-                            //make sure that instances of the date and time are between the schedule
-                            if (formattedCurrentDate === assessmentStartDate) {
-                              isWithinTimeRange = (formattedCurrentTime >= assessmentStartTime);
-                            }else if (formattedCurrentDate === assessmentEndDate) {
-                              isWithinTimeRange = (formattedCurrentTime <= assessmentEndTime);
-                            }else if (formattedCurrentDate > assessmentStartDate && formattedCurrentDate < assessmentEndDate) {
-                              isWithinTimeRange = true;
-                            }
-
-                            if (isWithinDateRange && isWithinTimeRange) {
-                              //calculate first the risk score
-                              let modal = document.getElementsByClassName("Alerts-Success-Modal")[0];
-                              let overlay = document.getElementsByClassName("modal-success-Overlay")[0];
-                              modal.style.display = "block";
-                              overlay.style.display = "block";
-                              let alertMessage = document.getElementById("ModalTextSuccess-labels");
-                              alertMessage.textContent = 'Valid, You are set to take this exam!';
-                              let closeBtn = document.getElementsByClassName("ModalSuccessCloseBtn")[0];
-                                 closeBtn.addEventListener("click", function(){
-                                   compareAuthRiskScore(assessmentId);
-                              })
-                             
-                            }else{
-                              let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
-                              let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
-                              modal.style.display = "block";
-                              overlay.style.display = "block";
-                              let alertMessage = document.getElementById("ModalTextFailure-labels");
-                              alertMessage.textContent = "You are not valid to take this exam";
-                              let closeBtn = document.getElementsByClassName("ModalFailureCloseBtn")[0];
-                              closeBtn.addEventListener("click", function(){
-                                chrome.sidePanel.setOptions({path:landingPage})
-                              })
-                            }
-                               
-                          }
-
-                        })
-                        
-                      }else{
-                        //alert("You are not valid to take this assessment");
-                        //openFailedModal();
+                    //check first if student already generated a proctoring report (they took the exam already)
+                    get(PRAssessmentRef)
+                    .then((snapshotPR) => {
+                      if(snapshotPR.exists()){
+                        //student already generated a proctoring report (they took the exam already)
                         let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
                         let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
                         modal.style.display = "block";
                         overlay.style.display = "block";
                         let alertMessage = document.getElementById("ModalTextFailure-labels");
-                        alertMessage.textContent = "You are not valid to take this exam";
+                        alertMessage.textContent = "You’ve finished this exam. Access Denied.";
                         let closeBtn = document.getElementsByClassName("ModalFailureCloseBtn")[0];
                         closeBtn.addEventListener("click", function(){
                           chrome.sidePanel.setOptions({path:landingPage})
                         })
-                        
+                       
+
+                      }else{
+                        //no report yet, proceed to take exam
+                        get(takingAssessmentRef)
+                        .then((snapshot) =>{
+                          if(snapshot.exists()){
+                            get(AssessmentRef)
+                            .then((assessmentSnapshot) => {
+                              if(assessmentSnapshot.exists()){
+                                const assessmentData = assessmentSnapshot.val();
+                               // console.log(assessmentData);
+                            
+                                //check if they can access the exam at access
+                                const currentDate = new Date();
+                                const formattedCurrentDate = formatDate(currentDate);
+                                const formattedCurrentTime = formatTime(currentDate);
+                                const assessmentStartTime = assessmentData.expected_time_start;
+                                const assessmentEndTime = assessmentData.expected_time_end;
+                                const assessmentStartDate = assessmentData.date_start;
+                                const assessmentEndDate = assessmentData.date_end;
+    
+                                // console.log("Current Date: " + formattedCurrentDate);
+                                // console.log("assessmentStartDate: " + assessmentStartDate);
+                                // console.log("formattedCurrentTime: " + formattedCurrentTime);
+                                // console.log("assessmentStartTime: " +  assessmentStartTime);
+                                // console.log("assessmentEndTime: " + assessmentEndTime);
+                                
+                                //check date range
+                                const isWithinDateRange = (formattedCurrentDate >= assessmentStartDate) && (formattedCurrentDate <= assessmentEndDate);
+                                let isWithinTimeRange = false;
+                                //make sure that instances of the date and time are between the schedule
+                                if (formattedCurrentDate === assessmentStartDate) {
+                                  isWithinTimeRange = (formattedCurrentTime >= assessmentStartTime);
+                                }else if (formattedCurrentDate === assessmentEndDate) {
+                                  isWithinTimeRange = (formattedCurrentTime <= assessmentEndTime);
+                                }else if (formattedCurrentDate > assessmentStartDate && formattedCurrentDate < assessmentEndDate) {
+                                  isWithinTimeRange = true;
+                                }
+    
+                                if (isWithinDateRange && isWithinTimeRange) {
+                                  //calculate first the risk score
+                                  let modal = document.getElementsByClassName("Alerts-Success-Modal")[0];
+                                  let overlay = document.getElementsByClassName("modal-success-Overlay")[0];
+                                  modal.style.display = "block";
+                                  overlay.style.display = "block";
+                                  let alertMessage = document.getElementById("ModalTextSuccess-labels");
+                                  alertMessage.textContent = 'Valid, You are set to take this exam!';
+                                  let closeBtn = document.getElementsByClassName("ModalSuccessCloseBtn")[0];
+                                     closeBtn.addEventListener("click", function(){
+                                       compareAuthRiskScore(assessmentId);
+                                  })
+                                 
+                                }else{
+                                  let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
+                                  let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
+                                  modal.style.display = "block";
+                                  overlay.style.display = "block";
+                                  let alertMessage = document.getElementById("ModalTextFailure-labels");
+                                  alertMessage.textContent = "You are not valid to take this exam";
+                                  let closeBtn = document.getElementsByClassName("ModalFailureCloseBtn")[0];
+                                  closeBtn.addEventListener("click", function(){
+                                    chrome.sidePanel.setOptions({path:landingPage})
+                                  })
+                                }
+                                   
+                              }
+    
+                            })
+                            
+                          }else{
+                            //alert("You are not valid to take this assessment");
+                            //openFailedModal();
+                            let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
+                            let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
+                            modal.style.display = "block";
+                            overlay.style.display = "block";
+                            let alertMessage = document.getElementById("ModalTextFailure-labels");
+                            alertMessage.textContent = "You are not valid to take this exam";
+                            let closeBtn = document.getElementsByClassName("ModalFailureCloseBtn")[0];
+                            closeBtn.addEventListener("click", function(){
+                              chrome.sidePanel.setOptions({path:landingPage})
+                            })
+                            
+                          }
+                        })
+                        .catch((err) => {
+                          console.log("Error with database: " + err);
+                        });
                       }
                     })
                     .catch((err) => {
                       console.log("Error with database: " + err);
                     });
+                   
                   }
                 }
                  
