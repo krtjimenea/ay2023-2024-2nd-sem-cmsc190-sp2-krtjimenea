@@ -375,7 +375,7 @@ function checkUser(){
       // console.log('Student');
       isStudentRegistered(IDinput);
       //route to Student Dashboard
-    }else if(IDinput === '001802885' && Dropdowninput === 'Admin'){
+    }else if(IDinput === '4069428925' && Dropdowninput === 'Admin'){
       //route to Admin Dashboard
       // console.log('Admin')
       chrome.sidePanel.setOptions({path: AdminDashboard})
