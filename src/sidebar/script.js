@@ -340,7 +340,13 @@ function getChromeIdentity(){
   chrome.identity.getAuthToken({ interactive: true }, token =>
     {
       if ( chrome.runtime.lastError || ! token ) {
-        console.log('SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}')
+        console.log(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
+        let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
+        let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
+        modal.style.display = "block";
+        overlay.style.display = "block";
+        let alertMessage = document.getElementById("ModalTextFailure-labels");
+        alertMessage.textContent = "This client is restricted to users within its organization";
         return
       }
      
