@@ -7,7 +7,9 @@ var config = {
     storageBucket: "sp-authoexam.appspot.com",
     messagingSenderId: "205164436846",
     appId: "1:205164436846:web:b0f30f3c6c403cc775757f",
-    measurementId: "G-X467K4W3LT"
+    measurementId: "G-X467K4W3LT",
+    databaseURL: "https://sp-authoexam-default-rtdb.asia-southeast1.firebasedatabase.app"
+
   };
   firebase.initializeApp(config);
   

@@ -2,7 +2,7 @@
 // Import the functions you need from the SDKs you need
 import { FirebaseApp } from './firebase';
 import { getFirestore, doc, setDoc, addDoc,collection } from "firebase/firestore";
-import {getAuth,signInWithCredential,GoogleAuthProvider} from 'firebase/auth';
+import {getAuth,signInWithCredential,GoogleAuthProvider, signOut} from 'firebase/auth';
 import {getDatabase,ref,set,on, onValue, get, update,push, child, query,orderByChild,equalTo, startAfter, orderByValue,setValue} from 'firebase/database';
 import { nanoid } from 'nanoid';
 import { customAlphabet } from 'nanoid';
@@ -13,6 +13,7 @@ const database = getDatabase(FirebaseApp);
 
 
 import '../stylesheet.css';
+const landingPage = '/LandingPage.html';
 const facultyDashboardPage = '/FacultyDashboardPage.html';
 const facultySchedulePage = '/FacultySchedulePage.html';
 const StudentExamDetailsPage = '/StudentAssessmentDetails.html';
@@ -34,7 +35,7 @@ function monitorSidePanelPath() {
     //get the sidepanel information
     chrome.sidePanel.getOptions({ tabId }, function(options) {
       const path = options.path;
-      console.log('path: ' + path);
+      //console.log('path: ' + path);
       //this the current path, create an array of history in the service worker, pass as message
       chrome.runtime.sendMessage({action: 'sendCurrentPath', value: path});
       if(path === '/FacultySchedulePage.html'){
@@ -150,31 +151,31 @@ window.addEventListener('DOMContentLoaded', function () {
   const headDiv = document.getElementById('AppBody'); // Replace with the actual ID
 
   headDiv.addEventListener('click', function (event) {
-    console.log('Click event fired');
+    //console.log('Click event fired');
 
     const target = event.target;
     var currentUserId;
 
     //for routing
     if(target.id ===  'BackBtn' || target.id === 'BackIcon'){
-      console.log('Back Clicked');
+      //console.log('Back Clicked');
       navigateBack();
     }
 
     //For faculty dashboard events
     if(target.id === 'ScheduleBtn'){
-      console.log('Clicked on Schedule Assessment');
+      //console.log('Clicked on Schedule Assessment');
       chrome.sidePanel.setOptions({path:facultySchedulePage});
 
     }
     if(target.id === 'ManageBtn'){
-      console.log('Clicked on Manage Assessment');
+      //console.log('Clicked on Manage Assessment');
       chrome.sidePanel.setOptions({path:facultyViewAssessments});
 
     }
 
     if(target.id === 'SubmitExamSchedBtn'){
-      console.log('Clicked Submit Exam Sched');
+      //console.log('Clicked Submit Exam Sched');
       scheduleExam(currentUserId);
      
     }
@@ -217,12 +218,17 @@ window.addEventListener('DOMContentLoaded', function () {
     }
 
     if(target.className === 'ModalFailureCloseBtn'){
-      console.log('Clicked Close Modal');
+      //console.log('Clicked Close Modal');
       //closeModal();
       let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
       let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
       modal.style.display = "none";
       overlay.style.display = "none";
+    }
+
+    if(target.id === 'LogOutFacultyAdmin'){
+      // console.log('Student Logged Out');
+      FacultysignOut();
     }
 
   });
@@ -239,19 +245,19 @@ function navigateBack() {
       chrome.storage.local.set({'historyStack': historyStack}, function() {
         // Use the last item to navigate or perform the relevant action
         var backToPath = historyStack.slice(-1)[0];
-        console.log("Navigating back to:", backToPath );
+        //console.log("Navigating back to:", backToPath );
         chrome.sidePanel.setOptions({path:backToPath});
 
       });
     } else {
-      console.log("No history to navigate back");
+      //console.log("No history to navigate back");
     }
   });
 }
 
 //function to view students auth report
 function viewStudentAuthReport(currentCourseKey,currentExamKey,currentStudent){
-  console.log(currentCourseKey,currentExamKey,currentStudent);
+  //console.log(currentCourseKey,currentExamKey,currentStudent);
  //check if there is a logged in user
   chrome.identity.getAuthToken({ interactive: true }, token =>
     {
@@ -283,14 +289,19 @@ function viewStudentAuthReport(currentCourseKey,currentExamKey,currentStudent){
                     const flaggedActivities = childData.student_total_flagged_activity;
                     const activity = childData.flagged_activities;
                     const authScore = childData.student_auth_risk_score;
-                    const authStatus = childData.student_didAuthAllow;
+                    const authStatus = childData.student_AuthFlagged;
                     const examTakenName = childData.assessmentTaken.name;
                     const examCourseSection = childData.assessmentTaken.courseSection;
                     const examFIC = childData.assessmentTaken.FacultyInChargeName;
                     const stringIdentity = childData.identity_UponExam;
                     var IdentityJSON = JSON.parse(stringIdentity);
-                    console.log(IdentityJSON);
-
+                    // console.log(IdentityJSON);
+                    let authMessage = '';
+                    if(authStatus === false){
+                        authMessage = 'Warning: Authentication Factors Did Not Match'
+                    }else{
+                        authMessage = 'Passed: Most Authentication Factors Matched'
+                    }
                     let headerCourseCode = document.getElementById('FacultyHeaderDetails-CourseCode');
                     headerCourseCode.textContent =  examTakenName;
                     //iterate over each property of the identity
@@ -357,7 +368,7 @@ function viewStudentAuthReport(currentCourseKey,currentExamKey,currentStudent){
                           <div class="cardSubDiv-subCard-PR">
                           <div class="subCard-PR-2">
                               <div class="subCard-PR-Text">
-                                  <p id="card-labels-PR-header">Faculty-in-Charge</p>                                            
+                                  <p id="card-labels-PR-header">Faculty</p>                                            
                                   <div class="subCard-Div-info">
                                       <p class="cardText-small" id="StudentCourseSection">${examFIC}</p>
                                   </div>
@@ -382,9 +393,9 @@ function viewStudentAuthReport(currentCourseKey,currentExamKey,currentStudent){
                         <div class="cardSubDiv-subCard-PR">
                             <div class="subCard-PR-2">
                                 <div class="subCard-PR-Text">
-                                    <p id="card-labels-PR-header">Authenticated to Take Exam</p>                                            
+                                    <p id="card-labels-PR-header">Authentication Status</p>                                            
                                     <div class="subCard-Div-info">
-                                        <p class="cardText-small" id="StudentAuthRiskBool">${authStatus}</p>
+                                        <p class="cardText-small" id="StudentAuthRiskBool">${authMessage}</p>
                                     </div>
                                 
                                 </div>
@@ -505,7 +516,7 @@ function viewStudentAuthReport(currentCourseKey,currentExamKey,currentStudent){
 
 function viewStudentProctoringReport(currentCourseKey,currentExamKey,currentStudent){
 
-  console.log(currentCourseKey,currentExamKey,currentStudent);
+  //console.log(currentCourseKey,currentExamKey,currentStudent);
   //check if there is a logged in user
    chrome.identity.getAuthToken({ interactive: true }, token =>
      {
@@ -583,7 +594,7 @@ function viewStudentProctoringReport(currentCourseKey,currentExamKey,currentStud
                          <div class="cardSubDiv-subCard-PR">
                          <div class="subCard-PR-2">
                              <div class="subCard-PR-Text">
-                                 <p id="card-labels-PR-header">Faculty-in-Charge</p>                                            
+                                 <p id="card-labels-PR-header">Faculty</p>                                            
                                  <div class="subCard-Div-info">
                                      <p class="cardText-small" id="StudentCourseSection">${examFIC}</p>
                                  </div>
@@ -860,7 +871,7 @@ function ViewProctoringReportSummary(currentExamKey, currentCourseKey, currentEx
                   studentsTotal.textContent = numof_StudentsTookExam;
                   let headerCourseCode = document.getElementById('AdminHeaderDetails-CourseCode');
                   headerCourseCode.textContent =  "No Data Yet";
-                  //alert("errorOR: Doesnt Exist, Firebase Access!");
+                  //alert("error: Doesnt Exist, Firebase Access!");
                 }
               })
               .catch((error) => {
@@ -911,7 +922,7 @@ function ViewProctoringReportSummary(currentExamKey, currentCourseKey, currentEx
 
               //query for did auth allow
               var numof_AuthAllowedStudents = 0;
-              const AuthAllowedStudentsQuery = query(assessmentRef, orderByChild('student_didAuthAllow'), equalTo(true));
+              const AuthAllowedStudentsQuery = query(assessmentRef, orderByChild('student_AuthFlagged'), equalTo(true));
               get(AuthAllowedStudentsQuery)
                 .then((snapshot) => {
                   if (snapshot.exists()) {
@@ -932,7 +943,7 @@ function ViewProctoringReportSummary(currentExamKey, currentCourseKey, currentEx
               
               //query for did NOT auth allow
               var numof_NotAuthAllowedStudents = 0;
-              const AuthNotAllowedStudentsQuery = query(assessmentRef, orderByChild('student_didAuthAllow'), equalTo(false));
+              const AuthNotAllowedStudentsQuery = query(assessmentRef, orderByChild('student_AuthFlagged'), equalTo(false));
               get(AuthNotAllowedStudentsQuery)
                 .then((snapshot) => {
                   if (snapshot.exists()) {
@@ -968,8 +979,8 @@ function generateExamCode(){
 //function to update the path /takingAssessments/assessmentKey/Student
 function updateTakingAssessmentsStudent(courseGivenAssessment, assessmentKey){
 
-  console.log("FIC - Update the path !!!");
-  console.log(courseGivenAssessment);
+  //console.log("FIC - Update the path !!!");
+  //console.log(courseGivenAssessment);
   //save to database
   //check if there is a logged in user
   chrome.identity.getAuthToken({ interactive: true }, token =>
@@ -1006,7 +1017,7 @@ function updateTakingAssessmentsStudent(courseGivenAssessment, assessmentKey){
                     updateTakingAssessments[`/takingAssessments/${assessmentKey}/students/${studentId}`] = studentInfo;
                     update(ref(db),updateTakingAssessments)
                     .then(()=> {
-                      alert("Saved Exam to database!");
+                      //alert("Saved Exam to database!");
                     }).catch((err) => {
                       console.log(("error with database" + err));
                     })
@@ -1027,7 +1038,7 @@ function updateTakingAssessmentsStudent(courseGivenAssessment, assessmentKey){
 
 //function to loop through the courses taught by the chosen faculty for the dropdown menu
 function viewFacultyCourses(facultyKeyValue){
-  console.log("curr: " + facultyKeyValue);
+  //console.log("curr: " + facultyKeyValue);
   //check if there is a logged in user
   chrome.identity.getAuthToken({ interactive: true }, token =>
     {
@@ -1058,7 +1069,7 @@ function viewFacultyCourses(facultyKeyValue){
                     const course = childData[courseId];
                     const courseCode = course.code;
                     const courseSection = course.section;
-                    console.log("Course Key: " + courseCode);
+                    //console.log("Course Key: " + courseCode);
 
                     const courseOption = document.createElement('option');
                     courseOption.value =courseId;
@@ -1312,7 +1323,7 @@ function sendExamAccessCodeMailer(courseSelected, assessmentKey){
                                       <p>As part of ${assessmentCourseSection}, you are required to take the following exam:</p>
                                       <ul>
                                           <li>Exam Name: ${assessmentName}</li>
-                                          <li>Exam Faculty-in-Charge: ${assessmentFIC}</li>
+                                          <li>Exam Faculty: ${assessmentFIC}</li>
                                           <li>Exam Start Date (yyyy-mm-dd): ${assessmentStartDate}</li>
                                           <li>Exam Start Time: ${assessmentStartTime}</li>
                                           <li>Exam End Date (yyyy-mm-dd): ${assessmentEndDate}</li>
@@ -1458,7 +1469,7 @@ function viewFacultyAssessmentsList(facultyKeyValue){
                                       <div class="cardSubDiv-Click">
                                       <button class="cardText" id="ViewProctoringReportSummaryExamOnly" value="${assessmentId}/${assessmentCourseSection}/${assessmentName}">View Proctoring Report</p>
                                     </div>
-                                    <div class="cardSubDiv-Click">
+                                    <div class="cardSubDiv-Click" >
                                     <button class="cardText" id="ViewStudentList" value="${assessmentId}/${assessmentCourseSection}/${assessmentName}">View Classlist</p>
                                   </div>
                                 </div>
@@ -1580,3 +1591,46 @@ function viewScheduledExam(facultyKeyValue, examKeyValue){
 }
 
 
+function revokeAuthToken() {
+  // Get the current authentication token
+  chrome.identity.getAuthToken({ interactive: false }, token => {
+    if (chrome.runtime.lastError || !token) {
+      console.log(`No token to revoke: ${JSON.stringify(chrome.runtime.lastError)}`);
+      return;
+    }
+    // Revoke the token
+    chrome.identity.removeCachedAuthToken({ token: token }, () => {
+      fetch(`https://accounts.google.com/o/oauth2/revoke?token=${token}`)
+        .then(response => {
+          if (response.ok) {
+            console.log('Token revoked successfully');
+            //clearUserData();
+          } else {
+            console.log('Error revoking token:', response.statusText);
+          }
+        })
+        .catch(error => console.error('Error during token revocation:', error));
+    });
+  });
+}
+
+function FacultysignOut(){
+  chrome.storage.local.clear(function() {
+    var error = chrome.runtime.lastError;
+    if (error) {
+        console.error("Error: " + error);
+    }
+    //after clearing local storage log out
+    const auth = getAuth();
+    signOut(auth).then(() => {
+      // Sign-out successful.
+      revokeAuthToken();
+      //console.log('Sign out Success');
+      chrome.sidePanel.setOptions({path:landingPage})
+    }).catch((error) => {
+      // An error happened.
+      console.log("Error: " + error);
+    });
+  });
+  
+}
