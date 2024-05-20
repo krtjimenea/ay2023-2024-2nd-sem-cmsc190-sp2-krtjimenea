@@ -118,7 +118,7 @@ function monitorSidePanelPath() {
     //get the sidepanel information
     chrome.sidePanel.getOptions({ tabId }, function(options) {
       const path = options.path;
-      console.log('path: ' + path);
+      //console.log('path: ' + path);
       //this the current path, create an array of history in the service worker, pass as message
       chrome.runtime.sendMessage({action: 'sendCurrentPath', value: path});
       if(path === '/AdminManageFaculty.html'){
@@ -228,45 +228,45 @@ window.addEventListener('DOMContentLoaded', function () {
     
   
     headDiv.addEventListener('click', function (event) {
-      console.log('Click event fired');
+      //console.log('Click event fired');
   
       const target = event.target;
 
       //for routing
       if(target.id ===  'BackBtn' || target.id === 'BackIcon'){
-        console.log('Back Clicked');
+        //console.log('Back Clicked');
         navigateBack();
       }
       //For Admin Dashboard Events
       if (target.id === 'ManageFacultyBtn'){
-        console.log('Clicked on Manage Faculty')
+        //console.log('Clicked on Manage Faculty')
         chrome.sidePanel.setOptions({path:AdminManageFaculty})
       }
 
       if(target.id === 'ManageCourseBtn'){
-        console.log('Clicked on Manage Courses FIC');
+        //console.log('Clicked on Manage Courses FIC');
         chrome.sidePanel.setOptions({path:AdminManageCourse});
       }
 
       if(target.id==='ManageAssessmentsBtn'){
-        console.log('Clicked on Manage Assessments');
+        //console.log('Clicked on Manage Assessments');
         chrome.sidePanel.setOptions({path:AdminManageAssessments});
 
       }
       
       if(target.id==='ManageStudentsBtn'){
-        console.log('Clicked on Manage Students');
+        //console.log('Clicked on Manage Students');
         chrome.sidePanel.setOptions({path:AdminManageStudents});
       }
 
       if(target.id === 'ManageViewCourseBtn'){
-        console.log('Clicked on Manage Courses');
+        //console.log('Clicked on Manage Courses');
         chrome.sidePanel.setOptions({path:AdminViewAllCourses});
       }
   
       // Check if the clicked element is the Add New Faculty
       if (target.id === 'Add-New-Faculty') {
-        console.log('Clicked on Add New Faculty');
+        //console.log('Clicked on Add New Faculty');
         // openModal();
         let modal = document.getElementsByClassName("Add-Faculty-Modal")[0];
         let overlay = document.getElementsByClassName("modal-faculty-Overlay")[0];
@@ -285,7 +285,7 @@ window.addEventListener('DOMContentLoaded', function () {
       }
 
       if (target.className === 'ModalCloseBtnCSV'){
-        console.log('Clicked Close Modal');
+        //console.log('Clicked Close Modal');
         //closeModal();
         let modal = document.getElementsByClassName("Add-Faculty-CSV-Modal")[0];
         let overlay = document.getElementsByClassName("modal-faculty-Overlay")[0];
@@ -295,7 +295,7 @@ window.addEventListener('DOMContentLoaded', function () {
       }
 
       if (target.className === 'ModalCloseBtn'){
-        console.log('Clicked Close Modal');
+        //console.log('Clicked Close Modal');
         //closeModal();
         let modal = document.getElementsByClassName("Add-Faculty-Modal")[0];
         let overlay = document.getElementsByClassName("modal-faculty-Overlay")[0];
@@ -306,13 +306,13 @@ window.addEventListener('DOMContentLoaded', function () {
 
       //for adding a new faculty
       if(target.id === 'Add-Faculty-DB'){
-        console.log('Clicked Add New Faculty');
+        //console.log('Clicked Add New Faculty');
         createNewFaculty();
       }
 
       //modal open for new course
       if(target.id ==='Add-New-Course'){
-        console.log('Clicked on Add New Course');
+        //console.log('Clicked on Add New Course');
         // openModal(); for adding new course
         let modal = document.getElementsByClassName("Add-Course-Modal")[0];
         let overlay = document.getElementsByClassName("modal-course-Overlay")[0];
@@ -330,7 +330,7 @@ window.addEventListener('DOMContentLoaded', function () {
 
       //for adding a new course
       if(target.id==='Add-Course-DB'){
-        console.log('Clicked Add New Course');
+        //console.log('Clicked Add New Course');
         chrome.storage.local.get('currentfacultyIDValue', function(data) {
           var currentFaculty = data.currentfacultyIDValue;
           createNewCourse(currentFaculty);
@@ -339,7 +339,7 @@ window.addEventListener('DOMContentLoaded', function () {
 
       //for clicking the faculty card
       if(target.id==='FacultyName'){
-        console.log('Clicked Faculty Card');
+        //console.log('Clicked Faculty Card');
         //get the clicked FacultyName or ID
         var facultyKeyValue = target.textContent;
         // var facultyStringValue = facultyString.split(" ");
@@ -369,7 +369,7 @@ window.addEventListener('DOMContentLoaded', function () {
       //for clicking the add new classlist button
       //add classlist csv modal and function
       if(target.id === 'Add-New-Classlist'){
-        console.log("Clicked Add New Classlist CSV");
+        //console.log("Clicked Add New Classlist CSV");
         var fileInput = document.querySelector('input[type="file"]');
         var file = fileInput.files[0];
         if(file){
@@ -414,22 +414,22 @@ window.addEventListener('DOMContentLoaded', function () {
 
       //for managing assessments
       if(target.id==='Admin-Sched-Assessment'){
-        console.log("Clicked Schedule Exam");
+        //console.log("Clicked Schedule Exam");
         //go to different path for schedule
         chrome.sidePanel.setOptions({path:AdminSchedulePage});
       }
 
       if(target.id==='Admin-View-Assessment'){
-        console.log("Clicked View Exams");
+        //console.log("Clicked View Exams");
         //go to different path for card list of exams
         chrome.sidePanel.setOptions({path:AdminViewAssessments});
       }
 
       if(target.id==='Admin-SubmitExamSchedBtn'){
-        console.log('Clicked Admin Get Assessment Link');
+        //console.log('Clicked Admin Get Assessment Link');
         chrome.storage.local.get('value3', function(data) {
           var currentFacultyName = data.value3;
-          console.log("Passing: "+ currentFacultyName);
+          //console.log("Passing: "+ currentFacultyName);
           //function add the exam to the database then generate a link
           createNewAssessment(currentFacultyName);
         });
@@ -475,7 +475,7 @@ window.addEventListener('DOMContentLoaded', function () {
       }
 
       if(target.className === 'ModalFailureCloseBtn'){
-        console.log('Clicked Close Modal');
+        //console.log('Clicked Close Modal');
         //closeModal();
         let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
         let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
@@ -521,12 +521,12 @@ function navigateBack() {
       chrome.storage.local.set({'historyStack': historyStack}, function() {
         // Use the last item to navigate or perform the relevant action
         var backToPath = historyStack.slice(-1)[0];
-        console.log("Navigating back to:", backToPath );
+        //console.log("Navigating back to:", backToPath );
         chrome.sidePanel.setOptions({path:backToPath});
 
       });
     } else {
-      console.log("No history to navigate back");
+      alert("No history to navigate back");
     }
   });
 }
@@ -581,7 +581,7 @@ function viewStudentAssessmentsList(currentStudentKey){
                                             <p class="cardText" id="CourseTitle">${assessmentCourseSection}</p>
                                         </div>
                                         <div class="cardSubDiv">
-                                            <p id="card-labels">Faculty-in-Charge:</p>
+                                            <p id="card-labels">Faculty:</p>
                                             <p class="cardText" id="CourseTitle">${assessmentFIC}</p>
                                         </div>  
                                         <div class="cardSubDiv">
@@ -818,7 +818,7 @@ function viewExamsOfCourse(currentCourse){
                                 <p class="cardHeader" id="ExamName">${assessmentName}</p>
                                   <div class="cardDivText">
                                       <div class="cardSubDiv">
-                                          <p id="card-labels">Faculty-in-Charge:</p>
+                                          <p id="card-labels">Faculty:</p>
                                           <p class="cardText" id="CourseTitle">${assessmentFIC}</p>
                                       </div>  
                                      
@@ -964,7 +964,7 @@ function updateTakingAssessmentsStudent(courseGivenAssessment, assessmentKey){
                     updateTakingAssessments[`/takingAssessments/${assessmentKey}/students/${studentId}`] = studentInfo;
                     update(ref(db),updateTakingAssessments)
                     .then(()=> {
-                      console.log("Saved Exam to database!");
+                      //console.log("Saved Exam to database!");
                     }).catch((error) => {
                       console.log(("error with database" + error));
                     })
@@ -974,7 +974,7 @@ function updateTakingAssessmentsStudent(courseGivenAssessment, assessmentKey){
                     updateAssignedAssessment[`/assignedAssessments/${studentId}/${assessmentKey}`] = true;
                     update(ref(db), updateAssignedAssessment)
                     .then(()=> {
-                      console.log("Saved Assigned Exam to Student!");
+                      //console.log("Saved Assigned Exam to Student!");
                     }).catch((error) => {
                       console.log(("error with database" + error));
                     })
@@ -1010,7 +1010,7 @@ function saveStudentToDB(studentData){
     chrome.storage.local.get('value2', function(data) {
       currentFaculty = data.value2;
       if(currentCourse){
-        console.log('Current Course and FIC Selection: ', currentCourse + currentFaculty);
+        //console.log('Current Course and FIC Selection: ', currentCourse + currentFaculty);
       } else {
         console.error('Error: Value not found in storage.');
       }
@@ -1019,7 +1019,7 @@ function saveStudentToDB(studentData){
 
   //split the student data
   const data = studentData.trim().split(/\s*,\s*/);
-  console.log(data);
+  //console.log(data);
   data.forEach((info,index,array) =>{
     if(index === 0){
       var studentNumber = array[index];
@@ -1071,7 +1071,7 @@ function saveStudentToDB(studentData){
               updates['/students/' + newStudentKey] = newStudent;
               update(ref(db), updates)
               .then(()=>{
-                console.log('Success in Adding new Student with key: ' + newStudentKey);
+                //console.log('Success in Adding new Student with key: ' + newStudentKey);
                 // alert('Success in Adding new Student with key: ' + newStudentKey);
               })
               .catch((error) => {
@@ -1087,7 +1087,7 @@ function saveStudentToDB(studentData){
               updateRelationship[`takingClasses/${currentCourse}/` + newStudentKey] = studentInfo;
               update(ref(db), updateRelationship)
               .then(()=>{
-                console.log('Success in Adding new student to taking Classes');
+                //console.log('Success in Adding new student to taking Classes');
               })
               .catch((error) => {
                 console.log("Error with database: " + error);
@@ -1259,7 +1259,7 @@ function viewDetailsFaculty(facultyKeyValue){
                     //checking if the child node exists
                     if (childData.name === facultyKeyValue) {
                         FacultyIDNumber = childData.employeeNum;
-                        console.log('Found a matching child:', childData.name + FacultyIDNumber);
+                        //console.log('Found a matching child:', childData.name + FacultyIDNumber);
                         chrome.runtime.sendMessage({action: 'facultyIDValue', value: FacultyIDNumber});
                         viewDetailsCourse(facultyKeyValue, FacultyIDNumber);
 
@@ -1299,8 +1299,8 @@ function viewDetailsCourse(facultyName, FacultyIDNumber){
   //manipulate AdminManageFaculty html panel
   //manipulate the DOM
   //check if there is a logged in user
-  console.log(facultyName);
-  console.log(FacultyIDNumber);
+  //console.log(facultyName);
+  //console.log(FacultyIDNumber);
    chrome.identity.getAuthToken({ interactive: true }, token =>
     {
       if ( chrome.runtime.lastError || ! token ) {
@@ -1333,7 +1333,7 @@ function viewDetailsCourse(facultyName, FacultyIDNumber){
                         const courseTitle = course.title;
                         const courseSemester = course.semester;
                         const courseUnits = course.units;
-                        console.log("Course Key: " + courseCode);
+                        //console.log("Course Key: " + courseCode);
                         
                           
                         cardListDiv.innerHTML += `<div class="cards">
@@ -1374,9 +1374,9 @@ function createNewFaculty(){
     var facultyID = document.getElementById('FacultyIDNumber').value;
     var facultyEmail = document.getElementById('FacultyEmail').value;
 
-    console.log(facultyName);
-    console.log(facultyID);
-    console.log(facultyEmail);
+    //console.log(facultyName);
+    //console.log(facultyID);
+    //console.log(facultyEmail);
 
     //check if there is a logged in user
     chrome.identity.getAuthToken({ interactive: true }, token =>
@@ -1413,7 +1413,7 @@ function createNewFaculty(){
                 updates['/faculty-in-charge/' + facultyID] = newFaculty;
                 update(ref(db), updates)
                   .then(()=>{
-                    console.log('Success in Adding new Faculty with key: ' + facultyID);
+                    //console.log('Success in Adding new Faculty with key: ' + facultyID);
                     // alert('Success in Adding new Faculty');
                   })
                   .catch((error) => {
@@ -1426,7 +1426,7 @@ function createNewFaculty(){
                 updatesRelation['/teachingClasses/' + facultyID] = newRelationship;
                 update(ref(db), updatesRelation)
                 .then(()=>{
-                  console.log('Success in Adding new Faculty to teaching Classes');
+                  //console.log('Success in Adding new Faculty to teaching Classes');
                   //alert('Success in Adding new Faculty to teaching Classes');
                   //automatic close modal
                   let modal = document.getElementsByClassName("Add-Faculty-Modal")[0];
@@ -1472,7 +1472,7 @@ function createNewCourse(facultyKeyValue){
    var courseSemester = document.getElementById('CourseSemInput').value;
    var courseUnits = document.getElementById('CourseUnitsInput').value;
 
-   console.log("here: " + facultyKeyValue);
+   //console.log("here: " + facultyKeyValue);
 
    //check if there is a logged in user
    chrome.identity.getAuthToken({ interactive: true }, token =>
@@ -1512,7 +1512,7 @@ function createNewCourse(facultyKeyValue){
                 updateCourse[`/classes/` + courseKey] = newCourse;
                 update(ref(db), updateCourse)
                   .then(()=>{
-                    console.log('Success in Adding new course');
+                    //console.log('Success in Adding new course');
                     //alert('Success in Adding new course');  
                   }).catch((error) => {
                       console.log("Error with database: " + error);
@@ -1538,7 +1538,7 @@ function createNewCourse(facultyKeyValue){
   
                 update(ref(db), updatesRelationFaculty)
                 .then(()=>{
-                  console.log('Success in Adding new course to teaching Classes');
+                  //console.log('Success in Adding new course to teaching Classes');
                    //close add course modal
                    let modal = document.getElementsByClassName("Add-Course-Modal")[0];
                    let overlay = document.getElementsByClassName("modal-course-Overlay")[0];
@@ -1599,7 +1599,7 @@ function viewFacultyCourses(facultyKeyValue){
                     const course = childData[courseId];
                     const courseCode = course.code;
                     const courseSection = course.section;
-                    console.log("Course Key: " + courseCode);
+                    //console.log("Course Key: " + courseCode);
 
                     const courseOption = document.createElement('option');
                     courseOption.value =courseId;
@@ -1624,7 +1624,7 @@ function viewFacultyCourses(facultyKeyValue){
 }
 //function to display the options for the dropdown menu
 function displayFacultyDropdown(){
-  console.log("Create New Assessment");
+  //console.log("Create New Assessment");
   //manipulate the DOM
   //check if there is a logged in user
   chrome.identity.getAuthToken({ interactive: true }, token =>
@@ -1656,7 +1656,7 @@ function displayFacultyDropdown(){
                   for(const facultyId in childData){
                     const faculty = childData[facultyId];
                     const facultyName = faculty.name;
-                    console.log("Faculty Key: " + facultyId);      
+                    //console.log("Faculty Key: " + facultyId);      
                     
                     const facultyOption = document.createElement('option');
                     facultyOption.value =facultyId;
@@ -1678,13 +1678,13 @@ function displayFacultyDropdown(){
             var selectedFacultyName;
             document.getElementById('facultylist').addEventListener('change', function(){
               selectedFacultyName = this.options[this.selectedIndex].text;
-              console.log("Selected Faculty Name: " + selectedFacultyName);
+              //console.log("Selected Faculty Name: " + selectedFacultyName);
               chrome.runtime.sendMessage({action:'passValue3', value: selectedFacultyName});
 
             })
             document.getElementById('facultylist').addEventListener('change', function(){
               selectedFaculty = this.value;
-              console.log("Selected Faculty: " + selectedFaculty);
+              //console.log("Selected Faculty: " + selectedFaculty);
               //loop through the courses taught by the chosen faculty
               viewFacultyCourses(selectedFaculty);
             })
@@ -1786,7 +1786,7 @@ function createNewAssessment(currentFacultyName){
               time_limit: assessmentTimeDuration
                   
             }).then(()=> {
-              console.log("Saved to database!");
+              //console.log("Saved to database!");
             }).catch((error) => {
               console.log(("error with database" + error));
             })
@@ -1932,7 +1932,7 @@ function sendExamAccessCodeMailer(courseSelected, assessmentKey){
                                       <p>As part of ${assessmentCourseSection}, you are required to take the following exam:</p>
                                       <ul>
                                           <li>Exam Name: ${assessmentName}</li>
-                                          <li>Exam Faculty-in-Charge: ${assessmentFIC}</li>
+                                          <li>Exam Faculty: ${assessmentFIC}</li>
                                           <li>Exam Start Date (yyyy-mm-dd): ${assessmentStartDate}</li>
                                           <li>Exam Start Time: ${assessmentStartTime}</li>
                                           <li>Exam End Date (yyyy-mm-dd): ${assessmentEndDate}</li>
@@ -1973,7 +1973,7 @@ function sendExamAccessCodeMailer(courseSelected, assessmentKey){
                             }//EOF Forloop
         
                           }else{
-                            console.log('No student data available. Upload Classlist');
+                            alert('No student data available. Upload Classlist');
                           }
                         })
                         .catch((error) => {
@@ -2047,7 +2047,7 @@ function viewAssessmentsList(){
                                           <p class="cardText" id="CourseTitle">${assessmentCourseSection}</p>
                                       </div>
                                       <div class="cardSubDiv">
-                                          <p id="card-labels">Faculty-in-Charge:</p>
+                                          <p id="card-labels">Faculty:</p>
                                           <p class="cardText" id="CourseTitle">${assessmentFIC}</p>
                                       </div>  
                                       <div class="cardSubDiv">
@@ -2206,7 +2206,7 @@ function viewCoursesList(){
                       const courseTitle = course.title;
                       const courseSemester = course.semester;
                       const courseUnits = course.units;
-                      console.log("Course Key: " + courseCode);
+                      //console.log("Course Key: " + courseCode);
                         
                           
                       cardListDiv.innerHTML += `<div class="cards">
@@ -2222,7 +2222,8 @@ function viewCoursesList(){
                     }
                  
                   } else {
-                    alert("ERROR: Firebase Access!");
+                    var cardListDiv = document.getElementById('cardList');
+                    cardListDiv.innerHTML=`<p class="DBisEmptyMssg">Collection is empty, Nothing to show</p>`;
                   }
                 })
                 .catch((error) => {
@@ -2292,7 +2293,8 @@ function viewOneCourseOnly(currentCourseKey){
         
              
               } else {
-                alert("Snapshot does not exist!");
+                var cardListDiv = document.getElementById('cardList');
+                cardListDiv.innerHTML=`<p class="DBisEmptyMssg">Collection is empty, Nothing to show</p>`;
               }
             })
             .catch((error) => {
