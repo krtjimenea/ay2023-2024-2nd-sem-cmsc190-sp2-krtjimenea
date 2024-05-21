@@ -923,9 +923,12 @@ select:focus{
 .cardText-small{
     font-family: 'Urbanist', sans-serif;
     font-size: 15px;
-    white-space: nowrap;
+    /* white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis;
+    text-overflow: ellipsis; */
+    max-width: 250px; /* Adjust the width as needed */
+    display: flex;
+    flex-wrap: wrap;
     max-width: 250px; /* Adjust the width as needed */
     display: inline-block;
     vertical-align: bottom; 
