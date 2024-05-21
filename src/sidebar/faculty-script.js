@@ -532,7 +532,6 @@ function viewStudentProctoringReport(currentCourseKey,currentExamKey,currentStud
            //get profile uid
            if (user !== null) {
              const assessmentRef = ref(db,`/proctoringReportStudent/${currentCourseKey}/${currentExamKey}/${currentStudent}`);
-             
              get(assessmentRef)
                .then((snapshot) => {
  
@@ -853,6 +852,30 @@ function ViewProctoringReportSummary(currentExamKey, currentCourseKey, currentEx
           //get profile uid
           if (user !== null) {
             const assessmentRef = ref(db,`/proctoringReportStudent/${currentCourseKey}/${currentExamKey}`);
+            const numTakersRef = ref(db, `/takingAssessments/${currentExamKey}/students`);
+
+            var total_StudentsWhoWillTakeExam = 0;
+            get(numTakersRef)
+              .then((snapshot) => {
+                if(snapshot.exists()){
+                  const childData = snapshot.val();
+                  console.log
+                  //get the count of students under that assessment
+                  total_StudentsWhoWillTakeExam = snapshot.size;
+                  let studentsTakers = document.getElementById('TotalExaminees');
+                  studentsTakers.textContent = total_StudentsWhoWillTakeExam;
+                }else{
+                  total_StudentsWhoWillTakeExam = 0;
+                  total_StudentsWhoWillTakeExam = snapshot.size;
+                  let studentsTakers = document.getElementById('TotalExaminees');
+                  studentsTakers.textContent = 'No Data Yet';
+                }
+              
+              })
+              .catch((error) => {
+                console.log("error with database: " + error);
+              });
+
             var numof_StudentsTookExam = 0;
             get(assessmentRef)
               .then((snapshot) => {
@@ -949,7 +972,7 @@ function ViewProctoringReportSummary(currentExamKey, currentCourseKey, currentEx
                   if (snapshot.exists()) {
                     numof_NotAuthAllowedStudents = snapshot.size;
                     let studentTotalNotAuthenticated = document.getElementById('TotalNotAuthenticated');
-                    studentTotaNotlAuthenticated.textContent = numof_NotAuthAllowedStudents;
+                    studentTotalNotAuthenticated.textContent = numof_NotAuthAllowedStudents;
                     // const data = snapshot.val();
                     //console.log('Total Num of Students NOT Authenticated:',  numof_NotAuthAllowedStudents);
                   } else {

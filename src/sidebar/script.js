@@ -846,24 +846,22 @@ function checkExamCode(){
                                 const assessmentStartDate = assessmentData.date_start;
                                 const assessmentEndDate = assessmentData.date_end;
     
-                                // console.log("Current Date: " + formattedCurrentDate);
-                                // console.log("assessmentStartDate: " + assessmentStartDate);
-                                // console.log("formattedCurrentTime: " + formattedCurrentTime);
-                                // console.log("assessmentStartTime: " +  assessmentStartTime);
-                                // console.log("assessmentEndTime: " + assessmentEndTime);
+                                console.log("Current Date: " + formattedCurrentDate);
+                                console.log("assessmentStartDate: " + assessmentStartDate);
+                                console.log("formattedCurrentTime: " + formattedCurrentTime);
+                                console.log("assessmentStartTime: " +  assessmentStartTime);
+                                console.log("assessmentEndTime: " + assessmentEndTime);
                                 
                                 //check date range
                                 const isWithinDateRange = (formattedCurrentDate >= assessmentStartDate) && (formattedCurrentDate <= assessmentEndDate);
                                 let isWithinTimeRange = false;
                                 //make sure that instances of the date and time are between the schedule
-                                if (formattedCurrentDate === assessmentStartDate) {
-                                  isWithinTimeRange = (formattedCurrentTime >= assessmentStartTime);
-                                }else if (formattedCurrentDate === assessmentEndDate) {
-                                  isWithinTimeRange = (formattedCurrentTime <= assessmentEndTime);
-                                }else if (formattedCurrentDate > assessmentStartDate && formattedCurrentDate < assessmentEndDate) {
-                                  isWithinTimeRange = true;
+                                if(isWithinDateRange){
+                                  isWithinTimeRange = (formattedCurrentTime >= assessmentStartTime) && (formattedCurrentTime <= assessmentEndTime);
+                                }else{
+                                  isWithinTimeRange = (formattedCurrentTime >= assessmentStartTime) && (formattedCurrentTime <= assessmentEndTime);
                                 }
-    
+
                                 if (isWithinDateRange && isWithinTimeRange) {
                                   //calculate first the risk score
                                   let modal = document.getElementsByClassName("Alerts-Success-Modal")[0];
@@ -883,7 +881,7 @@ function checkExamCode(){
                                   modal.style.display = "block";
                                   overlay.style.display = "block";
                                   let alertMessage = document.getElementById("ModalTextFailure-labels");
-                                  alertMessage.textContent = "You are not valid to take this exam";
+                                  alertMessage.textContent = "This is not your exam schedule. Please check your email.";
                                   let closeBtn = document.getElementsByClassName("ModalFailureCloseBtn")[0];
                                   closeBtn.addEventListener("click", function(){
                                     chrome.sidePanel.setOptions({path:landingPage})
