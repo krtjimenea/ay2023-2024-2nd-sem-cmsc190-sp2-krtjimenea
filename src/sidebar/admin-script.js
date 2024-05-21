@@ -1786,102 +1786,129 @@ function createNewAssessment(currentFacultyName){
           const user = auth.currentUser;
             
           if (user !== null) {
-           
-            const db = getDatabase(); 
-            // const assessmentsRef = ref(db,'assessments/');
-            // const takingAssessmentsRef = ref(db, 'takingAssessments/');
-            update(ref(db,'assessments/' + assessmentKey),{
-              FacultyInCharge: facultySelected,
-              FacultyInChargeName: facultyNameSelected,
-              name: examName,
-              course: courseSelected,
-              link:examLink,
-              access_code: examAccessCode,
-              expected_time_start: formattedStartTime,
-              expected_time_end: formattedEndTime,
-              date_start:startDateSelected,
-              date_end:endDateSelected,
-              time_limit: assessmentTimeDuration
+            //check first if there are students enrolled in that class
+            const db = getDatabase();
+            const takingClassesRef = ref(db,`takingClasses/${courseSelected}`);
+            get(takingClassesRef)
+              .then((snapshot) => {
+                if (snapshot.exists()) {
+                  //there are students
+                  //adding the assessment to all the database /paths
+                  user.providerData.forEach((profile) => {
+                    const facultyName = profile.displayName;
+                    update(ref(db,'assessments/' + assessmentKey),{
+                      FacultyInCharge: receivedUserId,
+                      FacultyInChargeName: facultyName,
+                      name: examName,
+                      course: courseSelected,
+                      link:examLink,
+                      access_code: examAccessCode,
+                      expected_time_start: formattedStartTime,
+                      expected_time_end: formattedEndTime,
+                      date_start:startDateSelected,
+                      date_end:endDateSelected,
+                      time_limit: assessmentTimeDuration
+
+                          
+                    }).then(()=> {
+                      //alert("Saved to database!");
+                    }).catch((err) => {
+                      console.log(("error with database" + err));
+                    })
+
+                    //update taking assessments
+                    update(ref(db,'takingAssessments/' + assessmentKey),{
+                      FacultyInCharge: receivedUserId,
+                      FacultyInChargeName: facultyName,
+                      name: examName,
+                      course: courseSelected,
+                      link:examLink,
+                      access_code: examAccessCode,
+                      expected_time_start: formattedStartTime,
+                      expected_time_end: formattedEndTime,
+                      date_start:startDateSelected,
+                      date_end:endDateSelected,
+                      time_limit: assessmentTimeDuration,
+                      students: {}
+                          
+                    }).then(()=> {
+                      //alert("Saved to database!");
+                    }).catch((err) => {
+                      console.log(("error with database" + err));
+                    })
                   
-            }).then(()=> {
-              console.log("Saved to database!");
-            }).catch((error) => {
-              console.log(("error with database" + error));
-            })
+                    //call function that will update which students will take the assessment
+                    updateTakingAssessmentsStudent(courseSelected, assessmentKey);
 
-            //update taking assessments
-            update(ref(db,'takingAssessments/' + assessmentKey),{
-              FacultyInCharge: facultySelected,
-              FacultyInChargeName: facultyNameSelected,
-              name: examName,
-              course: courseSelected,
-              link:examLink,
-              access_code: examAccessCode,
-              expected_time_start: formattedStartTime,
-              expected_time_end: formattedEndTime,
-              date_start:startDateSelected,
-              date_end:endDateSelected,
-              time_limit: assessmentTimeDuration,
-              students: {}
-                  
-            }).then(()=> {
-              //console.log("Saved to database!");
-            }).catch((error) => {
-              console.log(("error with database" + error));
-            })
-           
-            //call function that will update which students will take the assessment
-            updateTakingAssessmentsStudent(courseSelected, assessmentKey);
+                    //update scheduled assessments
+                    update(ref(db,`scheduledAssessments/${receivedUserId}/${assessmentKey}`),{
+                      name: examName,
+                      course: courseSelected,
+                      FacultyInCharge: receivedUserId,
+                      FacultyInChargeName: facultyName,
+                      link:examLink,
+                      access_code: examAccessCode,
+                      expected_time_start: formattedStartTime,
+                      expected_time_end: formattedEndTime,
+                      date_start:startDateSelected,
+                      date_end:endDateSelected,
+                      time_limit: assessmentTimeDuration
 
-            //update scheduled assessments
-            update(ref(db,`scheduledAssessments/${facultySelected}/${assessmentKey}`),{
-              name: examName,
-              FacultyInChargeName: facultyNameSelected,
-              course: courseSelected,
-              link:examLink,
-              access_code: examAccessCode,
-              expected_time_start: formattedStartTime,
-              expected_time_end: formattedEndTime,
-              date_start:startDateSelected,
-              date_end:endDateSelected,
-              time_limit: assessmentTimeDuration
-            }).then(()=> {
-              //console.log("Saved to database!");
-            }).catch((error) => {
-              console.log(("error with database" + error));
-            })
+                    }).then(()=> {
+                      //alert("Saved to database!");
+                    
+                    }).catch((err) => {
+                      console.log(("error with database" + err));
+                    })
+                    //update course assessments
+                    update(ref(db,`courseAssessments/${courseSelected}/${assessmentKey}`),{
+                      name: examName,
+                      FacultyInChargeName: facultyName,
+                      course: courseSelected,
+                      link:examLink,
+                      access_code: examAccessCode,
+                      expected_time_start: formattedStartTime,
+                      expected_time_end: formattedEndTime,
+                      date_start:startDateSelected,
+                      date_end:endDateSelected,
+                      time_limit: assessmentTimeDuration
+                    }).then(()=> {
+                      //console.log("Saved to database!");
+                      let modal = document.getElementsByClassName("Alerts-Success-Modal")[0];
+                      let overlay = document.getElementsByClassName("modal-success-Overlay")[0];
+                      modal.style.display = "block";
+                      overlay.style.display = "block";
+                      let alertMessage = document.getElementById("ModalTextSuccess-labels");
+                      alertMessage.textContent = `Exam Code is: ${examAccessCode}`;
+                      let closeBtn = document.getElementsByClassName("ModalSuccessCloseBtn")[0];
+                      closeBtn.innerText = "Send Exam Code to Students";
+                      closeBtn.addEventListener("click", function(){
+                        modal.style.display = "none";
+                        overlay.style.display = "none";
+                        //Send Email
+                        sendExamAccessCodeMailer(courseSelected, assessmentKey);
+                      })
+                    }).catch((error) => {
+                      console.log(("error with database" + error));
+                    })
+                  });
 
-            //update course assessments
-            update(ref(db,`courseAssessments/${courseSelected}/${assessmentKey}`),{
-              name: examName,
-              FacultyInChargeName: facultyNameSelected,
-              course: courseSelected,
-              link:examLink,
-              access_code: examAccessCode,
-              expected_time_start: formattedStartTime,
-              expected_time_end: formattedEndTime,
-              date_start:startDateSelected,
-              date_end:endDateSelected,
-              time_limit: assessmentTimeDuration
-            }).then(()=> {
-              //console.log("Saved to database!");
-              let modal = document.getElementsByClassName("Alerts-Success-Modal")[0];
-              let overlay = document.getElementsByClassName("modal-success-Overlay")[0];
-              modal.style.display = "block";
-              overlay.style.display = "block";
-              let alertMessage = document.getElementById("ModalTextSuccess-labels");
-              alertMessage.textContent = `Exam Code is: ${examAccessCode}`;
-              let closeBtn = document.getElementsByClassName("ModalSuccessCloseBtn")[0];
-              closeBtn.innerText = "Send Exam Code to Students";
-              closeBtn.addEventListener("click", function(){
-                modal.style.display = "none";
-                overlay.style.display = "none";
-                //Send Email
-                sendExamAccessCodeMailer(courseSelected, assessmentKey);
+                }else{
+                  let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
+                  let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
+                  modal.style.display = "block";
+                  overlay.style.display = "block";
+                  let alertMessage = document.getElementById("ModalTextFailure-labels");
+                  alertMessage.textContent = "No Student Data, Upload Classlist";
+
+                }
+              }).catch((err) => {
+                console.log(("error with database" + err));
               })
-            }).catch((error) => {
-              console.log(("error with database" + error));
-            })
+            
+
+           
+            
           }
        })//EOF signInWithCredential
       .catch(error =>{alert("SSO ended with an error" + error);})
