@@ -367,7 +367,7 @@ function checkUser(){
   if(IDinput.match(IDNumFormat)){
     chrome.runtime.sendMessage({action: 'currentUser', value: IDinput});
 
-    if(IDinput[0]=== '1' && Dropdowninput === 'Faculty' ){
+    if(Dropdowninput === 'Faculty' ){
       // console.log('Faculty');
       //check the database first if that faculty exists
       isFacultyRegistered(IDinput);
@@ -589,17 +589,31 @@ function isFacultyRegistered(IDnumber){
                     //register the account
                     //check if it matches the email added by the admin
                     if(facultyData.email===email){
-                      const updates = {};
-                      updates[`/faculty-in-charge/${IDnumber}/authProviderUID`] = profileID;
-                      update(ref(db), updates)
-                        .then(()=>{
-                          // console.log('Success in Registering Email: ' + IDnumber);
-                          // console.log('Success in Faculty Registration');
-                          chrome.sidePanel.setOptions({path:FacultySuccessReg});
-                        })
-                        .catch((err) => {
-                          console.log("Error with database: " + err);
-                        })
+                      if(facultyData.employeeNum===IDnumber){
+                        const updates = {};
+                        updates[`/faculty-in-charge/${IDnumber}/authProviderUID`] = profileID;
+                        update(ref(db), updates)
+                          .then(()=>{
+                            // console.log('Success in Registering Email: ' + IDnumber);
+                            // console.log('Success in Faculty Registration');
+                            chrome.sidePanel.setOptions({path:FacultySuccessReg});
+                          })
+                          .catch((err) => {
+                            console.log("Error with database: " + err);
+                          })
+                      }else{
+                        //it means that the user is not registered
+                          let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
+                          let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
+                          modal.style.display = "block";
+                          overlay.style.display = "block";
+                          let alertMessage = document.getElementById("ModalTextFailure-labels");
+                          alertMessage.textContent = "Please use a valid email";
+                          //route to Faculty Dashboard
+                          chrome.sidePanel.setOptions({path:landingPage})
+
+                      }
+                      
                     }else{
                       //it means that the user is using a different email not registered
                       let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
