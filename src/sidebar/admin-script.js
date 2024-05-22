@@ -4,7 +4,7 @@
 //import for SDKs
 import { FirebaseApp } from './firebase';
 import { getFirestore, doc, setDoc, addDoc,collection } from "firebase/firestore";
-import {getAuth,signInWithCredential,GoogleAuthProvider} from 'firebase/auth';
+import {getAuth,signInWithCredential,GoogleAuthProvider, signOut} from 'firebase/auth';
 import {getDatabase,ref,set,on, onValue, get, update,push, child, query,orderByChild,equalTo, startAfter, orderByValue,setValue} from 'firebase/database';
 import { nanoid } from 'nanoid';
 import { customAlphabet } from 'nanoid';
@@ -504,7 +504,11 @@ window.addEventListener('DOMContentLoaded', function () {
         //change panel
         chrome.sidePanel.setOptions({path:AdminStudentAuthReport})
       }
-        
+      
+      if(target.id === 'LogOutFacultyAdmin'){
+        // console.log('Student Logged Out');
+        AdminsignOut();
+      }
 
 
     });
@@ -1399,14 +1403,13 @@ function createNewFaculty(){
               if (user !== null) {
                 //there is a user signed in
                 //new data 
-                var newFaculty = {
+                var Faculty = {
                   name: facultyName,
-                  authProviderUID: "",
                   email: facultyEmail,
                   employeeNum: facultyID,
-                  numOfClasses: 0
+                  authProviderUID: ""
                 }
-
+                var newFaculty = JSON.parse(JSON.stringify(Faculty))
                 //get a db reference
                 const db = getDatabase();
                 const facultyRef = ref(db,'faculty-in-charge/');
@@ -2347,4 +2350,48 @@ function viewOneCourseOnly(currentCourseKey){
       });
   });
 
+}
+
+function revokeAuthToken() {
+  // Get the current authentication token
+  chrome.identity.getAuthToken({ interactive: false }, token => {
+    if (chrome.runtime.lastError || !token) {
+      console.log(`No token to revoke: ${JSON.stringify(chrome.runtime.lastError)}`);
+      return;
+    }
+    // Revoke the token
+    chrome.identity.removeCachedAuthToken({ token: token }, () => {
+      fetch(`https://accounts.google.com/o/oauth2/revoke?token=${token}`)
+        .then(response => {
+          if (response.ok) {
+            console.log('Token revoked successfully');
+            //clearUserData();
+          } else {
+            console.log('Error revoking token:', response.statusText);
+          }
+        })
+        .catch(error => console.error('Error during token revocation:', error));
+    });
+  });
+}
+
+function AdminsignOut(){
+  chrome.storage.local.clear(function() {
+    var error = chrome.runtime.lastError;
+    if (error) {
+        console.error("Error: " + error);
+    }
+    //after clearing local storage log out
+    const auth = getAuth();
+    signOut(auth).then(() => {
+      // Sign-out successful.
+      revokeAuthToken();
+      //console.log('Sign out Success');
+      chrome.sidePanel.setOptions({path:landingPage})
+    }).catch((error) => {
+      // An error happened.
+      console.log("Error: " + error);
+    });
+  });
+  
 }
