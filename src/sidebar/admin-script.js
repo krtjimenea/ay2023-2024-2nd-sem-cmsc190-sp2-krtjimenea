@@ -81,8 +81,8 @@ function displayFacultyList(){
                                       <p class="cardText" id="FacultyNumber">${FacultyIDNumber}</p>
                                   </div>
                                   <div class="cardSubDiv">
-                                      <p id="card-labels">Num of Courses:</p>
-                                      <p class="cardText" id="FacultyNumCourses">10</p>
+                                      <p id="card-labels">Email:</p>
+                                      <p class="cardText" id="FacultyEmail">${facultyEmail}</p>
                                   </div>
                             </div>
                           </div>`;
