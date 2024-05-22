@@ -1566,6 +1566,8 @@ function studentIsTakingExam(assessmentId, IDnumber){
                     getActiveTabs();
                     isThereNewTab(assessmentLink);
                     didSwitchTabs();
+                    
+                    
                   }
                 })
 
@@ -1646,7 +1648,7 @@ function isThereNewTab(assessmentLink){
   let newTabsList = [];
   chrome.tabs.onCreated.addListener(function(tab) {
     //console.log("New tab created:", tab.id);
-    newTabList.push({
+    newTabsList.push({
       id: tab.id,
       url: '',
       title: ''
@@ -1664,7 +1666,7 @@ function isThereNewTab(assessmentLink){
         const tabIndex = newTabsList.findIndex(t=> t.id === tabId);
         if(tabIndex >-1){
           newTabsList[tabIndex].url = tab.url;
-          newTabssList[tabIndex].title = tab.title;
+          newTabsList[tabIndex].title = tab.title;
         }else{
           //new tab not found in the list
           //json for every new tab

@@ -210,3 +210,4 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
   chrome.storage.local.set({'pasteCounter': pasteCounter});
 
 });
+
