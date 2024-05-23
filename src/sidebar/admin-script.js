@@ -32,6 +32,7 @@ const AdminViewProctoringReportSummary = '/AdminViewProctoringReportSummary.html
 const AdminViewStudentExams =  '/AdminViewStudentExams.html'
 const AdminStudentProctoringReportSummary = '/AdminStudentProctoringReportSummary.html';
 const AdminStudentAuthReport = '/AdminStudentAuthReport.html';
+const landingPage = '/LandingPage.html';
 
 //display the faculty data
 function displayFacultyList(){
@@ -657,6 +658,30 @@ function ViewProctoringReportSummary(currentExamKey, currentCourseKey, currentEx
           const db = getDatabase(); 
           //get profile uid
           if (user !== null) {
+            const numTakersRef = ref(db, `/takingAssessments/${currentExamKey}/students`);
+
+            var total_StudentsWhoWillTakeExam = 0;
+            get(numTakersRef)
+              .then((snapshot) => {
+                if(snapshot.exists()){
+                  const childData = snapshot.val();
+                  console.log
+                  //get the count of students under that assessment
+                  total_StudentsWhoWillTakeExam = snapshot.size;
+                  let studentsTakers = document.getElementById('TotalExaminees');
+                  studentsTakers.textContent = total_StudentsWhoWillTakeExam;
+                }else{
+                  total_StudentsWhoWillTakeExam = 0;
+                  total_StudentsWhoWillTakeExam = snapshot.size;
+                  let studentsTakers = document.getElementById('TotalExaminees');
+                  studentsTakers.textContent = 'No Data Yet';
+                }
+              
+              })
+              .catch((error) => {
+                console.log("error with database: " + error);
+              });
+
             const assessmentRef = ref(db,`/proctoringReportStudent/${currentCourseKey}/${currentExamKey}`);
             var numof_StudentsTookExam = 0;
             get(assessmentRef)
@@ -762,6 +787,56 @@ function ViewProctoringReportSummary(currentExamKey, currentCourseKey, currentEx
                     let studentTotalNotAuthenticated = document.getElementById('TotalNotAuthenticated');
                     studentTotalNotAuthenticated.textContent = numof_NotAuthAllowedStudents;
                     //console.log('No students found with NOT Authenticated');
+                  }
+                }).catch((error) => {
+                  console.error('Error fetching data:', error);
+                });
+              
+              //query for changed IP address
+              var numof_changedIP = 0;
+              const AuthNumOfChangedIPQuery = query(assessmentRef, orderByChild('identity_UponExam/IP_address/didMatch'), equalTo(false));
+              get(AuthNumOfChangedIPQuery)
+                .then((snapshot) => {
+                  if (snapshot.exists()) {
+                    numof_changedIP = snapshot.size;
+                    let studentTotalChangedIP= document.getElementById('TotalChangedIP');
+                    studentTotalChangedIP.textContent = numof_changedIP;
+                    // const data = snapshot.val();
+                    //console.log('Total Num of Students NOT Authenticated:',  numof_NotAuthAllowedStudents);
+                  } else {
+                    numof_changedIP = 0;
+                    let studentTotalChangedIP = document.getElementById('TotalChangedIP');
+                    studentTotalChangedIP.textContent = numof_changedIP;
+                    //console.log('No students found with NOT Authenticated');
+                  }
+                }).catch((error) => {
+                  console.error('Error fetching data:', error);
+                });
+
+                //query for changed location
+              var numof_changedLocation = 0;
+              var total_changedLocation = 0;
+              const NumOfChangedGeolocationLatitude = query(assessmentRef, orderByChild('identity_UponExam/geolocation_lat/didMatch'), equalTo(false));
+              const NumOfChangedGeolocationLongitude = query(assessmentRef, orderByChild('identity_UponExam/geolocation_long/didMatch'), equalTo(false));
+              get(NumOfChangedGeolocationLatitude)
+                .then((snapshot) => {
+                  if (snapshot.exists()) {
+                    //check longitude
+                    get(NumOfChangedGeolocationLongitude)
+                      .then((geolongSnapshot) => {
+                        if(geolongSnapshot.exists()){
+                          total_changedLocation = geolongSnapshot.size;
+                          let studentTotalChangedGeolocation= document.getElementById('TotalChangedGeolocation');
+                          studentTotalChangedGeolocation.textContent = total_changedLocation;
+                        }
+                      }).catch((error) => {
+                        console.error('Error fetching data:', error);
+                    })
+                   
+                  } else {
+                    total_changedLocation = 0;
+                    let studentTotalChangedGeolocation= document.getElementById('TotalChangedGeolocation');
+                    studentTotalChangedGeolocation.textContent = total_changedLocation;
                   }
                 }).catch((error) => {
                   console.error('Error fetching data:', error);
@@ -2112,7 +2187,7 @@ function viewAssessmentsList(){
                                       </div>  
                                       <div class="cardSubDiv">
                                           <p id="card-labels">Link:</p>
-                                          <a href="${assessmentLink}" id="TabURL" class="cardText">Click Here</a>
+                                          <a href="${assessmentLink}" target="_blank" id="TabURL" class="cardText">Click Here</a>
                                       </div>  
                                       <div class="cardSubDiv">
                                           <p id="card-labels">Access Code:</p>

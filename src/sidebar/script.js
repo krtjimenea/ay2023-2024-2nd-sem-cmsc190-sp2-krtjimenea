@@ -321,8 +321,11 @@ function getIPAddress(callback){
 function getGeolocation(callback){
   navigator.geolocation.getCurrentPosition(
     position => {
-      const {latitude, longitude} = position.coords;
-      //callback
+      let { latitude, longitude } = position.coords;
+
+      // Truncate latitude and longitude to 3 decimal places
+      latitude = Math.floor(latitude * 1000) / 1000;
+      longitude = Math.floor(longitude * 1000) / 1000;
       callback({latitude, longitude});
      
     },
@@ -895,11 +898,11 @@ function checkExamCode(){
                                 //make sure that instances of the date and time are between the schedule
                                 if(isWithinDateRange){
                                     //check hours
-                                    console.log("Hours: " + current_time[0] + " " + assessment_StartTime[0] + " " + assessment_EndTime[0]);
+                                    //console.log("Hours: " + current_time[0] + " " + assessment_StartTime[0] + " " + assessment_EndTime[0]);
                                     if((current_time[0] >= assessment_StartTime[0]) && (current_time[0] <= assessment_EndTime[0])){
                                       //within the hour set
-                                      console.log("Mins: " + current_time[1] + " " + assessment_StartTime[1] + " " + assessment_EndTime[1]);
-                                      if((current_time[1] >= assessment_StartTime[1]) && (current_time[0] <= assessment_EndTime[0])){
+                                      //console.log("Mins: " + current_time[1] + " " + assessment_StartTime[1] + " " + assessment_EndTime[1]);
+                                      if((current_time[1] >= assessment_StartTime[1]) && (current_time[1] <= assessment_EndTime[1])){
                                         
                                         isWithinTimeRange = true;
                                       }

@@ -907,6 +907,16 @@ select:focus{
 }
 
 
+.cardSubDiv-identity{
+    display: flex;
+    background-color: #FFB511;
+    padding: 5px;
+    justify-content: space-between;
+    margin: 10px;
+    border: 1px solid #000;   
+    border-radius: 4px; 
+}
+
 .cardText{
     font-family: 'Raleway', sans-serif;
     font-family: 'Urbanist', sans-serif;
