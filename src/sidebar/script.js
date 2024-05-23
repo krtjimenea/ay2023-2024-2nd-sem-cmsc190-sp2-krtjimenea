@@ -860,11 +860,6 @@ function checkExamCode(){
                                 const assessmentStartDate = assessmentData.date_start;
                                 const assessmentEndDate = assessmentData.date_end;
     
-                                console.log("Current Date: " + formattedCurrentDate);
-                                console.log("assessmentStartDate: " + assessmentStartDate);
-                                console.log("formattedCurrentTime: " + formattedCurrentTime);
-                                console.log("assessmentStartTime: " +  assessmentStartTime);
-                                console.log("assessmentEndTime: " + assessmentEndTime);
 
                                 function convertTo24HourFormat(timeString) {
                                   const [time, modifier] = timeString.split(' ');
@@ -884,15 +879,39 @@ function checkExamCode(){
                                 const newCurrentTime = convertTo24HourFormat(formattedCurrentTime);
                                 const newAssessmentStartTime = convertTo24HourFormat(assessmentStartTime);
                                 const newAssessmentEndTime = convertTo24HourFormat(assessmentEndTime);
+                                
+                                console.log("Current Date: " + formattedCurrentDate);
+                                console.log("CurrentTime: " + newCurrentTime);
+                                console.log("assessmentStartDate: " + assessmentStartDate);
+                                console.log("assessmentStartTime: " +   newAssessmentStartTime );
+                                console.log("assessmentEndTime: " + newAssessmentEndTime);
+                                //split time strings
+                                let current_time = newCurrentTime.split(":").map(Number);
+                                let assessment_StartTime = newAssessmentStartTime.split(":").map(Number);
+                                let assessment_EndTime = newAssessmentEndTime.split(":").map(Number);
 
                                 const isWithinDateRange = (formattedCurrentDate >= assessmentStartDate) && (formattedCurrentDate <= assessmentEndDate);
                                 let isWithinTimeRange = false;
                                 //make sure that instances of the date and time are between the schedule
                                 if(isWithinDateRange){
-                                  isWithinTimeRange = (newCurrentTime >= newAssessmentStartTime) && (newCurrentTime <= newAssessmentEndTime);
+                                    //check hours
+                                    console.log("Hours: " + current_time[0] + " " + assessment_StartTime[0] + " " + assessment_EndTime[0]);
+                                    if((current_time[0] >= assessment_StartTime[0]) && (current_time[0] <= assessment_EndTime[0])){
+                                      //within the hour set
+                                      console.log("Mins: " + current_time[1] + " " + assessment_StartTime[1] + " " + assessment_EndTime[1]);
+                                      if((current_time[1] >= assessment_StartTime[1]) && (current_time[0] <= assessment_EndTime[0])){
+                                        
+                                        isWithinTimeRange = true;
+                                      }
+                                    }else{
+
+                                    }
                                 }else{
-                                  isWithinTimeRange = (formattedCurrentTime >= assessmentStartTime) && (formattedCurrentTime <= assessmentEndTime);
+                                  isWithinDateRange = false;
                                 }
+
+                                console.log("WithinDate: " + isWithinDateRange);
+                                console.log("WithinTime: " + isWithinTimeRange);
 
                                 if (isWithinDateRange && isWithinTimeRange) {
                                   //calculate first the risk score
@@ -1184,7 +1203,7 @@ function compareAuthRiskScore(assessmentId){
                  }
                   
                   //stringify json
-                  var studentIdentityUponExam = JSON.stringify(studentIdentity_uponExam, null, 2);
+                  // var studentIdentityUponExam = JSON.stringify(studentIdentity_uponExam, null, 2);
                   
                   //if riskscore is 0.90 above go to next page
                   if(AuthRiskScore >= 1){
@@ -1193,7 +1212,7 @@ function compareAuthRiskScore(assessmentId){
                     chrome.runtime.sendMessage({action: 'currentAssessment', value: assessmentId});
                     //send the risk score
                     chrome.runtime.sendMessage({action: 'authRiskScore', value: AuthRiskScore});
-                    chrome.runtime.sendMessage({action: 'studentIdentity_uponExam', value: studentIdentityUponExam});
+                    chrome.runtime.sendMessage({action: 'studentIdentity_uponExam', value: studentIdentity_uponExam});
                     // chrome.runtime.sendMessage({action: 'AuthFlagged', value: true});
                     // // chrome.sidePanel.setOptions({path: StudentExamDetailsPage});
                     chrome.runtime.sendMessage({action: 'AuthFlagged', value: true}, function(response) {
@@ -1209,7 +1228,7 @@ function compareAuthRiskScore(assessmentId){
                     //console.log('FAILED: Auth Risk Score is: ' + AuthRiskScore);
                     chrome.runtime.sendMessage({action: 'currentAssessment', value: assessmentId});
                     chrome.runtime.sendMessage({action: 'authRiskScore', value: AuthRiskScore});
-                    chrome.runtime.sendMessage({action: 'studentIdentity_uponExam', value: studentIdentityUponExam});
+                    chrome.runtime.sendMessage({action: 'studentIdentity_uponExam', value: studentIdentity_uponExam});
                     chrome.runtime.sendMessage({action: 'AuthFlagged', value: false}, function(response) {
                       if (chrome.runtime.lastError) {
                           console.error('Error sending AuthFlagged message:', chrome.runtime.lastError);
