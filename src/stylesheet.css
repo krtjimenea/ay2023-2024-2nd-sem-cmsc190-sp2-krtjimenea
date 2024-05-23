@@ -571,8 +571,7 @@ input{
 .AppHeader-Student{
     display: flex; 
     justify-content: space-between;
-    margin-top: 60px;
-    height: 42px;
+    margin-top: 30px;
     font-family: 'Urbanist', sans-serif;
     color: #000;
     text-align: center;
@@ -660,7 +659,7 @@ input{
 }
 
 .output-student-active-time-exam{
-    font-size: 15px;
+    font-size: 13px;
     text-align: center;
     background-color: #FFd889;
     width: 274px;
@@ -676,10 +675,9 @@ input{
 }
 
 .output-student-active-exam-record{
-    font-size: 18px;
+    font-size: 15px;
     background-color:#FF7733;
     width: 264px;
-    height: 50px;
     color: #000;
     font-weight: 800;
     font-family: 'Urbanist', sans-serif; 
@@ -1061,7 +1059,7 @@ select:focus{
     margin-top: 15px;
     color: #000000;
     font-family: 'Urbanist', sans-serif;
-    font-size: 15px;
+    font-size: 12px;
 }
 
 #assessmentLinkInput{

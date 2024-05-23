@@ -865,13 +865,31 @@ function checkExamCode(){
                                 console.log("formattedCurrentTime: " + formattedCurrentTime);
                                 console.log("assessmentStartTime: " +  assessmentStartTime);
                                 console.log("assessmentEndTime: " + assessmentEndTime);
-                                
-                                //check date range
+
+                                function convertTo24HourFormat(timeString) {
+                                  const [time, modifier] = timeString.split(' ');
+                                  let [hours, minutes, seconds] = time.split(':');
+                              
+                                  if (modifier === 'PM' && hours !== '12') {
+                                      hours = String(parseInt(hours, 10) + 12).padStart(2, '0');
+                                  }
+                                  if (modifier === 'AM' && hours === '12') {
+                                      hours = '00';
+                                  }
+                              
+                                  seconds = seconds ? seconds : '00'; //add seconds for precision 
+                                  return `${hours}:${minutes}:${seconds}`;
+                                }
+   
+                                const newCurrentTime = convertTo24HourFormat(formattedCurrentTime);
+                                const newAssessmentStartTime = convertTo24HourFormat(assessmentStartTime);
+                                const newAssessmentEndTime = convertTo24HourFormat(assessmentEndTime);
+
                                 const isWithinDateRange = (formattedCurrentDate >= assessmentStartDate) && (formattedCurrentDate <= assessmentEndDate);
                                 let isWithinTimeRange = false;
                                 //make sure that instances of the date and time are between the schedule
                                 if(isWithinDateRange){
-                                  isWithinTimeRange = (formattedCurrentTime >= assessmentStartTime) && (formattedCurrentTime <= assessmentEndTime);
+                                  isWithinTimeRange = (newCurrentTime >= newAssessmentStartTime) && (newCurrentTime <= newAssessmentEndTime);
                                 }else{
                                   isWithinTimeRange = (formattedCurrentTime >= assessmentStartTime) && (formattedCurrentTime <= assessmentEndTime);
                                 }
@@ -1391,23 +1409,39 @@ function studentIsReadyExam(assessmentId, IDnumber){
                     <div class="output-student-examLink">
                       <a href="${assessmentLink}" class="ExamLinkBtn" id="output-student-examName">${assessmentName}</a>
                     </div>
-                      
-                    <div class="studentDivText">
-                      <p id="output-labels-student">Course and Section</p>
-                      <p class="output-student-exam">${assessmentCourseSection}</p>
-                      <p id="output-labels-student">Faculty</p>
-                      <p class="output-student-exam">${assessmentFIC}</p>
-                      <p id="output-labels-student">Start Date</p>
-                      <p class="output-student-exam">${assessmentStartDate}</p>
-                      <p id="output-labels-student">Start Time</p>
-                      <p class="output-student-exam">${assessmentStartTime}</p>
-                      <p id="output-labels-student">End Date</p>
-                      <p class="output-student-exam">${assessmentEndDate}</p>
-                      <p id="output-labels-student">End Time</p>
-                      <p class="output-student-exam">${assessmentEndTime}</p>
-                      <p id="output-labels-student">Time Duration</p>
-                      <p class="output-student-exam">${assessmentTimeLimit}</p>
-                    </div>`
+
+                      </br>
+                      <div class="cards">
+                      <div class="cardDivText">
+                          <div class="cardSubDiv">
+                            <p id="card-labels">Faculty:</p>
+                            <p class="cardText" id="CourseTitle">${assessmentFIC}</p>
+                          </div> 
+                          <div class="cardSubDiv">
+                              <p id="card-labels">Assigned Course:</p>
+                              <p class="cardText" id="ExamCourse">${assessmentCourseSection}</p>
+                          </div>    
+                          <div class="cardSubDiv">
+                            <p id="card-labels">Start Date:</p>
+                            <p class="cardText" id="CourseTitle">${assessmentStartDate}</p>
+                          </div>  
+                          <div class="cardSubDiv">
+                              <p id="card-labels">Start Time:</p>
+                              <p class="cardText" id="CourseTitle">${assessmentStartTime}</p>
+                          </div> 
+                          <div class="cardSubDiv">
+                              <p id="card-labels">End Date:</p>
+                              <p class="cardText" id="CourseTitle">${assessmentEndDate}</p>
+                          </div>  
+                          <div class="cardSubDiv">
+                              <p id="card-labels">End Time:</p>
+                              <p class="cardText" id="CourseTitle">${assessmentEndTime}</p>
+                          </div> 
+                          <div class="cardSubDiv">
+                            <p id="card-labels">Time Duration:</p>
+                            <p class="cardText" id="CourseTitle">${assessmentTimeLimit} mins</p>
+                          </div>  
+                      </div>`
 
                   }
                 })
@@ -1555,23 +1589,31 @@ function studentIsTakingExam(assessmentId, IDnumber){
                     },1000);
           
 
-                    ExamDetailsDiv.innerHTML += `
-                    <p id="output-labels-student">Exam Name</p>
-                    <p class="output-student-active-exam" id="student-current-examName">${assessmentName}</p>
-                    <p id="output-labels-student">Course and Section</p>
-                    <p class="output-student-active-exam" id="student-current-examSection">${assessmentCourseSection}</p>
-                    <p id="output-labels-student">Faculty</p>
-                    <p class="output-student-active-exam" id="student-current-examFIC">${assessmentFIC}</p>                 
-                  
-                    <p id="output-labels-student">Time and Date Started</p>
-                    <p class="output-student-active-time-exam" id="student-current-examTimeStarted">${startTime}</p>
-                    <p id="output-labels-student">Time Countdown:</p>
-                    <p class="output-student-active-time-exam" id="student-current-examTimeLeft"></p>
-                    <p class="output-student-active-exam-record" id="recorded-message">BROWSER ACTIVITY IS RECORDED</p>
-                    <p class="output-student-active-exam-record" id="recorded-message">SUBMIT YOUR ONLINE EXAM IN YOUR LMS FIRST</p>
-            
-                    <div class="SubmitDiv">
-                        <button type="button" class="greenBtn" id="submitExamBtn">SUBMIT EXAM</button>
+                    ExamDetailsDiv.innerHTML += 
+                    `<div class="cards">
+                        <div class="cardDivText">
+                          <div class="cardSubDiv">
+                            <p id="card-labels">Exam:</p>
+                            <p class="cardText" id="CourseTitle">${assessmentName}</p>
+                          </div> 
+                          <div class="cardSubDiv">
+                            <p id="card-labels">Faculty:</p>
+                            <p class="cardText" id="CourseTitle">${assessmentFIC}</p>
+                          </div> 
+                          <div class="cardSubDiv">
+                              <p id="card-labels">Assigned Course:</p>
+                              <p class="cardText" id="ExamCourse">${assessmentCourseSection}</p>
+                          </div>     
+                        </div>
+                      </div>
+                      <p id="output-labels-student">Time and Date Started</p>
+                      <p class="output-student-active-time-exam" id="student-current-examTimeStarted">${startTime}</p>
+                      <p id="output-labels-student">Time Countdown:</p>
+                      <p class="output-student-active-time-exam" id="student-current-examTimeLeft"></p>
+                      <p class="output-student-active-exam-record" id="recorded-message">SUBMIT YOUR ONLINE EXAM IN YOUR LMS FIRST</p>
+                      <p class="output-student-active-exam-record" id="recorded-message">BROWSER ACTIVITY IS RECORDED</p>
+                      <div class="SubmitDiv">
+                          <button type="button" class="greenBtn" id="submitExamBtn">SUBMIT EXAM</button>
                     </div`
 
                     //send and store messages
