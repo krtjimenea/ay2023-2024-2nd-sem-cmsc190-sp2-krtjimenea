@@ -54,7 +54,7 @@
             
             <div id="FacultySchedInput">
                 <p id="input-labels">Exam Name</p>
-                <input type="text" id ="assessmentName" placeholder="Exam Name"/>
+                <input type="text" id ="assessmentName" placeholder="Exam Name" required/>
                 <p id="input-labels">Course and Section</p>
                 <div class="dropdown">
                     <select name="courselist" id="courselist">
@@ -63,22 +63,22 @@
            
                 <p id="input-labels">Date and Time Start</p>
                 <div class="datetime-div">
-                    <input type="date" id="start-date" min="2024-05-01" max="2024-12-31" />
-                    <input type="time" id="start-time"/>
+                    <input type="date" id="start-date" min="2024-05-01" max="2024-12-31" required/>
+                    <input type="time" id="start-time" required/>
                 </div>
                 
 
                 <p id="input-labels">Date and Time End</p>
                 <div class="datetime-div">
-                    <input type="date" id="end-date" min="2024-05-01" max="2024-12-31" />
-                    <input type="time" id="end-time"/>
+                    <input type="date" id="end-date" min="2024-05-01" max="2024-12-31" required/>
+                    <input type="time" id="end-time" required/>
                 </div>
                 
                 <p id="input-labels">Time Duration (in minutes)</p>
-                <input type="number" id ="assessmentTimeDuration" name="assessmentTimeDuration" placeholder="20"/>
+                <input type="number" id ="assessmentTimeDuration" name="assessmentTimeDuration" placeholder="20" required/>
 
                 <p id="input-labels">Exam Link</p>
-                <input type="text" id ="assessmentLinkInput" name="assessmentCode" placeholder="Assessment Link"/>
+                <input type="text" id ="assessmentLinkInput" name="assessmentCode" placeholder="Assessment Link" required/>
                
                 
             </div>
