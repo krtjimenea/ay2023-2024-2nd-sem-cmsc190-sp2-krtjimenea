@@ -1642,7 +1642,7 @@ function studentIsTakingExam(assessmentId, IDnumber){
                     chrome.runtime.sendMessage({action: 'timeStarted', value: startTime});
                     isBrowserMinimized();
                     getActiveTabs();
-                    isThereNewTab(assessmentLink);
+                    isThereNewTab(assessmentLink,assessmentName);
                     didSwitchTabs();
                     
                     
@@ -1722,7 +1722,7 @@ function getActiveTabs(){
 }
 
 //function to check if a new tab was opened
-function isThereNewTab(assessmentLink){
+function isThereNewTab(assessmentLink, assessmentName){
   let newTabsList = [];
   chrome.tabs.onCreated.addListener(function(tab) {
     //console.log("New tab created:", tab.id);
@@ -1732,11 +1732,10 @@ function isThereNewTab(assessmentLink){
       title: ''
     });
   });
-
   //once tab is done loading
   chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
     if(changeInfo.status === 'complete' && tab.url && tab.title) {
-       if(tab.url === assessmentLink){
+       if(tab.url === assessmentLink || tab.title === assessmentName){
         //do not add the exam link
        }else{
          // console.log("New Tab Title:", tab.title);
@@ -1832,7 +1831,7 @@ function saveProctoringReport(assessmentId, IDnumber, submissionTime){
   chrome.storage.local.get('currentNewtabsData', function(data){
     newTabsData = data.currentNewtabsData;
     //undefined check
-    if(newTabsData === undefined || newTabsData === []){
+    if(newTabsData === undefined || newTabsData === [] || newTabsData === "[]"){
       //console.log('No Changes');
       newTabsData = 0;
     }else{

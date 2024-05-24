@@ -1647,3 +1647,13 @@ select:focus{
     font-style: normal;
     font-weight: 300;
 }
+
+.cardSubDiv-identity{
+    display: flex;
+    background-color: #efbcbc;
+    padding: 5px;
+    justify-content: space-between;
+    margin: 10px;
+    border: 1px solid #000;   
+    border-radius: 4px; 
+}

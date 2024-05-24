@@ -909,7 +909,7 @@ select:focus{
 
 .cardSubDiv-identity{
     display: flex;
-    background-color: #FFB511;
+    background-color: #efbcbc;
     padding: 5px;
     justify-content: space-between;
     margin: 10px;

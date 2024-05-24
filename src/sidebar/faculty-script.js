@@ -833,6 +833,108 @@ function viewClasslistOfCourse(currentCourse){
   
 }
 
+//function to render browsing activity summary
+function ViewBrowserActivitySummary(currentExamKey, currentCourseKey, currentExamName){
+  //check if there is a logged in user
+  chrome.identity.getAuthToken({ interactive: true }, token =>
+    {
+      if ( chrome.runtime.lasterroror || ! token ) {
+        alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lasterroror)}`)
+        return
+      }
+      //firebase authentication
+      signInWithCredential(auth, GoogleAuthProvider.credential(null, token))
+      .then(res =>{
+          const user = auth.currentUser;
+          const db = getDatabase(); 
+          //get profile uid
+          if (user !== null) {
+            const assessmentRef = ref(db,`/proctoringReportStudent/${currentCourseKey}/${currentExamKey}`);
+            //query for flagged activity browswer min
+            var numof_windowChanges = 0;
+            const flaggedWindowsQuery = query(assessmentRef, orderByChild('flagged_activities/student_num_changed_windows'), startAfter(0));
+            get(flaggedWindowsQuery)
+                .then((snapshot) => {
+                  if (snapshot.exists()) {
+                    numof_windowChanges = snapshot.size;
+                    let student_numof_windowChanges= document.getElementById('TotalBrowserWindows');
+                    student_numof_windowChanges.textContent = numof_windowChanges;
+                  } else {
+                    numof_windowChanges = 0;
+                    let student_numof_windowChanges= document.getElementById('TotalBrowserWindows');
+                    student_numof_windowChanges.textContent = numof_windowChanges;
+                   
+                  }
+                }).catch((error) => {
+                  console.error('Error fetching data:', error);
+                });
+            
+            //query for flagged activity tab switching
+            var numof_tabSwitching = 0;
+            const flaggedTabsQuery = query(assessmentRef, orderByChild('flagged_activities/student_num_tab_switched'), startAfter(0));
+            get(flaggedTabsQuery)
+                .then((snapshot) => {
+                  if (snapshot.exists()) {
+                    numof_tabSwitching = snapshot.size;
+                    let student_numof_tabSwitching = document.getElementById('TotalBrowserTabs');
+                    student_numof_tabSwitching.textContent = numof_tabSwitching;
+                  } else {
+                    numof_tabSwitching = 0;
+                    let student_numof_tabSwitching = document.getElementById('TotalBrowserTabs');
+                    student_numof_tabSwitching.textContent = numof_tabSwitching;
+                   
+                  }
+                }).catch((error) => {
+                  console.error('Error fetching data:', error);
+                });
+
+            //query for flagged activity copy action
+            var numof_copy = 0;
+            const flaggedCopyQuery = query(assessmentRef, orderByChild('flagged_activities/student_num_of_copy_action'), startAfter(0));
+            get(flaggedCopyQuery)
+                .then((snapshot) => {
+                  if (snapshot.exists()) {
+                    numof_copy = snapshot.size;
+                    let student_numof_copy = document.getElementById('TotalBrowserCopy');
+                    student_numof_copy.textContent = numof_copy;
+                  } else {
+                    numof_copy = 0;
+                    let student_numof_copy = document.getElementById('TotalBrowserCopy');
+                    student_numof_copy.textContent = numof_copy;
+                   
+                  }
+                }).catch((error) => {
+                  console.error('Error fetching data:', error);
+                });
+            
+            //query for flagged activity paste action
+            var numof_paste = 0;
+            const flaggedPasteQuery = query(assessmentRef, orderByChild('flagged_activities/student_num_of_paste_action'), startAfter(0));
+            get(flaggedPasteQuery)
+                .then((snapshot) => {
+                  if (snapshot.exists()) {
+                    numof_paste = snapshot.size;
+                    let student_numof_paste = document.getElementById('TotalBrowserPaste');
+                    student_numof_paste.textContent = numof_paste;
+                  } else {
+                    numof_paste = 0;
+                    let student_numof_paste = document.getElementById('TotalBrowserPaste');
+                    student_numof_paste.textContent = numof_paste;
+                   
+                  }
+                }).catch((error) => {
+                  console.error('Error fetching data:', error);
+                });
+              
+              
+            
+            
+          }
+      });
+  });
+
+}
+
 
 function ViewProctoringReportSummary(currentExamKey, currentCourseKey, currentExamName){
   
@@ -892,7 +994,7 @@ function ViewProctoringReportSummary(currentExamKey, currentCourseKey, currentEx
                   numof_StudentsTookExam = 0;
                   let studentsTotal = document.getElementById('TotalStudents');
                   studentsTotal.textContent = numof_StudentsTookExam;
-                  let headerCourseCode = document.getElementById('AdminHeaderDetails-CourseCode');
+                  let headerCourseCode = document.getElementById('FacultyHeaderDetails-CourseCode');
                   headerCourseCode.textContent =  "No Data Yet";
                   //alert("error: Doesnt Exist, Firebase Access!");
                 }
@@ -901,89 +1003,208 @@ function ViewProctoringReportSummary(currentExamKey, currentCourseKey, currentEx
                   console.log("error with database: " + error);
               });
 
-              //query for flagged activity
-              var numof_FlaggedStudents = 0;
-              const flaggedActivityQuery = query(assessmentRef, orderByChild('student_total_flagged_activity'), startAfter(0));
-              get(flaggedActivityQuery)
-                .then((snapshot) => {
-                  if (snapshot.exists()) {
-                    numof_FlaggedStudents = snapshot.size;
-                    let studentsFlagged = document.getElementById('TotalFlagged');
-                    studentsFlagged.textContent = numof_FlaggedStudents;
-                    // const data = snapshot.val();
-                    // console.log('Total Num of Students with flagged activity:', numof_FlaggedStudents);
-                  } else {
-                    numof_FlaggedStudents = 0;
-                    let studentsFlagged = document.getElementById('TotalFlagged');
-                    studentsFlagged.textContent = numof_FlaggedStudents;
-                    // console.log('No students found with flagged activity');
-                  }
-                }).catch((erroror) => {
-                  console.erroror('erroror fetching data:', erroror);
-                });
-              
-              //query for NO flagged activity
-              var numof_No_FlaggedStudents = 0;
-              const no_flaggedActivityQuery = query(assessmentRef, orderByChild('student_total_flagged_activity'), equalTo(0));
-              get(no_flaggedActivityQuery)
-                .then((snapshot) => {
-                  if (snapshot.exists()) {
-                    numof_No_FlaggedStudents = snapshot.size;
-                    let studentsNOTflagged = document.getElementById('TotalNoFlagged');
-                    studentsNOTflagged.textContent = numof_No_FlaggedStudents;
-                    // const data = snapshot.val();
-                    // console.log('Total Num of Students with NO flagged activity:', numof_No_FlaggedStudents);
-                  } else {
-                    numof_No_FlaggedStudents = 0;
-                    let studentsNOTflagged = document.getElementById('TotalNoFlagged');
-                    studentsNOTflagged.textContent = numof_No_FlaggedStudents;
-                    // console.log('No students found with NO flagged activity');
-                  }
-                }).catch((error) => {
-                  console.error('Error fetching data:', error);
-                });
-
-              //query for did auth allow
-              var numof_AuthAllowedStudents = 0;
-              const AuthAllowedStudentsQuery = query(assessmentRef, orderByChild('student_AuthFlagged'), equalTo(true));
-              get(AuthAllowedStudentsQuery)
-                .then((snapshot) => {
-                  if (snapshot.exists()) {
-                    numof_AuthAllowedStudents = snapshot.size;
-                    let studentTotalAuthenticated = document.getElementById('TotalAuthenticated');
-                    studentTotalAuthenticated.textContent =numof_AuthAllowedStudents;
-                    // const data = snapshot.val();
-                    //console.log('Total Num of Students Allowed Authenticated:', numof_AuthAllowedStudents);
-                  } else {
-                    numof_AuthAllowedStudents = 0;
-                    let studentTotalAuthenticated = document.getElementById('TotalAuthenticated');
-                    studentTotalAuthenticated.textContent =numof_AuthAllowedStudents;
-                    // console.log('No students found with Allowed Authenticated');
-                  }
-                }).catch((error) => {
-                  console.error('Error fetching data:', error);
-                });
-              
-              //query for did NOT auth allow
-              var numof_NotAuthAllowedStudents = 0;
-              const AuthNotAllowedStudentsQuery = query(assessmentRef, orderByChild('student_AuthFlagged'), equalTo(false));
-              get(AuthNotAllowedStudentsQuery)
-                .then((snapshot) => {
-                  if (snapshot.exists()) {
-                    numof_NotAuthAllowedStudents = snapshot.size;
-                    let studentTotalNotAuthenticated = document.getElementById('TotalNotAuthenticated');
-                    studentTotalNotAuthenticated.textContent = numof_NotAuthAllowedStudents;
-                    // const data = snapshot.val();
-                    //console.log('Total Num of Students NOT Authenticated:',  numof_NotAuthAllowedStudents);
-                  } else {
-                    numof_NotAuthAllowedStudents = 0;
-                    let studentTotalNotAuthenticated = document.getElementById('TotalNotAuthenticated');
-                    studentTotalNotAuthenticated.textContent = numof_NotAuthAllowedStudents;
-                    //console.log('No students found with NOT Authenticated');
-                  }
-                }).catch((error) => {
-                  console.error('Error fetching data:', error);
-                });
+               //query for flagged activity
+               var numof_FlaggedStudents = 0;
+               const flaggedActivityQuery = query(assessmentRef, orderByChild('student_total_flagged_activity'), startAfter(0));
+               get(flaggedActivityQuery)
+                 .then((snapshot) => {
+                   if (snapshot.exists()) {
+                     numof_FlaggedStudents = snapshot.size;
+                     let studentsFlagged = document.getElementById('TotalFlagged');
+                     studentsFlagged.textContent = numof_FlaggedStudents;
+                     //call the browser activity summary
+                     ViewBrowserActivitySummary(currentExamKey, currentCourseKey, currentExamName);
+                     // const data = snapshot.val();
+                     // console.log('Total Num of Students with flagged activity:', numof_FlaggedStudents);
+                   } else {
+                     numof_FlaggedStudents = 0;
+                     let studentsFlagged = document.getElementById('TotalFlagged');
+                     studentsFlagged.textContent = numof_FlaggedStudents;
+                     //nothing to show
+                     document.getElementById("activity_list").style.display = "none"
+                     // console.log('No students found with flagged activity');
+                   }
+                 }).catch((error) => {
+                   console.erroror('error fetching data:', erroror);
+                 });
+               
+               //query for NO flagged activity
+               var numof_No_FlaggedStudents = 0;
+               const no_flaggedActivityQuery = query(assessmentRef, orderByChild('student_total_flagged_activity'), equalTo(0));
+               get(no_flaggedActivityQuery)
+                 .then((snapshot) => {
+                   if (snapshot.exists()) {
+                     numof_No_FlaggedStudents = snapshot.size;
+                     let studentsNOTflagged = document.getElementById('TotalNoFlagged');
+                     studentsNOTflagged.textContent = numof_No_FlaggedStudents;
+                     // const data = snapshot.val();
+                     // console.log('Total Num of Students with NO flagged activity:', numof_No_FlaggedStudents);
+                   } else {
+                     numof_No_FlaggedStudents = 0;
+                     let studentsNOTflagged = document.getElementById('TotalNoFlagged');
+                     studentsNOTflagged.textContent = numof_No_FlaggedStudents;
+                     // console.log('No students found with NO flagged activity');
+                   }
+                 }).catch((error) => {
+                   console.error('Error fetching data:', error);
+                 });
+               
+               
+             
+ 
+               //query for did auth allow
+               var numof_AuthAllowedStudents = 0;
+               const AuthAllowedStudentsQuery = query(assessmentRef, orderByChild('student_AuthFlagged'), equalTo(true));
+               get(AuthAllowedStudentsQuery)
+                 .then((snapshot) => {
+                   if (snapshot.exists()) {
+                     numof_AuthAllowedStudents = snapshot.size;
+                     let studentTotalAuthenticated = document.getElementById('TotalAuthenticated');
+                     studentTotalAuthenticated.textContent =numof_AuthAllowedStudents;
+                     // const data = snapshot.val();
+                     //console.log('Total Num of Students Allowed Authenticated:', numof_AuthAllowedStudents);
+                   } else {
+                     numof_AuthAllowedStudents = 0;
+                     let studentTotalAuthenticated = document.getElementById('TotalAuthenticated');
+                     studentTotalAuthenticated.textContent =numof_AuthAllowedStudents;
+                     // console.log('No students found with Allowed Authenticated');
+                   }
+                 }).catch((error) => {
+                   console.error('Error fetching data:', error);
+                 });
+               
+               //query for did NOT auth allow
+               var numof_NotAuthAllowedStudents = 0;
+               const AuthNotAllowedStudentsQuery = query(assessmentRef, orderByChild('student_AuthFlagged'), equalTo(false));
+               get(AuthNotAllowedStudentsQuery)
+                 .then((snapshot) => {
+                   if (snapshot.exists()) {
+                     numof_NotAuthAllowedStudents = snapshot.size;
+                     let studentTotalNotAuthenticated = document.getElementById('TotalNotAuthenticated');
+                     studentTotalNotAuthenticated.textContent = numof_NotAuthAllowedStudents;
+                     // const data = snapshot.val();
+                     //console.log('Total Num of Students NOT Authenticated:',  numof_NotAuthAllowedStudents);
+                   } else {
+                     numof_NotAuthAllowedStudents = 0;
+                     let studentTotalNotAuthenticated = document.getElementById('TotalNotAuthenticated');
+                     studentTotalNotAuthenticated.textContent = numof_NotAuthAllowedStudents;
+                     //console.log('No students found with NOT Authenticated');
+                   }
+                 }).catch((error) => {
+                   console.error('Error fetching data:', error);
+                 });
+               
+ 
+               //only show if there are students with auth issues
+               if(numof_NotAuthAllowedStudents > 0){
+                 //query for changed IP address
+                   var numof_changedIP = 0;
+                   const AuthNumOfChangedIPQuery = query(assessmentRef, orderByChild('identity_UponExam/IP_address/didMatch'), equalTo(false));
+                   get(AuthNumOfChangedIPQuery)
+                     .then((snapshot) => {
+                       if (snapshot.exists()) {
+                         numof_changedIP = snapshot.size;
+                         let studentTotalChangedIP= document.getElementById('TotalChangedIP');
+                         studentTotalChangedIP.textContent = numof_changedIP;
+                         // const data = snapshot.val();
+                         //console.log('Total Num of Students NOT Authenticated:',  numof_NotAuthAllowedStudents);
+                       } else {
+                         numof_changedIP = 0;
+                         let studentTotalChangedIP = document.getElementById('TotalChangedIP');
+                         studentTotalChangedIP.textContent = numof_changedIP;
+                         //console.log('No students found with NOT Authenticated');
+                       }
+                     }).catch((error) => {
+                       console.error('Error fetching data:', error);
+                     });
+ 
+                     //query for changed location
+                   var numof_changedLocation = 0;
+                   var total_changedLocation = 0;
+                   const NumOfChangedGeolocationLatitude = query(assessmentRef, orderByChild('identity_UponExam/geolocation_lat/didMatch'), equalTo(false));
+                   const NumOfChangedGeolocationLongitude = query(assessmentRef, orderByChild('identity_UponExam/geolocation_long/didMatch'), equalTo(false));
+                   get(NumOfChangedGeolocationLatitude)
+                     .then((snapshot) => {
+                       if (snapshot.exists()) {
+                         //check longitude
+                         get(NumOfChangedGeolocationLongitude)
+                           .then((geolongSnapshot) => {
+                             if(geolongSnapshot.exists()){
+                               total_changedLocation = geolongSnapshot.size;
+                               let studentTotalChangedGeolocation= document.getElementById('TotalChangedGeolocation');
+                               studentTotalChangedGeolocation.textContent = total_changedLocation;
+                             }
+                           }).catch((error) => {
+                             console.error('Error fetching data:', error);
+                         })
+                       
+                       } else {
+                         total_changedLocation = 0;
+                         let studentTotalChangedGeolocation= document.getElementById('TotalChangedGeolocation');
+                         studentTotalChangedGeolocation.textContent = total_changedLocation;
+                       }
+                     }).catch((error) => {
+                       console.error('Error fetching data:', error);
+                     });
+                 
+                   //query for changed Display
+                   var numof_changedDisplay = 0;
+                   const NumOfChangedDisplayQuery = query(assessmentRef, orderByChild('identity_UponExam/display/didMatch'), equalTo(false));
+                   get(NumOfChangedDisplayQuery)
+                     .then((snapshot) => {
+                       if (snapshot.exists()) {
+                         numof_changedDisplay = snapshot.size;
+                         let studentTotalChangedDisplay= document.getElementById('TotalChangedDisplay');
+                         studentTotalChangedDisplay.textContent = numof_changedDisplay;
+                       } else {
+                         numof_changedDisplay = 0;
+                         let studentTotalChangedDisplay= document.getElementById('TotalChangedDisplay');
+                         studentTotalChangedDisplay.textContent = numof_changedDisplay;
+                       }
+                     }).catch((error) => {
+                       console.error('Error fetching data:', error);
+                     });
+ 
+                   //query for changed CPU
+                   var numof_changedCPU = 0;
+                   const NumOfChangedCPUQuery = query(assessmentRef, orderByChild('identity_UponExam/cpu/didMatch'), equalTo(false));
+                   get(NumOfChangedCPUQuery)
+                     .then((snapshot) => {
+                       if (snapshot.exists()) {
+                         numof_changedCPU = snapshot.size;
+                         let studentTotalChangedCPU= document.getElementById('TotalChangedCPU');
+                         studentTotalChangedCPU.textContent = numof_changedCPU;
+                       } else {
+                         numof_changedCPU = 0;
+                         let studentTotalChangedCPU = document.getElementById('TotalChangedCPU');
+                         studentTotalChangedCPU.textContent = numof_changedCPU;
+                       }
+                     }).catch((error) => {
+                       console.error('Error fetching data:', error);
+                     });
+                   
+                   //query for changed os
+                   var numof_changedOS = 0;
+                   const NumOfChangedOSQuery = query(assessmentRef, orderByChild('identity_UponExam/os/didMatch'), equalTo(false));
+                   get(NumOfChangedOSQuery)
+                     .then((snapshot) => {
+                       if (snapshot.exists()) {
+                         numof_changedOS = snapshot.size;
+                         let studentTotalChangedOS= document.getElementById('TotalChangedOS');
+                         studentTotalChangedOS.textContent = numof_changedOS;
+                       } else {
+                         numof_changedOS = 0;
+                         let studentTotalChangedOS = document.getElementById('TotalChangedOS');
+                         studentTotalChangedOS.textContent = numof_changedOS;
+                       }
+                     }).catch((error) => {
+                       console.error('Error fetching data:', error);
+                     });
+               }else{
+                 //nothing to show
+                 document.getElementById("identity_list").style.display = "none"
+               }
+               
               
           }
       })
