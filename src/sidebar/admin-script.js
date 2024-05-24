@@ -1258,6 +1258,7 @@ function updateTakingAssessmentsStudent(courseGivenAssessment, assessmentKey){
 
 }
 
+
 //function to save each student data to the database
 function saveStudentToDB(studentData){
 

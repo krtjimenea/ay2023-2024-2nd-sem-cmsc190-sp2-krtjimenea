@@ -895,20 +895,23 @@ function checkExamCode(){
 
                                 const isWithinDateRange = (formattedCurrentDate >= assessmentStartDate) && (formattedCurrentDate <= assessmentEndDate);
                                 let isWithinTimeRange = false;
-                                //make sure that instances of the date and time are between the schedule
                                 if(isWithinDateRange){
-                                    //check hours
-                                    //console.log("Hours: " + current_time[0] + " " + assessment_StartTime[0] + " " + assessment_EndTime[0]);
-                                    if((current_time[0] >= assessment_StartTime[0]) && (current_time[0] <= assessment_EndTime[0]) && (current_time[0] === assessment_EndTime[0])){
-                                      //within the hour set
-                                      //console.log("Mins: " + current_time[1] + " " + assessment_StartTime[1] + " " + assessment_EndTime[1]);
-                                      if(current_time[1] <= assessment_EndTime[1]){
-                                        isWithinTimeRange = false;
-                                      }
-                                    }else{
+                                  //Check if current time is within the hour range
+                                  if(current_time[0] > assessment_StartTime[0] && current_time[0] < assessment_EndTime[0]) {
                                       isWithinTimeRange = true;
-                                    }
+                                  }else if(current_time[0] === assessment_StartTime[0]) {
+                                      // Check minutes if current hour is the start hour
+                                      if(current_time[1] >= assessment_StartTime[1]) {
+                                         isWithinTimeRange = true;
+                                      }
+                                  }else if(current_time[0] === assessment_EndTime[0]) {
+                                      // Check minutes if current hour is the end hour
+                                      if(current_time[1] <= assessment_EndTime[1]) {
+                                         isWithinTimeRange = true;
+                                      }
+                                  }
                                 }
+                              
 
                                 console.log("WithinDate: " + isWithinDateRange);
                                 console.log("WithinTime: " + isWithinTimeRange);

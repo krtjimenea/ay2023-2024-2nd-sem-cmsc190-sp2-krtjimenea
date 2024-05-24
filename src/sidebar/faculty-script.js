@@ -38,7 +38,7 @@ function monitorSidePanelPath() {
       //console.log('path: ' + path);
       //this the current path, create an array of history in the service worker, pass as message
       chrome.runtime.sendMessage({action: 'sendCurrentPath', value: path});
-      if(path === '/FacultySchedulePage.html'){
+      if(path === '/FacultySchedulePage.html'){W
         var receivedUserId;
         chrome.storage.local.get('currentUserId', function(data) {
           receivedUserId = data.currentUserId;
@@ -262,7 +262,7 @@ function viewStudentAuthReport(currentCourseKey,currentExamKey,currentStudent){
   chrome.identity.getAuthToken({ interactive: true }, token =>
     {
       if ( chrome.runtime.lasterroror || ! token ) {
-        alert(`SSO ended with an erroror: ${JSON.stringify(chrome.runtime.lasterroror)}`)
+        console.log(`SSO ended with an erroror: ${JSON.stringify(chrome.runtime.lasterroror)}`)
         return
       }
       //firebase authentication
@@ -506,7 +506,7 @@ function viewStudentAuthReport(currentCourseKey,currentExamKey,currentStudent){
           }
       })
       .catch((error) => {
-        alert("SSO ended with an error" + error);
+        console.log("SSO ended with an error" + error);
       });
   });
 
@@ -521,7 +521,7 @@ function viewStudentProctoringReport(currentCourseKey,currentExamKey,currentStud
    chrome.identity.getAuthToken({ interactive: true }, token =>
      {
        if ( chrome.runtime.lasterroror || ! token ) {
-         alert(`SSO ended with an erroror: ${JSON.stringify(chrome.runtime.lasterroror)}`)
+         console.log(`SSO ended with an erroror: ${JSON.stringify(chrome.runtime.lasterroror)}`)
          return
        }
        //firebase authentication
@@ -757,7 +757,7 @@ function viewStudentProctoringReport(currentCourseKey,currentExamKey,currentStud
            }
        })
        .catch((error) => {
-         alert("SSO ended with an error" + error);
+         console.log("SSO ended with an error" + error);
        });
    });
  
@@ -769,7 +769,7 @@ function viewClasslistOfCourse(currentCourse){
   chrome.identity.getAuthToken({ interactive: true }, token =>
     {
         if ( chrome.runtime.lastError || ! token ) {
-          alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
+          console.log(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
           return
         }
   
@@ -784,7 +784,7 @@ function viewClasslistOfCourse(currentCourse){
               get(studentRef)
                 .then((snapshot) => {
                   if (snapshot.exists()) {
-                    //alert("Success Firebase Access!");
+                    //console.log("Success Firebase Access!");
                     //checking for snapshot return
                     const childData = snapshot.val();
                     var cardListDiv = document.getElementById('cardList');
@@ -826,7 +826,7 @@ function viewClasslistOfCourse(currentCourse){
             }
         })
         .catch((error) => {
-          alert("SSO ended with an error" + error);
+          console.log("SSO ended with an error" + error);
         });
     });
 
@@ -839,7 +839,7 @@ function ViewBrowserActivitySummary(currentExamKey, currentCourseKey, currentExa
   chrome.identity.getAuthToken({ interactive: true }, token =>
     {
       if ( chrome.runtime.lasterroror || ! token ) {
-        alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lasterroror)}`)
+        console.log(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lasterroror)}`)
         return
       }
       //firebase authentication
@@ -943,7 +943,7 @@ function ViewProctoringReportSummary(currentExamKey, currentCourseKey, currentEx
   chrome.identity.getAuthToken({ interactive: true }, token =>
     {
       if ( chrome.runtime.lasterroror || ! token ) {
-        alert(`SSO ended with an erroror: ${JSON.stringify(chrome.runtime.lasterroror)}`)
+        console.log(`SSO ended with an erroror: ${JSON.stringify(chrome.runtime.lasterroror)}`)
         return
       }
       //firebase authentication
@@ -996,7 +996,7 @@ function ViewProctoringReportSummary(currentExamKey, currentCourseKey, currentEx
                   studentsTotal.textContent = numof_StudentsTookExam;
                   let headerCourseCode = document.getElementById('FacultyHeaderDetails-CourseCode');
                   headerCourseCode.textContent =  "No Data Yet";
-                  //alert("error: Doesnt Exist, Firebase Access!");
+                  //console.log("error: Doesnt Exist, Firebase Access!");
                 }
               })
               .catch((error) => {
@@ -1209,7 +1209,7 @@ function ViewProctoringReportSummary(currentExamKey, currentCourseKey, currentEx
           }
       })
       .catch((error) => {
-        alert("SSO ended with an error" + error);
+        console.log("SSO ended with an error" + error);
       });
   });
 }
@@ -1230,7 +1230,7 @@ function updateTakingAssessmentsStudent(courseGivenAssessment, assessmentKey){
   chrome.identity.getAuthToken({ interactive: true }, token =>
     {
       if ( chrome.runtime.lastError || ! token ) {
-        alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
+        console.log(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
         return
       }
 
@@ -1246,7 +1246,7 @@ function updateTakingAssessmentsStudent(courseGivenAssessment, assessmentKey){
             get(takingClassesRef)
               .then((snapshot) => {
                 if (snapshot.exists()) {
-                  //alert("Success Firebase Access!");
+                  //console.log("Success Firebase Access!");
                   //checking for snapshot return
                   const childData = snapshot.val();
                   for(const studentId in childData){
@@ -1261,7 +1261,7 @@ function updateTakingAssessmentsStudent(courseGivenAssessment, assessmentKey){
                     updateTakingAssessments[`/takingAssessments/${assessmentKey}/students/${studentId}`] = studentInfo;
                     update(ref(db),updateTakingAssessments)
                     .then(()=> {
-                      //alert("Saved Exam to database!");
+                      //console.log("Saved Exam to database!");
                     }).catch((err) => {
                       console.log(("error with database" + err));
                     })
@@ -1285,7 +1285,7 @@ function updateTakingAssessmentsStudent(courseGivenAssessment, assessmentKey){
               });
           }
        })//EOF signInWithCredential
-      .catch(err =>{alert("SSO ended with an error" + err);})
+      .catch(err =>{console.log("SSO ended with an error" + err);})
   }) 
 
 }
@@ -1297,7 +1297,7 @@ function viewFacultyCourses(facultyKeyValue){
   chrome.identity.getAuthToken({ interactive: true }, token =>
     {
       if ( chrome.runtime.lastError || ! token ) {
-        alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
+        console.log(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
         return
       }
 
@@ -1312,7 +1312,7 @@ function viewFacultyCourses(facultyKeyValue){
             get(facultyRef)
               .then((snapshot) => {
                 if (snapshot.exists()) {
-                  //alert("Success Firebase Access!");
+                  //console.log("Success Firebase Access!");
                   // console.log(snapshot.val()); //checking for snapshot return
                   const childData = snapshot.val();
                   var courseDropdownDiv = document.getElementById('courselist');
@@ -1340,7 +1340,7 @@ function viewFacultyCourses(facultyKeyValue){
           }
       })
       .catch((err) => {
-        alert("SSO ended with an error" + err);
+        console.log("SSO ended with an error" + err);
       });
   });
 }
@@ -1429,7 +1429,7 @@ function scheduleExam(){
           const matches = [];
           for(const studentId in studentsData) {     
               if(studentsData[studentId]) {
-                  console.log("Student: " + studentsData[studentId].authProviderUID);
+                  // console.log("Student: " + studentsData[studentId].authProviderUID);
                   //check if that match has authProviderUID (registered)
                   if(studentsData[studentId].authProviderUID !== ""){
                       matches.push(studentsData[studentId]);
@@ -1438,14 +1438,14 @@ function scheduleExam(){
           }//EOF Forloop
 
           if(matches.length === TotalStudents){
-              console.log("matched!!!!");
+              // console.log("matched!!!!");
               //students are registered
               regStatus = true;
               //check if there is a logged in user
               chrome.identity.getAuthToken({ interactive: true }, token =>
                 {
                   if ( chrome.runtime.lastError || ! token ) {
-                    alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
+                    console.log(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
                     return
                   }
 
@@ -1484,7 +1484,7 @@ function scheduleExam(){
 
                                       
                                 }).then(()=> {
-                                  //alert("Saved to database!");
+                                  //console.log("Saved to database!");
                                 }).catch((err) => {
                                   console.log(("error with database" + err));
                                 })
@@ -1505,7 +1505,7 @@ function scheduleExam(){
                                   students: {}
                                       
                                 }).then(()=> {
-                                  //alert("Saved to database!");
+                                  //console.log("Saved to database!");
                                 }).catch((err) => {
                                   console.log(("error with database" + err));
                                 })
@@ -1528,7 +1528,7 @@ function scheduleExam(){
                                   time_limit: assessmentTimeDuration
 
                                 }).then(()=> {
-                                  //alert("Saved to database!");
+                                  //console.log("Saved to database!");
                                 
                                 }).catch((err) => {
                                   console.log(("error with database" + err));
@@ -1578,12 +1578,9 @@ function scheduleExam(){
                           }).catch((err) => {
                             console.log(("error with database" + err));
                           })
-                        
-
-                        
                       }
                   })//EOF signInWithCredential
-                  .catch(err =>{alert("SSO ended with an error" + err);})
+                  .catch(err =>{console.log("SSO ended with an error" + err);})
               }) 
 
  
@@ -1607,56 +1604,16 @@ function scheduleExam(){
   
 }
 
-function areStudentsRegistered(){
-  
-  // var studentRegStatus = "";
-  // const db = getDatabase(); 
-  // const studentsRef = ref(db, '/students');       
-  //     get(studentsRef)
-  //         .then((studentsSnapshot) => {
-  //             if (studentsSnapshot.exists()) {
-  //                 const studentsData = studentsSnapshot.val();
-  //                 const TotalStudents = studentsSnapshot.size;
-                  
-  //                 const matches = [];
-  //                 for(const studentId in studentsData) {     
-  //                     if(studentsData[studentId]) {
-  //                         console.log("Student: " + studentsData[studentId].authProviderUID);
-  //                         //check if that match has authProviderUID (registered)
-  //                         if(studentsData[studentId].authProviderUID !== ""){
-  //                             matches.push(studentsData[studentId]);
-  //                         }       
-  //                     }//EOF Match
-  //                 }//EOF Forloop
 
-                  
-  //                 if(matches.length === TotalStudents){
-  //                   console.log("matched!!!!");
-  //                   //students are registered
-  //                   studentRegStatus = true;
-  //                 }else{
-  //                 //no registration
-  //                   console.log("not matched!!!!");
-  //                   studentRegStatus = false;
-  //                 }
-          
-  //             }else{
-  //               console.log('No student data available. Upload Classlist');
-  //             }
-  //         });
 
-  console.log("Here: " + studentRegStatus)
-  return studentRegStatus;   
-}
 
 //function to send the exam code to the students taking the exam
 function sendExamAccessCodeMailer(courseSelected, assessmentKey){
   //before sending the email, we need to check if the student is already registered via auth
   //check if there is a logged in user
-  chrome.identity.getAuthToken({ interactive: true }, token =>
-    {
+  chrome.identity.getAuthToken({ interactive: true }, token =>{
       if ( chrome.runtime.lastError || ! token ) {
-        alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
+        console.log(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
         return
       }
       //firebase authentication
@@ -1722,6 +1679,8 @@ function sendExamAccessCodeMailer(courseSelected, assessmentKey){
                                     }
                                   };
                                   addDoc(collection(firestoreDB, 'mail'), emailData);
+                                  //After Emailing Students Go Back to Cour
+                                }//EOF Checking if Registered
                                   let modal = document.getElementsByClassName("Alerts-Success-Modal")[0];
                                   let overlay = document.getElementsByClassName("modal-success-Overlay")[0];
                                   modal.style.display = "block";
@@ -1733,8 +1692,6 @@ function sendExamAccessCodeMailer(courseSelected, assessmentKey){
                                   closeBtn.addEventListener("click", function(){
                                     chrome.sidePanel.setOptions({path:facultyViewScheduledExam});
                                   })
-                                  //After Emailing Students Go Back to Cour
-                                }//EOF Checking if Registered
 
                               }//EOF Match
                                 if(matches.length === 0){
@@ -1757,7 +1714,7 @@ function sendExamAccessCodeMailer(courseSelected, assessmentKey){
                         });
 
                     }else{
-                      alert('No student data available. Upload Classlist');
+                      console.log('No student data available. Upload Classlist');
                     }
                   })
                   .catch((error) => {
@@ -1768,7 +1725,7 @@ function sendExamAccessCodeMailer(courseSelected, assessmentKey){
               });
             }
        })//EOF signInWithCredential
-      .catch(error =>{alert("SSO ended with an error" + error);})
+      .catch(error =>{console.log("SSO ended with an error" + error);})
   }) 
 
 }
@@ -1779,7 +1736,7 @@ function viewFacultyAssessmentsList(facultyKeyValue){
   chrome.identity.getAuthToken({ interactive: true }, token =>
     {
       if ( chrome.runtime.lastError || ! token ) {
-        alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
+        console.log(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
         return
       }
 
@@ -1794,7 +1751,7 @@ function viewFacultyAssessmentsList(facultyKeyValue){
             get(assessmentRef)
               .then((snapshot) => {
                 if (snapshot.exists()) {
-                  //alert("Success Firebase Access!");
+                  //console.log("Success Firebase Access!");
                   //checking for snapshot return
                   const childData = snapshot.val();
                   var cardListDiv = document.getElementById('cardList');
@@ -1825,7 +1782,7 @@ function viewFacultyAssessmentsList(facultyKeyValue){
                                       
                                       <div class="cardSubDiv">
                                           <p id="card-labels">Link:</p>
-                                          <a href="${assessmentLink}" id="TabURL" class="cardText">Click Here</a>
+                                          <a href="${assessmentLink}" target="_blank" id="TabURL" class="cardText">Click Here</a>
                                       </div>  
                                       <div class="cardSubDiv">
                                           <p id="card-labels">Access Code:</p>
@@ -1873,7 +1830,7 @@ function viewFacultyAssessmentsList(facultyKeyValue){
           }
       })
       .catch((err) => {
-        alert("SSO ended with an error" + err);
+        console.log("SSO ended with an error" + err);
       });
   });
 }
@@ -1884,7 +1841,7 @@ function viewScheduledExam(facultyKeyValue, examKeyValue){
   chrome.identity.getAuthToken({ interactive: true }, token =>
     {
       if ( chrome.runtime.lastError || ! token ) {
-        alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
+        console.log(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
         return
       }
 
@@ -1899,7 +1856,7 @@ function viewScheduledExam(facultyKeyValue, examKeyValue){
             get(assessmentRef)
               .then((snapshot) => {
                 if (snapshot.exists()) {
-                  //alert("Success Firebase Access!");
+                  //console.log("Success Firebase Access!");
                   //checking for snapshot return
                   const childData = snapshot.val();
                   var cardListDiv = document.getElementById('cardList');
@@ -1929,7 +1886,7 @@ function viewScheduledExam(facultyKeyValue, examKeyValue){
                                       
                                       <div class="cardSubDiv">
                                           <p id="card-labels">Link:</p>
-                                          <a href="${assessmentLink}" id="TabURL" class="cardText">Click Here</a>
+                                          <a href="${assessmentLink}" target="_blank" id="TabURL" class="cardText">Click Here</a>
                                       </div>  
                                       <div class="cardSubDiv">
                                           <p id="card-labels">Access Code:</p>
@@ -1969,7 +1926,7 @@ function viewScheduledExam(facultyKeyValue, examKeyValue){
           }
       })
       .catch((err) => {
-        alert("SSO ended with an error" + err);
+        console.log("SSO ended with an error" + err);
       });
   });
 
