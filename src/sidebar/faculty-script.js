@@ -1421,6 +1421,10 @@ function scheduleExam(){
                   //adding the assessment to all the database /paths
                   user.providerData.forEach((profile) => {
                     const facultyName = profile.displayName;
+                    if(receivedUserId === '101811137'){
+                      facultyName = "DevTest Two"
+                    }
+                    
                     update(ref(db,'assessments/' + assessmentKey),{
                       FacultyInCharge: receivedUserId,
                       FacultyInChargeName: facultyName,
