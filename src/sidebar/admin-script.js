@@ -145,6 +145,66 @@ function monitorSidePanelPath() {
       }else if(path === '/AdminSchedulePage.html'){
         //load the function to display the schedule page
         displayFacultyDropdown();
+        function getManilaDate() {
+          var now = new Date();
+          var utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+          var offset = 8; // Manila is UTC+8
+          var manilaTime = new Date(utc + (3600000 * offset));
+          return manilaTime;
+        }
+
+        function formatDateToISO(date) {
+            var day = String(date.getDate()).padStart(2, '0');
+            var month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+            var year = date.getFullYear();
+            return `${year}-${month}-${day}`;
+        }
+
+        function formatDateToDisplay(date) {
+            var day = String(date.getDate()).padStart(2, '0');
+            var month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+            var year = date.getFullYear();
+            return `${day}-${month}-${year}`;
+        }
+
+        var todayDate = getManilaDate();
+        var todayISO = formatDateToISO(todayDate);
+
+        var startDateInput = document.getElementById('start-date');
+        var endDateInput = document.getElementById('end-date');
+
+        startDateInput.setAttribute('min', todayISO);
+        endDateInput.setAttribute('min', todayISO);
+        function validateDateInput(input) {
+            var inputDate = new Date(input.value);
+            var minDate = new Date(todayISO);
+
+            if (inputDate < minDate) {
+                input.value = todayISO;
+                //alert("Date cannot be earlier than today.");
+                let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
+                let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
+                modal.style.display = "block";
+                overlay.style.display = "block";
+                let alertMessage = document.getElementById("ModalTextFailure-labels");
+                alertMessage.textContent = "Date cannot be earlier than today and later than 2024.";
+            }
+        }
+
+        // Add event listener to validate the date input
+        startDateInput.addEventListener('input', function() {
+            validateDateInput(this);
+            endDateInput.setAttribute('min', this.value);
+        });
+
+        endDateInput.addEventListener('input', function() {
+            validateDateInput(this);
+            if (new Date(this.value) < new Date(startDateInput.value)) {
+                this.setCustomValidity("End date cannot be earlier than start date.");
+            } else {
+                this.setCustomValidity(""); // Reset custom validity message
+            }
+        });
       }else if(path === '/AdminViewAssessments.html'){
         //load all the assessments in the database
         viewAssessmentsList();
@@ -2001,6 +2061,15 @@ function createNewAssessment(currentFacultyName){
   var facultySelected = document.getElementById('facultylist').value;
   var facultyNameSelected = currentFacultyName;
   var courseSelected = document.getElementById('courselist').value;
+  if(examName === ""){
+    let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
+    let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
+    modal.style.display = "block";
+    overlay.style.display = "block";
+    let alertMessage = document.getElementById("ModalTextFailure-labels");
+    alertMessage.textContent = "Enter a Valid Exam Name!";
+    return; 
+  }
   //Date and Time
   var startDateSelected = document.getElementById('start-date').value;
   var startTimeSelected = document.getElementById('start-time').value;
@@ -2009,8 +2078,27 @@ function createNewAssessment(currentFacultyName){
   //split time values
   const formattedStartTime = AMPMFormat(startTimeSelected);
   const formattedEndTime = AMPMFormat(endTimeSelected);
+  if(!(formattedStartTime && /^\d{1,2}:\d{2}\s(?:AM|PM)$/i.test(formattedStartTime)) || !(formattedEndTime && /^\d{1,2}:\d{2}\s(?:AM|PM)$/i.test(formattedEndTime))){
+    // Code to handle the case where startTimeSelected is empty or has incorrect format
+    let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
+    let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
+    modal.style.display = "block";
+    overlay.style.display = "block";
+    let alertMessage = document.getElementById("ModalTextFailure-labels");
+    alertMessage.textContent = "Invalid Time selected";
+    return;
+  }
 
   var assessmentTimeDuration = document.getElementById('assessmentTimeDuration').value;
+  if(assessmentTimeDuration === ""){
+    let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
+    let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
+    modal.style.display = "block";
+    overlay.style.display = "block";
+    let alertMessage = document.getElementById("ModalTextFailure-labels");
+    alertMessage.textContent = "Enter a Valid Exam Time Duration!";
+    return; 
+  }
   var examLink = document.getElementById('assessmentLinkInput').value;
   if(!examLink.trim()) {
     // examLink is empty or  whitespace
@@ -2028,161 +2116,198 @@ function createNewAssessment(currentFacultyName){
   var assessmentKey =  assessmentKeyGenerator.split(" ").join("");
 
   //save to database
-  //check if there is a logged in user
-  chrome.identity.getAuthToken({ interactive: true }, token =>
-    {
-      if ( chrome.runtime.lastError || ! token ) {
-        alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
-        return
-      }
+  //check if registered
+  var regStatus = "";
+  const db = getDatabase();
+  const studentsRef = ref(db, '/students');       
+  get(studentsRef)
+    .then((studentsSnapshot) => {
+      if (studentsSnapshot.exists()) {
+        const studentsData = studentsSnapshot.val();
+          const TotalStudents = studentsSnapshot.size;
+          const matches = [];
+          for(const studentId in studentsData) {     
+              if(studentsData[studentId]) {
+                  // console.log("Student: " + studentsData[studentId].authProviderUID);
+                  //check if that match has authProviderUID (registered)
+                  if(studentsData[studentId].authProviderUID !== ""){
+                      matches.push(studentsData[studentId]);
+                  }       
+                }//EOF Match
+          }//EOF Forloop
 
-      //firebase authentication
-      signInWithCredential(auth, GoogleAuthProvider.credential(null, token))
-      .then(res =>{
-          const user = auth.currentUser;
-          if (user !== null) {
-            //check first if there are students enrolled in that class
-            const db = getDatabase();
-            const takingClassesRef = ref(db,`takingClasses/${courseSelected}`);
-            get(takingClassesRef)
-              .then((snapshot) => {
-                if (snapshot.exists()) {
-                  //there are students
-                  //find the faculty in the database
-                  const facultyRef = ref(db,'faculty-in-charge/');
-                  get(facultyRef)
-                    .then((snapshotFaculty) => {
-                      if (snapshotFaculty.exists()) {
-                        snapshotFaculty.forEach(function(childSnapshot) {
-                          //accessing data within the child node
-                          var childData = childSnapshot.val();
-                          //checking if the child node exists
-                          if(childData.name === facultyNameSelected){
-                              const FacultyIDNumber = childData.employeeNum;
-                              //console.log('Found a matching child:', childData.name + FacultyIDNumber);
-                              chrome.runtime.sendMessage({action: 'facultyIDValue', value: FacultyIDNumber});
-                              
-                              //adding the assessment to all the database /paths
-                              update(ref(db,'assessments/' + assessmentKey),{
-                                FacultyInCharge: FacultyIDNumber,
-                                FacultyInChargeName: facultyNameSelected,
-                                name: examName,
-                                course: courseSelected,
-                                link:examLink,
-                                access_code: examAccessCode,
-                                expected_time_start: formattedStartTime,
-                                expected_time_end: formattedEndTime,
-                                date_start:startDateSelected,
-                                date_end:endDateSelected,
-                                time_limit: assessmentTimeDuration
-                              }).then(()=> {
-                                //alert("Saved to database!");
-                              }).catch((err) => {
-                                console.log(("error with database" + err));
-                              })
+          if(matches.length === TotalStudents){
+              // console.log("matched!!!!");
+              //students are registered
+              regStatus = true;
+              //check if there is a logged in user
+              chrome.identity.getAuthToken({ interactive: true }, token =>
+                {
+                  if ( chrome.runtime.lastError || ! token ) {
+                    alert(`SSO ended with an error: ${JSON.stringify(chrome.runtime.lastError)}`)
+                    return
+                  }
 
-                              //update taking assessments
-                              update(ref(db,'takingAssessments/' + assessmentKey),{
-                                FacultyInCharge: FacultyIDNumber,
-                                FacultyInChargeName: facultyNameSelected,
-                                name: examName,
-                                course: courseSelected,
-                                link:examLink,
-                                access_code: examAccessCode,
-                                expected_time_start: formattedStartTime,
-                                expected_time_end: formattedEndTime,
-                                date_start:startDateSelected,
-                                date_end:endDateSelected,
-                                time_limit: assessmentTimeDuration,
-                                students: {}
+              //firebase authentication
+              signInWithCredential(auth, GoogleAuthProvider.credential(null, token))
+              .then(res =>{
+                  const user = auth.currentUser;
+                  if (user !== null) {
+                    //check first if there are students enrolled in that class
+                    const db = getDatabase();
+                    const takingClassesRef = ref(db,`takingClasses/${courseSelected}`);
+                    get(takingClassesRef)
+                      .then((snapshot) => {
+                        if (snapshot.exists()) {
+                          //there are students
+                          //find the faculty in the database
+                          const facultyRef = ref(db,'faculty-in-charge/');
+                          get(facultyRef)
+                            .then((snapshotFaculty) => {
+                              if (snapshotFaculty.exists()) {
+                                snapshotFaculty.forEach(function(childSnapshot) {
+                                  //accessing data within the child node
+                                  var childData = childSnapshot.val();
+                                  //checking if the child node exists
+                                  if(childData.name === facultyNameSelected){
+                                      const FacultyIDNumber = childData.employeeNum;
+                                      //console.log('Found a matching child:', childData.name + FacultyIDNumber);
+                                      chrome.runtime.sendMessage({action: 'facultyIDValue', value: FacultyIDNumber});
+                                      
+                                      //adding the assessment to all the database /paths
+                                      update(ref(db,'assessments/' + assessmentKey),{
+                                        FacultyInCharge: FacultyIDNumber,
+                                        FacultyInChargeName: facultyNameSelected,
+                                        name: examName,
+                                        course: courseSelected,
+                                        link:examLink,
+                                        access_code: examAccessCode,
+                                        expected_time_start: formattedStartTime,
+                                        expected_time_end: formattedEndTime,
+                                        date_start:startDateSelected,
+                                        date_end:endDateSelected,
+                                        time_limit: assessmentTimeDuration
+                                      }).then(()=> {
+                                        //alert("Saved to database!");
+                                      }).catch((err) => {
+                                        console.log(("error with database" + err));
+                                      })
+
+                                      //update taking assessments
+                                      update(ref(db,'takingAssessments/' + assessmentKey),{
+                                        FacultyInCharge: FacultyIDNumber,
+                                        FacultyInChargeName: facultyNameSelected,
+                                        name: examName,
+                                        course: courseSelected,
+                                        link:examLink,
+                                        access_code: examAccessCode,
+                                        expected_time_start: formattedStartTime,
+                                        expected_time_end: formattedEndTime,
+                                        date_start:startDateSelected,
+                                        date_end:endDateSelected,
+                                        time_limit: assessmentTimeDuration,
+                                        students: {}
+                                            
+                                      }).then(()=> {
+                                        //alert("Saved to database!");
+                                      }).catch((err) => {
+                                        console.log(("error with database" + err));
+                                      })
                                     
-                              }).then(()=> {
-                                //alert("Saved to database!");
-                              }).catch((err) => {
-                                console.log(("error with database" + err));
-                              })
-                            
-                              //call function that will update which students will take the assessment
-                              updateTakingAssessmentsStudent(courseSelected, assessmentKey);
+                                      //call function that will update which students will take the assessment
+                                      updateTakingAssessmentsStudent(courseSelected, assessmentKey);
 
-                              //update scheduled assessments
-                              update(ref(db,`scheduledAssessments/${FacultyIDNumber}/${assessmentKey}`),{
-                                name: examName,
-                                course: courseSelected,
-                                FacultyInCharge: FacultyIDNumber,
-                                FacultyInChargeName: facultyNameSelected,
-                                link:examLink,
-                                access_code: examAccessCode,
-                                expected_time_start: formattedStartTime,
-                                expected_time_end: formattedEndTime,
-                                date_start:startDateSelected,
-                                date_end:endDateSelected,
-                                time_limit: assessmentTimeDuration
+                                      //update scheduled assessments
+                                      update(ref(db,`scheduledAssessments/${FacultyIDNumber}/${assessmentKey}`),{
+                                        name: examName,
+                                        course: courseSelected,
+                                        FacultyInCharge: FacultyIDNumber,
+                                        FacultyInChargeName: facultyNameSelected,
+                                        link:examLink,
+                                        access_code: examAccessCode,
+                                        expected_time_start: formattedStartTime,
+                                        expected_time_end: formattedEndTime,
+                                        date_start:startDateSelected,
+                                        date_end:endDateSelected,
+                                        time_limit: assessmentTimeDuration
 
-                              }).then(()=> {
-                                //alert("Saved to database!");
-                              
-                              }).catch((err) => {
-                                console.log(("error with database" + err));
-                              })
-                              //update course assessments
-                              update(ref(db,`courseAssessments/${courseSelected}/${assessmentKey}`),{
-                                name: examName,
-                                FacultyInChargeName: facultyNameSelected,
-                                course: courseSelected,
-                                link:examLink,
-                                access_code: examAccessCode,
-                                expected_time_start: formattedStartTime,
-                                expected_time_end: formattedEndTime,
-                                date_start:startDateSelected,
-                                date_end:endDateSelected,
-                                time_limit: assessmentTimeDuration
-                              }).then(()=> {
-                                //console.log("Saved to database!");
-                                let modal = document.getElementsByClassName("Alerts-Success-Modal")[0];
-                                let overlay = document.getElementsByClassName("modal-success-Overlay")[0];
-                                modal.style.display = "block";
-                                overlay.style.display = "block";
-                                let alertMessage = document.getElementById("ModalTextSuccess-labels");
-                                alertMessage.textContent = `Exam Code is: ${examAccessCode}`;
-                                let closeBtn = document.getElementsByClassName("ModalSuccessCloseBtn")[0];
-                                closeBtn.innerText = "Send Exam Code to Students";
-                                closeBtn.addEventListener("click", function(){
-                                  modal.style.display = "none";
-                                  overlay.style.display = "none";
-                                  //Send Email
-                                  sendExamAccessCodeMailer(courseSelected, assessmentKey);
-                                })
-                              }).catch((error) => {
-                                console.log(("error with database" + error));
-                              })
-                              
-                          }
-                        });
-                      }else{
-                        alert("Faculty does not exist");
-                      }
-                    });
-                }else{
-                  let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
-                  let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
-                  modal.style.display = "block";
-                  overlay.style.display = "block";
-                  let alertMessage = document.getElementById("ModalTextFailure-labels");
-                  alertMessage.textContent = "No Student Data, Upload Classlist";
+                                      }).then(()=> {
+                                        //alert("Saved to database!");
+                                      
+                                      }).catch((err) => {
+                                        console.log(("error with database" + err));
+                                      })
+                                      //update course assessments
+                                      update(ref(db,`courseAssessments/${courseSelected}/${assessmentKey}`),{
+                                        name: examName,
+                                        FacultyInChargeName: facultyNameSelected,
+                                        course: courseSelected,
+                                        link:examLink,
+                                        access_code: examAccessCode,
+                                        expected_time_start: formattedStartTime,
+                                        expected_time_end: formattedEndTime,
+                                        date_start:startDateSelected,
+                                        date_end:endDateSelected,
+                                        time_limit: assessmentTimeDuration
+                                      }).then(()=> {
+                                        //console.log("Saved to database!");
+                                        let modal = document.getElementsByClassName("Alerts-Success-Modal")[0];
+                                        let overlay = document.getElementsByClassName("modal-success-Overlay")[0];
+                                        modal.style.display = "block";
+                                        overlay.style.display = "block";
+                                        let alertMessage = document.getElementById("ModalTextSuccess-labels");
+                                        alertMessage.textContent = `Exam Code is: ${examAccessCode}`;
+                                        let closeBtn = document.getElementsByClassName("ModalSuccessCloseBtn")[0];
+                                        closeBtn.innerText = "Send Exam Code to Students";
+                                        closeBtn.addEventListener("click", function(){
+                                          modal.style.display = "none";
+                                          overlay.style.display = "none";
+                                          //Send Email
+                                          sendExamAccessCodeMailer(courseSelected, assessmentKey);
+                                        })
+                                      }).catch((error) => {
+                                        console.log(("error with database" + error));
+                                      })  
+                                  }
+                                });
+                                //EOF Checking if Faculty Exists
+                              }else{
+                                alert("Faculty does not exist");
+                              }
+                            });
+                        }else{
+                          let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
+                          let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
+                          modal.style.display = "block";
+                          overlay.style.display = "block";
+                          let alertMessage = document.getElementById("ModalTextFailure-labels");
+                          alertMessage.textContent = "No Student Data, Upload Classlist";
 
-                }
-              }).catch((err) => {
-                console.log(("error with database" + err));
+                        }
+                      }).catch((err) => {
+                        console.log(("error with database" + err));
+                      })
+                    }
+              })//EOF signInWithCredential
+              .catch(error =>{alert("SSO ended with an error" + error);})
               })
           }else{
-            alert("Auth Error");
+             //no registration
+             console.log("not matched!!!!");
+             regStatus = false;
+             let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
+             let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
+             modal.style.display = "block";
+             overlay.style.display = "block";
+             let alertMessage = document.getElementById("ModalTextFailure-labels");
+             alertMessage.textContent = "Ask Students to register first before scheduling exam";
           }
-       })//EOF signInWithCredential
-      .catch(error =>{alert("SSO ended with an error" + error);})
-  }) 
 
-  //alert('Exam Scheduled! The code is: ' + examAccessCode);
+
+      }else{
+        console.log('No student data available. Upload Classlist');
+      }
+    });//EOF CHECK REGSTATUS  
 
 }
 

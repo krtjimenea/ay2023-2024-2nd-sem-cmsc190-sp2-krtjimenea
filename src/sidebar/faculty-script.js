@@ -38,12 +38,73 @@ function monitorSidePanelPath() {
       //console.log('path: ' + path);
       //this the current path, create an array of history in the service worker, pass as message
       chrome.runtime.sendMessage({action: 'sendCurrentPath', value: path});
-      if(path === '/FacultySchedulePage.html'){W
-        var receivedUserId;
-        chrome.storage.local.get('currentUserId', function(data) {
-          receivedUserId = data.currentUserId;
-          viewFacultyCourses(receivedUserId);
-        });
+      if(path === '/FacultySchedulePage.html'){
+          function getManilaDate() {
+            var now = new Date();
+            var utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+            var offset = 8; // Manila is UTC+8
+            var manilaTime = new Date(utc + (3600000 * offset));
+            return manilaTime;
+          }
+
+          function formatDateToISO(date) {
+              var day = String(date.getDate()).padStart(2, '0');
+              var month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+              var year = date.getFullYear();
+              return `${year}-${month}-${day}`;
+          }
+
+          function formatDateToDisplay(date) {
+              var day = String(date.getDate()).padStart(2, '0');
+              var month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+              var year = date.getFullYear();
+              return `${day}-${month}-${year}`;
+          }
+
+          var todayDate = getManilaDate();
+          var todayISO = formatDateToISO(todayDate);
+
+          var startDateInput = document.getElementById('start-date');
+          var endDateInput = document.getElementById('end-date');
+
+          startDateInput.setAttribute('min', todayISO);
+          endDateInput.setAttribute('min', todayISO);
+          function validateDateInput(input) {
+              var inputDate = new Date(input.value);
+              var minDate = new Date(todayISO);
+
+              if (inputDate < minDate) {
+                  input.value = todayISO;
+                  //alert("Date cannot be earlier than today.");
+                  let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
+                  let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
+                  modal.style.display = "block";
+                  overlay.style.display = "block";
+                  let alertMessage = document.getElementById("ModalTextFailure-labels");
+                  alertMessage.textContent = "Date cannot be earlier than today and later than 2024.";
+              }
+          }
+
+          // Add event listener to validate the date input
+          startDateInput.addEventListener('input', function() {
+              validateDateInput(this);
+              endDateInput.setAttribute('min', this.value);
+          });
+
+          endDateInput.addEventListener('input', function() {
+              validateDateInput(this);
+              if (new Date(this.value) < new Date(startDateInput.value)) {
+                  this.setCustomValidity("End date cannot be earlier than start date.");
+              } else {
+                  this.setCustomValidity(""); // Reset custom validity message
+              }
+          });
+
+          var receivedUserId;
+          chrome.storage.local.get('currentUserId', function(data) {
+            receivedUserId = data.currentUserId;
+            viewFacultyCourses(receivedUserId);
+          });
         
       }else if(path === '/FacultyManageAssessments.html'){
         var receivedUserId;
@@ -1388,6 +1449,17 @@ function scheduleExam(){
   //split time values
   const formattedStartTime = AMPMFormat(startTimeSelected);
   const formattedEndTime = AMPMFormat(endTimeSelected);
+  if(!(formattedStartTime && /^\d{1,2}:\d{2}\s(?:AM|PM)$/i.test(formattedStartTime)) || !(formattedEndTime && /^\d{1,2}:\d{2}\s(?:AM|PM)$/i.test(formattedEndTime))){
+    // Code to handle the case where startTimeSelected is empty or has incorrect format
+    let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
+    let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
+    modal.style.display = "block";
+    overlay.style.display = "block";
+    let alertMessage = document.getElementById("ModalTextFailure-labels");
+    alertMessage.textContent = "Invalid Time selected";
+    return;
+  }
+
   var assessmentTimeDuration = document.getElementById('assessmentTimeDuration').value;
   var examLink = document.getElementById('assessmentLinkInput').value;
 
@@ -1467,6 +1539,10 @@ function scheduleExam(){
                                 let facultyName = profile.displayName;
                                 if(receivedUserId === '101811137'){
                                   facultyName = "DevTest Two"
+                                }else if(receivedUserId === '101802885'){
+                                  facultyName = "DevTest One"
+                                }else{
+                                  facultyName = profile.displayName;
                                 }
                                 
                                 update(ref(db,'assessments/' + assessmentKey),{
