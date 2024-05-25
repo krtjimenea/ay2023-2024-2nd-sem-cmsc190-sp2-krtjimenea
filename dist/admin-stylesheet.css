@@ -1,0 +1,1362 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Raleway:wght@900&family=Urbanist:wght@600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Raleway:wght@900&family=Urbanist:wght@800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Raleway:wght@900&family=Urbanist:wght@700&display=swap');
+
+
+@font-face {
+    font-family: "Baloo";
+    src: url('fonts/baloo.regular.ttf') format("ttf");
+}
+
+::placeholder {
+    text-align: center; 
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+}
+
+body{
+    background: #FFF8E8;
+    background-attachment: fixed;
+    height: 100%;
+}
+
+h2{
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+}
+
+p{
+    margin: 0;
+}
+
+button{
+    border: 2px solid #000;   
+    box-shadow: 0 4px 20px 0 #00000033, 0 6px 20px 0 rgba(0, 0, 0, 0.19);  
+}
+
+button:hover {
+    text-decoration:underline;
+}
+
+button:active {
+  box-shadow: 0 5px #d0cfcf;
+  transform: translateY(4px);
+}
+
+input{
+    border: 2px solid #000;     
+}
+
+/**Popout Modal Styling for Success**/
+
+.modal-success-Overlay{
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(3px);
+    z-index: 1;
+    display: none;
+}
+
+.Alerts-Success-Modal {
+    display: none;
+    position: absolute;
+    top: 40%;
+    border: 2px solid #000000;
+    z-index: 2;
+    overflow: auto;
+    background-color: #fff;
+    width: 250px;
+    min-height: 200px;
+    border-radius: 15px;
+    box-sizing: border-box; /* Include padding and border in the width */
+  }
+  
+.modal-flex {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+}
+  
+.modal-header-success {
+    padding: 10px;
+    background-color: #4CAF50; /* Success header color */
+    color: white;
+    text-align: center;
+    width: 100%;
+    /* position: absolute; */
+    top: 0;
+    left: 0;
+    box-sizing: border-box;
+   
+}
+
+
+.ModalTextSuccess{
+    font-family: 'Urbanist', sans-serif;
+    color: #000000;
+    text-align: center;
+    font-size: 20px;
+}
+
+#ModalTextSuccess-labels{
+    font-family: 'Urbanist', sans-serif;
+    color: #000000;
+    text-align: center;
+    font-size: 20px;
+
+}
+.modal-body {
+    padding: 10px;
+    padding-bottom: 50px;
+    text-align: center;
+    box-sizing: border-box;
+    display: grid;
+    place-items: center;
+    align-items: center;
+    height: 100%;
+    box-sizing: border-box;
+}
+  
+.modal-footer-success {
+    padding: 10px;
+    background-color: #45a049;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}
+  
+.ModalSuccessCloseBtn {
+    background-color:transparent;
+    font-family: 'Urbanist', sans-serif;
+    color: #000000;
+    text-align: center;
+    font-size: 15px;
+    border: none;
+    box-shadow: none;
+    color: white;
+}
+
+.ModalCloseBtn:hover {
+    color: #ffffff; 
+    text-decoration:underline;
+}
+
+.ModalCloseBtn:active {
+  box-shadow: 0 5px #d0cfcf;
+  transform: translateY(4px);
+}
+
+.CourseModalCloseBtn {
+    background-color:transparent;
+    font-family: 'Urbanist', sans-serif;
+    color: #000000;
+    text-align: center;
+    font-size: 15px;
+    border: none;
+    box-shadow: none;
+    color: white;
+}
+
+.CourseModalCloseBtn:hover {
+    color: #ffffff; 
+    text-decoration:underline;
+}
+
+.CourseModalCloseBtn:active {
+  box-shadow: 0 5px #d0cfcf;
+  transform: translateY(4px);
+}
+
+/** Failed Modal **/
+.modal-failure-Overlay{
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(3px);
+    z-index: 1;
+    display: none;
+}
+
+.Alerts-Failure-Modal {
+    display: none;
+    position: absolute;
+    top: 40%;
+    border: 2px solid #000000;
+    z-index: 2;
+    overflow: auto;
+    background-color: #fff;
+    width: 250px;
+    min-height: 200px;
+    border-radius: 15px;
+    box-sizing: border-box; /* Include padding and border in the width */
+}
+  
+
+  
+.modal-header-failure{
+    padding: 10px;
+    background-color: #e43a3c;
+    color: white;
+    text-align: center;
+    width: 100%;
+    /* position: absolute; */
+    top: 0;
+    left: 0;
+    box-sizing: border-box;
+   
+}
+
+.ModalTextFailure{
+    font-family: 'Urbanist', sans-serif;
+    color: #000000;
+    text-align: center;
+    font-size: 20px;
+}
+
+#ModalTextFailure-labels{
+    font-family: 'Urbanist', sans-serif;
+    color: #000000;
+    text-align: center;
+    font-size: 20px;
+
+}
+  
+.modal-footer-failure {
+    padding: 10px;
+    background-color: #e43a3c;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}
+  
+.ModalFailureCloseBtn {
+    background-color:transparent;
+    font-family: 'Urbanist', sans-serif;
+    color: #000000;
+    text-align: center;
+    font-size: 15px;
+    border: none;
+    box-shadow: none;
+    color: white;
+}
+  
+.ModalCloseBtn:hover {
+    color: #ffffff; 
+    text-decoration:underline;
+}
+
+.ModalFailureCloseBtn:active {
+  box-shadow: 0 3px #d0cfcf;
+  transform: translateY(2px);
+}
+
+.DBisEmptyMssg{
+    margin-top: 30px;
+    height: 42px;
+    font-family: 'Urbanist', sans-serif;
+    color: #000;
+    text-align: center;
+    font-size: 15px;
+    font-style: normal;
+    font-weight: 300;
+}
+.BackBtnDiv{
+    align-self: flex-start;
+}
+#BackBtn{
+    background-color: #9ce49f;
+    border: none;
+    box-shadow: none;
+    color: white;
+    display: flex;
+    align-items: center;
+    height: 20px;
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    color: #fff;
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    border-radius: 6px;
+    margin-bottom: 30px;
+}
+
+/** Landing Page **/
+#AppBody{
+    flex-shrink: 1;
+    margin: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#flex-row{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;  
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+#AppTitle{
+    width: 225px;
+    height: 28px;
+    align-self: flex-start;
+}
+.AppHeader{
+    margin-top: 100px;
+    height: 42px;
+    font-family: 'Urbanist', sans-serif;
+    color: #000;
+    text-align: center;
+    font-size: 48px;
+    font-weight: 800;
+    line-height: 50px; /* 104.167% */
+}
+
+.GoogleLogin{
+    margin-top: 100px;
+}
+
+#GoogleLoginBtn{
+    background-color: #226f54;
+    width: 246px;
+    height: 43px;
+    color: #fff;
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    border-radius: 12px;
+    border: 2px solid #000;   
+    box-shadow: 0 4px 10px 0 #00000033, 0 6px 20px 0 rgba(0, 0, 0, 0.19);     
+
+}
+
+#GoogleLoginBtn:hover {
+    background-color: #538260;
+    text-decoration:underline;
+}
+
+#GoogleLoginBtn:active {
+  background-color: #538260;
+  box-shadow: 0 5px #d0cfcf;
+  transform: translateY(4px);
+}
+
+#SignInAgain{
+   background-color: #226f54;
+    width: 246px;
+    height: 43px;
+    color: #fff;
+    font-family: 'Urbanist', sans-serif;
+    border-radius: 12px;
+    border: 2px solid #000;   
+    box-shadow: 0 4px 10px 0 #00000033, 0 6px 20px 0 rgba(0, 0, 0, 0.19);     
+}
+
+#SignInAgain:hover {
+    background-color: #538260;
+    text-decoration:underline;
+}
+    
+#SignInAgain:active {
+    background-color: #538260;
+    box-shadow: 0 5px #d0cfcf;
+    transform: translateY(4px);
+}
+    
+
+/** Input for ID Number **/
+
+#AppSubBody{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
+#IDInput{
+    margin-top: 30px;
+}
+
+#IDNumInput{
+    width: 246px;
+    height: 40px;
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 4px 10px 0 #00000033, 0 6px 20px 0 rgba(0, 0, 0, 0.19);     
+    border: 2px solid #000;       
+}
+
+.SubmitIDDiv{
+    margin-top: 20px;
+}
+
+#SubmitIDBtn{
+    background-color: #226f54;
+    width: 253px;
+    height: 43px;
+    color: #fff;
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    border-radius: 12px;
+    border: 2px solid #000;   
+    box-shadow: 0 4px 20px 0 #00000033, 0 6px 20px 0 rgba(0, 0, 0, 0.19);     
+
+}
+
+
+/** Scheduled Exam Output **/
+
+.greenBtn{
+    background-color: #5eff8cda;
+    width: 264px;
+    height: 43px;
+    color: #000;
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    border-radius: 4px;
+    border: 2px solid #000;   
+    box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);     
+}
+
+.greenBtn:hover {
+    background-color: #89f6a8da;
+    text-decoration:underline;
+}
+
+.greenBtn:active {
+  background-color: #5eff8cda;
+  box-shadow: 0 5px #d0cfcf;
+  transform: translateY(4px);
+}
+
+.redBtn{
+    margin-top: 10px;
+    background-color: #e43a3c;
+    width: 264px;
+    height: 43px;
+    color: #000;
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    border-radius: 4px;
+    border: 2px solid #000;   
+    box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);     
+}
+
+.redBtn:hover {
+    background-color: #f87779;
+    text-decoration:underline;
+}
+
+.greenBtn:active {
+  background-color: #e43a3c;
+  box-shadow: 0 5px #d0cfcf;
+  transform: translateY(4px);
+}
+
+
+
+/* Dropdown Button */
+select{
+    padding: 10px;
+    width: 253px;
+    height: 43px;
+    border-radius: 12px;
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    box-shadow: 0 4px 10px 0 #00000033, 0 6px 20px 0 rgba(0, 0, 0, 0.19);     
+    border: 2px solid #000;     
+}
+  
+select:focus{
+    outline:none;
+    
+}
+
+.AppHeader-Admin{
+    height: 42px;
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    color: #000;
+    text-align: center;
+    font-size: 48px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 50px; /* 104.167% */
+}
+
+.datetime-div{
+    display: flex; 
+    margin-top: 10px;
+    width: 246px;
+}
+
+#start-date{
+    font-family: 'Urbanist', sans-serif;
+    padding: 5px 10px;
+    margin-right: 5px;
+    width: 150px;
+    border-radius: 12px;
+}
+
+#start-time{
+    font-family: 'Urbanist', sans-serif;
+    padding: 5px 10px;
+    width: 130px;
+    border-radius: 12px;
+}
+
+#end-date{
+    font-family: 'Urbanist', sans-serif;
+    padding: 5px 10px;
+    margin-right: 5px;
+    width: 150px;
+    border-radius: 12px;
+}
+
+#end-time{
+    font-family: 'Urbanist', sans-serif;
+    padding: 5px 10px;
+    width: 130px;
+    border-radius: 12px;
+}
+
+
+#input-labels {
+    text-align: center;
+    margin-top: 10px;
+    color: #000000;
+    font-family: 'Urbanist', sans-serif;
+    font-size: 15px;
+    margin-bottom: 5px;
+}
+
+#output-labels-student {
+    text-align: center;
+    margin-top: 15px;
+    color: #000000;
+    font-family: 'Urbanist', sans-serif;
+    font-size: 15px;
+}
+
+#assessmentLinkInput{
+    width: 246px;
+    height: 43px;
+    border-radius: 12px;     
+}
+
+#assessmentTimeDuration{
+    width: 246px;
+    height: 43px;
+    border-radius: 12px;     
+}
+
+
+#SubmitExamSchedBtn{
+    background-color: #b7db90;
+    width: 246px;
+    height: 43px;
+    color: #000;
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    border-radius: 12px;
+    border: none;
+}
+
+#assessmentName{
+    width: 246px;
+    height: 43px;
+    border-radius: 12px;
+ 
+}
+
+.datetime-div{
+    display: flex; 
+    margin-top: 10px;
+    width: 246px;
+}
+
+#start-date{
+    font-family: 'Urbanist', sans-serif;
+  
+    padding: 5px 10px;
+    margin-right: 5px;
+    width: 150px;
+    border-radius: 12px;
+}
+
+#start-time{
+    font-family: 'Urbanist', sans-serif;
+   
+    padding: 5px 10px;
+    width: 130px;
+    border-radius: 12px;
+}
+
+#end-date{
+    font-family: 'Urbanist', sans-serif;
+    
+    padding: 5px 10px;
+    margin-right: 5px;
+    width: 150px;
+    border-radius: 12px;
+}
+
+#end-time{
+    font-family: 'Urbanist', sans-serif;
+    padding: 5px 10px;
+    width: 130px;
+    border-radius: 12px;
+}
+
+.AppSubHeader{
+    margin-top: 40px;
+    width: 246px;
+    color: #575761;
+    font-size: 20px;
+    font-family: 'Urbanist', sans-serif;
+    border-radius: 12px;
+    border: none;
+    text-align: center;
+    flex-direction: column;
+    flex-wrap: wrap;
+    flex: auto;
+
+}
+
+/** Admin Pages **/
+
+/** Admin Dashboard **/
+#Admin-UI{
+    background: #E7EFE9;
+    height: 100%;
+}
+
+.AppHeader-Admin{
+    height: 42px;
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    color: #000;
+    text-align: center;
+    font-size: 48px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 50px; /* 104.167% */
+}
+
+.AppHeader-Admin{
+    display: flex; 
+    margin-top: 30px;
+}
+
+#AdminHelloText{
+    font-family: 'Urbanist', sans-serif;
+    color: #fff;
+    text-align: center;
+    font-size: 45px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 50px; /* 104.167% */
+    font-weight: 700;
+    height: 30px;
+    font-family: 'Urbanist', sans-serif;
+    color: #000000;
+    text-align: center;
+    font-size: 40px;
+    line-height: 50px; /* 104.167% */
+}
+
+
+#AdminHeader{
+    font-weight: 700;
+    height: 30px;
+    font-family: 'Urbanist', sans-serif;
+    color: #226f54;
+    text-align: center;
+    font-size: 40px;
+    line-height: 50px; /* 104.167% */
+    padding-left: 8px
+}
+
+.AppDiv-Admin{
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;  
+    flex-wrap: wrap;
+    align-items: center;
+    
+}
+
+.AppDiv-AdminManage{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;  
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+
+.Buttons-Admin{
+    background-color: #499167;
+    width: 246px;
+    height: 43px;
+    color: #fff;
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    border-radius: 12px;
+    margin-top: 20px;
+}
+
+.AdminHeaderDetails{
+    margin-top: 35px;
+    font-size: 35px;
+    color: #000000;
+    font-family: 'Urbanist', sans-serif;   
+    text-decoration:underline;
+    white-space:  pre-line;
+    max-width: 250px; /* Adjust the width as needed */
+    min-height: 43px;
+    max-height: 100px;
+    align-items: center; /* Center the content vertically */
+    justify-content: center;
+    text-align: center;
+
+}
+.FacultySubHeader{
+    font-size: 12px;
+    color: #000000;
+    font-family: 'Urbanist', sans-serif;   
+    margin-bottom: 15px;
+}
+
+.Add-Buttons-Admin{
+    background-color: #499167;
+    width: 264px;
+    height: 43px;
+    color: #fff;
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    border-radius: 4px;
+    border: 2px solid #000;   
+    /* margin-top: 20px; */
+    margin-bottom: 20px;
+
+}
+
+#ManageFacultyBtn,#ManageStudentsBtn, #AddCourseBtn, #ViewCourseBtn{
+    margin-top: 20px;
+}
+
+/** Admin Add Course **/
+
+.courseInput{
+    width: 246px;
+    height: 43px;
+    border-radius: 12px;
+    border: none;
+}
+
+
+
+/** Table of Cards View **/
+/**Card CSS **/
+
+#cardList{
+    margin-top: 20px;
+    display: flex;                
+    flex-direction: column;  
+
+
+}
+
+.cards{
+    margin-bottom: 10px;
+    background-color: #fff;
+    width: 280px;             
+    border: 2px solid #000;   
+    border-radius: 4px;           
+    overflow: hidden;             
+    display: flex;                
+    flex-direction: column;  
+    box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);     
+}
+
+.cards-PR{
+    margin-bottom: 10px;
+    background-color: #fff;
+    width: 290px;             
+    border: 2px solid #000;   
+    border-radius: 4px;           
+    overflow: hidden;             
+    display: flex;                
+    flex-direction: column;  
+    box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);     
+}
+
+
+
+.cardHeader{
+    color: #000;
+    text-align: center;
+    font-weight: 600;
+    border-bottom: 2px solid #000;
+    background-color: #FFB511;
+    font-family: 'Urbanist', sans-serif;
+    font-size: 20px;
+    padding: 5px;
+}
+
+.cardHeader:hover{
+    color: #000;
+    text-align: center;
+    font-weight: 600;
+    border-bottom: 2px solid #000;
+    background-color: #f9ecd1;
+    font-family: 'Urbanist', sans-serif;
+    font-size: 20px;
+    padding: 5px;
+}
+
+.cardSubDiv{
+    display: flex;
+    padding: 5px;
+    justify-content: space-between;
+    margin: 10px;
+    border: 1px solid #000;   
+    border-radius: 4px; 
+}
+
+
+.cardSubDiv-Click{
+    padding: 5px;
+    align-content: center;
+    text-align: center;
+    margin: 10px;
+    color: #fff;
+    border: 2px solid #000;   
+    border-radius: 4px; 
+    background-color: #2c7c60;
+
+}
+
+.cardSubDiv-Click:hover {
+    background-color: #51c973da;
+    text-decoration:underline;
+}
+
+.cardSubDiv-Click:active {
+  background-color: #5eff8cda;
+  box-shadow: 0 5px #d0cfcf;
+  transform: translateY(4px);
+}
+
+
+#card-labels{
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    font-size: 15px;
+}
+
+#card-labels-PR{
+    text-align: center;
+    font-family: 'Urbanist', sans-serif;
+    font-size: 15px;
+}
+
+.cardSubDiv-pos{
+    display: flex;
+    flex-direction: column;
+    background-color: #538260;
+    align-items: center;
+    padding: 5px;
+    /* justify-content: space-between; */
+    margin: 10px;
+    border: 2px solid #000;   
+    border-radius: 4px; 
+    color: #fff;
+}
+
+.cardSubDiv-neg{
+    display: flex;
+    flex-direction: column;
+    background-color: #e99b9b;
+    padding: 5px;
+    align-items: center;
+    /* justify-content: space-between; */
+    margin: 10px;
+    border: 2px solid #000;   
+    border-radius: 4px; 
+}
+
+
+.cardSubDiv-identity{
+    display: flex;
+    background-color: #efbcbc;
+    padding: 5px;
+    justify-content: space-between;
+    margin: 10px;
+    border: 1px solid #000;   
+    border-radius: 4px; 
+}
+
+.cardText{
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    font-size: 15px;
+}
+
+.cardText-PR{
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    font-size: 35px;
+
+}
+
+.cardText-small{
+    font-family: 'Urbanist', sans-serif;
+    font-size: 15px;
+    /* white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; */
+    max-width: 250px; /* Adjust the width as needed */
+    display: flex;
+    flex-wrap: wrap;
+    max-width: 250px; /* Adjust the width as needed */
+    display: inline-block;
+    vertical-align: bottom; 
+    text-align: center;
+}
+
+
+.leftText{
+    float: left;
+}
+
+.rightText{
+    float: right;
+}
+
+/** Modal Styling for Add Faculty**/
+
+/**Modal Overlay**/
+.modal-faculty-Overlay,.modal-course-Overlay{
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(3px);
+    z-index: 1;
+    display: none;
+}
+
+
+.Add-Faculty-Modal{
+    background-color: #fff;
+    flex-direction: column;
+    justify-content: center;
+    width: 230px;
+    min-height: 250px;
+    position: absolute;
+    top: 15%;
+    border: 2px solid #000;
+    border-radius: 15px;
+    z-index: 2;
+    display: none;
+    width: 250px;
+    min-height: 200px;
+    box-sizing: border-box; /* Include padding and border in the width */
+}
+
+.Add-Course-Modal{
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 350px;
+    position: absolute;
+    top: 15%;
+    border: 2px solid #000;
+    border-radius: 15px;
+    z-index: 2;
+    display: none;
+    box-sizing: border-box; /* Include padding and border in the width */
+}
+
+.Add-Faculty-CSV-Modal{
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 230px;
+    min-height: 250px;
+    position: absolute;
+    top: 30%;
+    border: 2px solid #000;
+    border-radius: 15px;
+    z-index: 2;
+    display: none;
+    width: 250px;
+    min-height: 100px;
+    box-sizing: border-box; /* Include padding and border in the width */
+}
+
+.ModalPrompts{
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    color: #000;
+}
+
+
+.modal-header{
+    width: 100%;
+    /* position: absolute; */
+    border-radius: 15px 15px 0px 0px;
+    box-sizing: border-box;
+    padding: 10px;
+    background-color: #54C17F;
+    color: #000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    position: relative; 
+}
+
+.AdminTextInput{
+    width: 226px;
+    height: 30px;
+    border-radius: 4px;
+    border: none;
+    margin: 5px;
+    border: 2px solid #000;   
+}
+
+.ModalAddBtn{
+    background-color: #54C17F;
+    width: 230px;
+    height: 30px;
+    color: #000;
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    border-radius: 4px;
+    border: 2px solid #000;   
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.Modal-AddBtnDiv-CSV{
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    color: #000;
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+}
+
+.Modal-AddBtnDiv{
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    color: #000;
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+}
+
+.uploadDiv{
+    padding-left: 90px;
+    padding-top: 20px;
+}
+
+
+.ModalCloseBtn{
+    background-color: #dae8e0;
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    border-radius: 20px;
+    height: 21px;
+}
+/**End of Modal Overlay*/
+
+.AdminAddButton{
+    margin-top: 20px;
+
+}
+#Add-New-Classlist{
+    margin-top: 20px;
+}
+
+#csvFileInpu{
+    font-size: 15px;
+    color: #000000;
+    font-family: 'Urbanist', sans-serif;   
+}
+.AdminInnerTextLabel{
+    margin-top: 20px;
+    font-size: 15px;
+    color: #000000;
+    font-family: 'Urbanist', sans-serif;   
+    text-decoration:underline;
+    align-self: center;
+}
+/** View Faculty **/
+.nameButtonContainer{
+    padding-top: 20px;
+    width: 240px;
+    overflow: hidden;
+}
+
+.view-faculty-Name{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block;
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+}
+
+.admin-ViewCourse{
+    float: right;
+}
+
+#Admin-SubmitExamSchedBtn{
+    background-color: #b7db90;
+    width: 246px;
+    height: 43px;
+    color: #000;
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    border-radius: 12px;
+}
+
+#ViewAuthReportSummary{
+    width: 100%;
+    border: none;
+    background-color: transparent;
+}
+
+#ViewProctoringReportSummary{
+    width: 100%;
+    border: none;
+    background-color: transparent;
+}
+/** INDIVIDUAL STUDENT PROCTORING REPORT **/
+
+#ViewStudentEnrolledCourses{
+    width: 100%;
+    border: none;
+    background-color: transparent;
+}
+
+#ViewStudentAssignedExam{
+    width: 100%;
+    border: none;
+    background-color: transparent;
+}
+
+#ViewStudentAssignedExamReport{
+    width: 100%;
+    border: none;
+    background-color: transparent;
+
+}
+.cards-PR-Students{
+    margin-bottom: 10px;
+    background-color: #fff;         
+    border: 2px solid #000;   
+    border-radius: 4px;           
+    overflow: hidden;             
+    display: flex;                
+    flex-direction: column;  
+    padding-right: 8px;
+    padding-left: 8px;
+    box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);    
+    max-width: 300px; 
+    min-width: 250px;
+}
+
+#card-labels-PR{
+    text-align: center;
+    font-family: 'Urbanist', sans-serif;
+    font-size: 12px;
+}
+
+
+
+.cardSubDiv-neg{
+    display: flex;
+    flex-direction: column;
+    background-color: #e99b9b;
+    padding: 5px;
+    align-items: center;
+    /* justify-content: space-between; */
+    margin: 10px;
+    border: 2px solid #000;   
+    border-radius: 4px; 
+}
+
+.cardText-PR{
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    font-size: 35px;
+
+}
+
+/** Card Within a card **/
+
+#cardSubDiv-subCard{
+    display: flex;                
+    flex-direction: column;  
+    align-items: center;
+    padding: 5px;
+    margin: 10px;
+    border: 1px solid #000;   
+    border-radius: 4px; 
+    color: #fff;
+    width: 290px;
+}
+
+.subCard-PR-1{
+    margin-bottom: 10px;
+    background-color: #FFF8E8;         
+    border: 1px solid #000;   
+    border-radius: 4px;           
+    overflow: hidden;             
+    display: flex;                
+    flex-direction: column;  
+    box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);     
+}
+
+
+.subCard-PR-2{
+    margin: 10px;
+    background-color: #FFF8E8;         
+    border: 1px solid #000;   
+    border-radius: 4px;           
+    overflow: hidden;             
+    display: flex;                
+    flex-direction: column;  
+    box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);     
+}
+
+.subCard-PR-neg{
+    margin: 10px;
+    background-color: #e99b9b;       
+    border: 1px solid #000;   
+    border-radius: 4px;           
+    overflow: hidden;             
+    display: flex;                
+    flex-direction: column;  
+    box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);     
+}
+
+.subCard-Div{
+    display: flex;
+    padding: 5px;
+    justify-content: space-between;
+    margin: 10px;
+    border: 1px solid #000;   
+    border-radius: 4px;
+   
+}
+.subCard-Div-info{
+    display: flex;
+    padding: 5px;
+    /* justify-content: space-between; */
+    margin: 10px;
+    border: 1px solid #000;   
+    border-radius: 4px;
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center;  
+}
+
+.cardSubDiv-PR-neg{
+    display: flex;
+    background-color: #e99b9b;
+    padding: 5px;
+    align-items: center;
+    justify-content: space-between;
+    margin: 10px;
+    border: 2px solid #000;   
+    border-radius: 4px; 
+}
+
+/**Authentication Report **/
+
+.cardSubDiv-AR{
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #000;   
+    padding: 5px;
+    margin: 10px;
+    border: 2px solid #000;   
+    border-radius: 4px; 
+}
+
+.cardSubDiv-Matched{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+   
+}
+
+#card-labels-PR-header{
+    margin-top: 10px;
+    text-align: center;
+    font-family: 'Urbanist', sans-serif;
+    font-size: 15px;
+    text-align: center;
+}
+
+#card-labels-PR-text{
+    margin-top: 10px;
+    text-align: center;
+    font-family: 'Urbanist', sans-serif;
+    font-weight: 800;
+    font-size: 15px;
+}
+
+#ViewProctoringReportSummaryExamOnly{
+    width: 100%;
+    border: none;
+    background-color: transparent;
+    margin: 0;
+    cursor: pointer;
+
+}
+
+.LogOutFacultyAdmin{
+    margin-top: 20px;
+    background-color: #e09697;
+    width: 246px;
+    height: 43px;
+    color: #000;
+    font-family: 'Raleway', sans-serif;
+    font-family: 'Urbanist', sans-serif;
+    border-radius: 12px;
+    border: 2px solid #000;   
+    box-shadow: 0 4px 10px 0 #00000033, 0 6px 20px 0 rgba(0, 0, 0, 0.19);     
+}

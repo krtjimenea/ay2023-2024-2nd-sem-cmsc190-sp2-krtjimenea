@@ -1437,6 +1437,7 @@ function scheduleExam(){
   var endDateSelected = document.getElementById('end-date').value;
   var endTimeSelected = document.getElementById('end-time').value;
 
+  //form validation values
   if(examName === ""){
     let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
     let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
@@ -1446,11 +1447,22 @@ function scheduleExam(){
     alertMessage.textContent = "Enter a Valid Exam Name!";
     return; 
   }
+
+  if(!startDateSelected || !endDateSelected) {
+    let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
+    let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
+    modal.style.display = "block";
+    overlay.style.display = "block";
+    let alertMessage = document.getElementById("ModalTextFailure-labels");
+    alertMessage.textContent = "Invalid Date selected";
+    return;
+  }
+
   //split time values
   const formattedStartTime = AMPMFormat(startTimeSelected);
   const formattedEndTime = AMPMFormat(endTimeSelected);
   if(!(formattedStartTime && /^\d{1,2}:\d{2}\s(?:AM|PM)$/i.test(formattedStartTime)) || !(formattedEndTime && /^\d{1,2}:\d{2}\s(?:AM|PM)$/i.test(formattedEndTime))){
-    // Code to handle the case where startTimeSelected is empty or has incorrect format
+    //TimeSelected is empty or has incorrect format
     let modal = document.getElementsByClassName("Alerts-Failure-Modal")[0];
     let overlay = document.getElementsByClassName("modal-failure-Overlay")[0];
     modal.style.display = "block";
@@ -1483,6 +1495,8 @@ function scheduleExam(){
     alertMessage.textContent = "Enter a Valid Exam Link!";
       return; 
   }
+
+  //EOF Form Validation
   
   var assessmentKeyGenerator = examName+courseSelected+examAccessCode;
   var assessmentKey =  assessmentKeyGenerator.split(" ").join("");
