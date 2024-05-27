@@ -446,7 +446,7 @@ function getStudentDetails(IDnumber){
         }else{
           studentOS = "No OS Detected";
         }
-        
+   
         //get the browser information
         var studentBrowser;
         if (userAgent.includes('Chrome')){
@@ -1009,30 +1009,28 @@ function compareAuthRiskScore(assessmentId){
       //get the os of the user
       var studentOS;
       const userAgent = window.navigator.userAgent;
-        if(userAgent.includes('Windows NT')){
-          const windowsVersion = userAgent.match(/Windows NT (\d+\.\d+)/);
-          if(windowsVersion) {
-            const get_windowsVersion = windowsVersion[0];
-            studentOS = get_windowsVersion;
-          }
-        }else if(userAgent.includes('Mac OS X')){
-          const macOSVersion = userAgent.match(/Mac OS X (\d+[._]\d+[._]\d+)/);
-          if(macOSVersion){
-            const get_macOSVersion = macOSVersionMatch[0];
-            studentOS = get_macOSVersion;
-          }
-
-        }else if(userAgent.includes("Ubuntu")){
-          const linuxVersionMatch = userAgent.match(/Ubuntu\/(\d+\.\d+)/);
-          if (linuxVersionMatch) {
-            const get_linuxVersion = linuxVersionMatch[0];
-            studentOS = get_linuxVersion;
-          }
-        }else{
-          studentOS = "No OS Detected";
+      if(userAgent.includes('Windows NT')){
+        const windowsVersion = userAgent.match(/Windows NT (\d+\.\d+)/);
+        if(windowsVersion) {
+          const get_windowsVersion = windowsVersion[0];
+          studentOS = get_windowsVersion;
         }
-      
+      }else if(userAgent.includes('Mac OS X')){
+        const macOSVersion = userAgent.match(/Mac OS X (\d+[._]\d+[._]\d+)/);
+        if(macOSVersion){
+          const get_macOSVersion = macOSVersionMatch[0];
+          studentOS = get_macOSVersion;
+        }
 
+      }else if(userAgent.includes("Ubuntu")){
+        const linuxVersionMatch = userAgent.match(/Ubuntu\/(\d+\.\d+)/);
+        if (linuxVersionMatch) {
+          const get_linuxVersion = linuxVersionMatch[0];
+          studentOS = get_linuxVersion;
+        }
+      }else{
+        studentOS = "No OS Detected";
+      }
       //get the browser information
       var studentBrowser;
       if (userAgent.includes('Chrome')){

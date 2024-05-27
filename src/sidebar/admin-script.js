@@ -2592,7 +2592,8 @@ function viewStudentsList(){
                   }
                
                 } else {
-                  alert("ERROR: Firebase Access!");
+                  var cardListDiv = document.getElementById('cardList');
+                  cardListDiv.innerHTML=`<p class="DBisEmptyMssg">Collection is empty, Nothing to show</p>`;
                 }
               })
               .catch((error) => {
