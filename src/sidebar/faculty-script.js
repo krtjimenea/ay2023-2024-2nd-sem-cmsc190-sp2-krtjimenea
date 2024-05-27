@@ -354,8 +354,8 @@ function viewStudentAuthReport(currentCourseKey,currentExamKey,currentStudent){
                     const examTakenName = childData.assessmentTaken.name;
                     const examCourseSection = childData.assessmentTaken.courseSection;
                     const examFIC = childData.assessmentTaken.FacultyInChargeName;
-                    const stringIdentity = childData.identity_UponExam;
-                    var IdentityJSON = JSON.parse(stringIdentity);
+                    const IdentityJSON = childData.identity_UponExam;
+                    // var IdentityJSON = JSON.parse(stringIdentity);
                     // console.log(IdentityJSON);
                     let authMessage = '';
                     if(authStatus === false){
