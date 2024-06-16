@@ -7,7 +7,7 @@ dist/script.js
 dist/admin.js
 dist/faculty_script.js
 dist/report.js
-code/dist/script.js
-code/dist/report.js
-code/dist/admin.js
-code/dist/faculty_script.js
+# code/dist/script.js
+# code/dist/report.js
+# code/dist/admin.js
+# code/dist/faculty_script.js
